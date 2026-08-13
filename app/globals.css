@@ -1,0 +1,352 @@
+@import "tailwindcss";
+
+
+/* --- 1. DEFINICIÓN DE ARCHIVOS (FUENTES) --- */
+
+/* Poppins local: se expone como la utilidad font-poppins */
+@font-face {
+  font-family: 'Poppins';
+  src: url('../fonts/poppins/Poppins-Thin.ttf') format('truetype');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../fonts/poppins/Poppins-ExtraLight.ttf') format('truetype');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../fonts/poppins/Poppins-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../fonts/poppins/Poppins-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../fonts/poppins/Poppins-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../fonts/poppins/Poppins-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../fonts/poppins/Poppins-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../fonts/poppins/Poppins-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../fonts/poppins/Poppins-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Inter: Usamos el archivo VARIABLE (cubre todos los pesos del 100 al 900) */
+@font-face {
+  font-family: 'Inter';
+  src: url('../fonts/Inter/Inter-VariableFont_opsz,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Bebas Neue: Solo tiene un peso (Regular) */
+@font-face {
+  font-family: 'Bebas Neue';
+  src: url('../fonts/Bebas_Neue/BebasNeue-Regular.ttf') format('truetype');
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Oswald: Como tienes archivos separados, hay que "mapear" los pesos */
+@font-face {
+  font-family: 'Oswald';
+  src: url('../fonts/Oswald/Oswald-ExtraLight.ttf') format('truetype');
+  font-weight: 200;
+}
+@font-face {
+  font-family: 'Oswald';
+  src: url('../fonts/Oswald/Oswald-Light.ttf') format('truetype');
+  font-weight: 300;
+}
+@font-face {
+  font-family: 'Oswald';
+  src: url('../fonts/Oswald/Oswald-Regular.ttf') format('truetype');
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'Oswald';
+  src: url('../fonts/Oswald/Oswald-Medium.ttf') format('truetype');
+  font-weight: 500;
+}
+@font-face {
+  font-family: 'Oswald';
+  src: url('../fonts/Oswald/Oswald-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+}
+@font-face {
+  font-family: 'Oswald';
+  src: url('../fonts/Oswald/Oswald-Bold.ttf') format('truetype');
+  font-weight: 700;
+}
+
+/* Define la utilidad personalizada */
+@utility h1-hero {
+  font-family: var(--font-bebas);
+  font-weight: 400;
+  font-size: 36px;
+  line-height: 45px;
+  letter-spacing: 2px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+
+/* REGISTRO EN EL TEMA DE TAILWIND V4 --- */
+
+
+@theme {
+  --color-verde: #22c55e;
+  --font-poppins: "Poppins", sans-serif;
+  --font-inter: "Inter", sans-serif;
+  --font-bebas: "Bebas Neue", sans-serif;
+  --font-oswald: "Oswald", sans-serif;
+}
+
+/* Opcional: Configuración básica de colores de fondo si los necesitas */
+:root {
+  --background: #ffffff;
+  --foreground: #000000;
+}
+
+/* Formulario drawer de cuenta · transición login/registro */
+@keyframes galaxia-auth-form-swap {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.galaxia-auth-form-pane {
+  animation: galaxia-auth-form-swap 0.45s cubic-bezier(0.33, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .galaxia-auth-form-pane {
+    animation: none;
+  }
+}
+
+/* Paneles segundo / tercer nivel del menú hamburguesa (HamburMenu.tsx) */
+@keyframes galaxia-menu-submenu-content {
+  from {
+    opacity: 0;
+    transform: translateX(-28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes galaxia-menu-leaf-content {
+  from {
+    opacity: 0;
+    transform: translateX(-36px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.galaxia-menu-submenu-inner {
+  animation: galaxia-menu-submenu-content 0.52s cubic-bezier(0.33, 1, 0.36, 1) both;
+}
+
+.galaxia-menu-leaf-inner {
+  animation: galaxia-menu-leaf-content 0.55s cubic-bezier(0.33, 1, 0.36, 1) 0.06s both;
+}
+
+.galaxia-menu-col-reveal {
+  transition:
+    max-width 0.48s cubic-bezier(0.33, 1, 0.36, 1),
+    border-color 0.35s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .galaxia-menu-submenu-inner,
+  .galaxia-menu-leaf-inner {
+    animation: none;
+  }
+
+  .galaxia-menu-col-reveal {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .shop-layout-root {
+    transform: translate3d(0, 0, 0);
+    transition: transform 0.55s cubic-bezier(0.33, 1, 0.36, 1);
+  }
+
+  /* Solo empuje horizontal hacia la derecha (sin scale / sin “esquina”) */
+  html.galaxia-hamburger-open .shop-layout-root {
+    transform: translate3d(var(--galaxia-menu-shift, 20px), 0, 0);
+  }
+
+  /* Panel cuenta · contenido empuja un poco a la izquierda (drawer viene de la derecha) */
+  html.galaxia-auth-drawer-open .shop-layout-root,
+  html.galaxia-cart-drawer-open .shop-layout-root {
+    transform: translate3d(calc(-1 * var(--galaxia-menu-shift, 20px)), 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shop-layout-root {
+    transition: none;
+  }
+
+  html.galaxia-hamburger-open .shop-layout-root,
+  html.galaxia-auth-drawer-open .shop-layout-root,
+  html.galaxia-cart-drawer-open .shop-layout-root {
+    transform: none;
+  }
+}
+
+body {
+  background-color: white;
+  color: black;
+  margin: 0;
+}
+
+/* El layout de la tienda ocupa todo el ancho útil (útil con padding por scrollbar) */
+.shop-layout-root {
+  width: 100%;
+  min-width: 0;
+}
+
+input[type='range'].slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: grab;
+}
+
+input[type='range'].slider-thumb::-webkit-slider-runnable-track {
+  height: 6px;
+  background: transparent;
+}
+
+input[type='range'].slider-thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: -7px;
+  border-radius: 9999px;
+  border: 2px solid #111111;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+  cursor: pointer;
+}
+
+input[type='range'].slider-thumb:hover::-webkit-slider-thumb {
+  transform: scale(1.06);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.22);
+}
+
+input[type='range'].slider-thumb:active::-webkit-slider-thumb {
+  transform: scale(1.12);
+  cursor: grabbing;
+}
+
+input[type='range'].slider-thumb::-moz-range-track {
+  height: 6px;
+  background: transparent;
+}
+
+input[type='range'].slider-thumb::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  border: 2px solid #111111;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+  cursor: pointer;
+}
+
+input[type='range'].slider-thumb:hover::-moz-range-thumb {
+  transform: scale(1.06);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.22);
+}
+
+input[type='range'].slider-thumb:active::-moz-range-thumb {
+  transform: scale(1.12);
+  cursor: grabbing;
+}
+
+/* Rango precio tienda (doble mango): easing suave al soltar / hover */
+input[type='range'].slider-thumb-shop-price::-webkit-slider-thumb {
+  transition:
+    transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 300ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+input[type='range'].slider-thumb-shop-price:active::-webkit-slider-thumb {
+  transition-duration: 0ms;
+}
+
+input[type='range'].slider-thumb-shop-price::-moz-range-thumb {
+  transition:
+    transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 300ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+input[type='range'].slider-thumb-shop-price:active::-moz-range-thumb {
+  transition-duration: 0ms;
+}
