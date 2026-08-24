@@ -7,6 +7,8 @@ import { FaWhatsapp } from 'react-icons/fa';
 import { motion, useReducedMotion } from 'framer-motion';
 
 import HeroSlider from '@/components/shop/home/HeroSlider';
+import TrustBadges from '@/components/shop/home/TrustBadges';
+import FeaturedByCategory from '@/components/shop/home/FeaturedByCategory';
 import BrandSection from '@/components/shop/home/BrandSection';
 import FadeReveal from '@/components/shop/animations/FadeReveal';
 import NewsletterSignupForm from '@/components/shop/home/NewsletterSignupForm';
@@ -26,6 +28,7 @@ interface HomePageContentProps {
   brands: any[];
   featuredMain: any[];
   featuredSecondary: any[];
+  featuredByCategory: any[];
 }
 
 export default function HomePageContent({
@@ -35,6 +38,7 @@ export default function HomePageContent({
   brands,
   featuredMain,
   featuredSecondary,
+  featuredByCategory,
 }: HomePageContentProps) {
   const [pageReady, setPageReady] = useState(false);
   const shouldReduceMotion = useReducedMotion();
@@ -99,7 +103,7 @@ export default function HomePageContent({
       transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
     >
       {/* HERO SLIDER */}
-      <FadeReveal mount className="relative" duration={0.85} y={10} scale={0.996}>
+      <FadeReveal mount className="relative mb-0" duration={0.85} y={10} scale={0.996}>
         {heroItems.length > 0 ? (
           <HeroSlider banners={heroItems} settings={{ autoplay: true, loop: true }} />
         ) : (
@@ -109,10 +113,15 @@ export default function HomePageContent({
         )}
       </FadeReveal>
 
+      {/* FRANJA DE BENEFICIOS (envíos, retiro en tienda, cuotas, garantía) */}
+      <FadeReveal className="mb-0" delay={0.06} duration={0.85} y={10} scale={0.996}>
+        <TrustBadges />
+      </FadeReveal>
+
       {/* CONTENEDOR */}
-      <div className="px-4  md:px-44   space-y-4">
+      <div className="px-4  sm:px-12   space-y-4 bg-foreground">
         {/* CATEGORIAS */}
-          <FadeReveal className="border-b border-gray-100 pb-3 text-center" delay={0.08} duration={0.9} y={14} scale={0.994}>
+          <FadeReveal className="border-b border-gray-100 pb-3" delay={0.08} duration={0.9} y={14} scale={0.994}>
           <div className="relative">
             <div
               className={`transition-[opacity,transform] duration-300 ease-out ${
@@ -120,8 +129,7 @@ export default function HomePageContent({
               }`}
             >
               <div className="max-w-7xl mx-auto space-y-2 animate-pulse">
-                <div className="h-10 w-48 bg-gray-200 rounded mx-auto" />
-                <div className="h-6 w-96 bg-gray-100 rounded mx-auto" />
+                <div className="h-8 w-56 bg-gray-200 rounded" />
               </div>
             </div>
             <div
@@ -129,13 +137,10 @@ export default function HomePageContent({
                 !sectionsReady.categories ? 'pointer-events-none opacity-0 translate-y-1' : 'opacity-100 translate-y-0'
               }`}
             >
-              <div className="max-w-7xl mx-auto space-y-2">
-                <h2 className="font-bebas font-normal text-[36px] leading-11.25 tracking-[2px] text-center align-middle uppercase mb-4">
-                  Explora por Categoría
+              <div className="max-w-[1440px] mx-auto">
+                <h2 className="font-inter text-[22px] font-bold text-black mb-4">
+                  Compra por categorías
                 </h2>
-                <p className="font-inter font-normal text-[18px] leading-7 tracking-[0.18px] text-center">
-                  Encuentra lo que necesitas para cada deporte y forma de entrenar.
-                </p>
               </div>
               <div className="md:grid-cols-3 lg:grid-cols-5 gap-8">
                 <CategoriesSlider categories={categories} />
@@ -144,21 +149,29 @@ export default function HomePageContent({
           </div>
         </FadeReveal>
 
+        {/* DESTACADOS POR CATEGORÍA (3 CARDS) */}
+        {featuredByCategory.length > 0 && (
+          <FadeReveal className="py-1 overflow-hidden" delay={0.1} duration={0.9} y={12} scale={0.994}>
+            <FeaturedByCategory items={featuredByCategory} />
+          </FadeReveal>
+        )}
+
         {/* PRODUCTOS */}
-        <FadeReveal className="bg-white py-1 overflow-hidden" delay={0.12} duration={0.9} y={12} scale={0.994}>
+        <FadeReveal className="py-1 overflow-hidden" delay={0.12} duration={0.9} y={12} scale={0.994}>
           <div className="container mx-auto px-0 md:px-4">
             <ProductSlider products={products} />
           </div>
         </FadeReveal>
 
         {/* MARCAS */}
-        <FadeReveal className="bg-white py-1 overflow-hidden" delay={0.14} duration={0.9} y={12} scale={0.994}>
+        <FadeReveal className="py-1 overflow-hidden" delay={0.14} duration={0.9} y={12} scale={0.994}>
           <div className="container mx-auto px-0 md:px-4">
             <BrandSection brands={brands} />
           </div>
         </FadeReveal>
 
         {/* FEATURED MAIN BANNER*/}
+        {featuredMain.length > 0 && (
         <FadeReveal className="bg-white py-1 overflow-hidden" delay={0.16} duration={0.95} y={12} scale={0.995}>
           <div className="container mx-auto px-4">
             {featuredMain.map((ftm, index) => (
@@ -181,8 +194,10 @@ export default function HomePageContent({
             ))}
           </div>
         </FadeReveal>
+        )}
 
         {/* FEATURED SECONDARY BANNERS (4 CARDS) */}
+        {featuredSecondary.length > 0 && (
         <FadeReveal className="bg-white py-1 overflow-hidden mb-40" delay={0.18} duration={0.95} y={12} scale={0.995}>
           <div className="container mx-auto px-4">
             <div className="mx-auto flex flex-wrap justify-between gap-2 md:gap-4">
@@ -216,6 +231,7 @@ export default function HomePageContent({
             </div>
           </div>
         </FadeReveal>
+        )}
       </div>
 
       {/* CONTACT SECTION - UNIFORMES PARA EQUIPOS Y EMPRESAS */}

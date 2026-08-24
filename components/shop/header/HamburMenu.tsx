@@ -438,7 +438,7 @@ export default function HamburMenu({
                             {showDesktopLeaf && activeParent && (
                                 <div
                                     key={`leaf-${isDesktopFlatCatalog ? activeParent.id : activeChild?.id}`}
-                                    className="galaxia-menu-leaf-inner h-full min-w-[650px] max-w-[950px] shrink-0 overflow-y-auto bg-white p-12"
+                                    className="galaxia-menu-leaf-inner h-full min-w-0 max-w-[950px] shrink-0 overflow-y-auto bg-white p-12 lg:min-w-[650px]"
                                 >
                                     <h3 className="font-inter font-bold text-[14px] leading-[20px] tracking-[0.18px] text-black mb-4 tracking-tighter">
                                         {desktopLeafTitle}

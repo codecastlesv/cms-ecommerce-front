@@ -2,18 +2,32 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 
 type CartItem = {
   quantity?: number;
+  price?: number | string;
 };
 
 type CartIconProps = {
   onOpen?: () => void;
+  /** Ícono solo (móvil) o ícono + etiquetas (desktop, mock ferretería). */
+  variant?: 'icon' | 'labeled';
 };
 
-export default function CartIcon({ onOpen }: CartIconProps) {
+const ACCENT_RED = '#E30613';
+
+function formatMoney(value: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+  }).format(value);
+}
+
+export default function CartIcon({ onOpen, variant = 'icon' }: CartIconProps) {
   const [itemCount, setItemCount] = useState(0);
+  const [subtotal, setSubtotal] = useState(0);
   const [mounted, setMounted] = useState(false);
 
   const [isBumping, setIsBumping] = useState(false);
@@ -36,14 +50,23 @@ export default function CartIcon({ onOpen }: CartIconProps) {
   useEffect(() => {
     setMounted(true);
 
-    const initialCart = JSON.parse(localStorage.getItem('cart') || '[]');
-    const initialItems = initialCart.reduce((acc: number, item: CartItem) => acc + (item.quantity || 1), 0);
-    prevCount.current = initialItems;
-    setItemCount(initialItems);
+    const readCart = () => {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]') as CartItem[];
+      const totalItems = cart.reduce((acc, item) => acc + (item.quantity || 1), 0);
+      const total = cart.reduce(
+        (acc, item) => acc + Number(item.price || 0) * (item.quantity || 1),
+        0,
+      );
+      return { totalItems, total };
+    };
+
+    const initial = readCart();
+    prevCount.current = initial.totalItems;
+    setItemCount(initial.totalItems);
+    setSubtotal(initial.total);
 
     const updateCount = () => {
-      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      const totalItems = cart.reduce((acc: number, item: CartItem) => acc + (item.quantity || 1), 0);
+      const { totalItems, total } = readCart();
 
       if (totalItems > prevCount.current) {
         triggerAnimation();
@@ -51,17 +74,14 @@ export default function CartIcon({ onOpen }: CartIconProps) {
 
       prevCount.current = totalItems;
       setItemCount(totalItems);
+      setSubtotal(total);
     };
 
     window.addEventListener('cartUpdated', updateCount);
     return () => window.removeEventListener('cartUpdated', updateCount);
   }, []);
 
-  const className = `p-1.5 md:p-2 hover:bg-black hover:text-white rounded-full transition-all duration-300 relative flex items-center justify-center shrink-0 ${
-    isBumping ? 'scale-110 bg-gray-100 text-black' : 'scale-100'
-  }`;
-
-  const inner = (
+  const iconInner = (
     <>
       <style>{`
         @keyframes float-up-fade {
@@ -74,10 +94,13 @@ export default function CartIcon({ onOpen }: CartIconProps) {
         }
       `}</style>
 
-      <ShoppingBag className="h-[22px] w-[22px] stroke-[1.5] md:h-6 md:w-6" />
+      <ShoppingCart className="h-6 w-6 stroke-[1.5]" />
 
-      {mounted && itemCount >= 0 && (
-        <span className="absolute top-0.5 right-0.5 md:top-1 md:right-1 bg-amber-500 text-[10px] text-white font-bold w-4 h-4 flex items-center justify-center rounded-full shadow-sm">
+      {mounted && (
+        <span
+          className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full px-0.5 text-[10px] font-bold text-white shadow-sm"
+          style={{ backgroundColor: ACCENT_RED }}
+        >
           {itemCount}
         </span>
       )}
@@ -85,13 +108,58 @@ export default function CartIcon({ onOpen }: CartIconProps) {
       {floaters.map((id) => (
         <span
           key={id}
-          className="absolute top-0 right-0 text-amber-500 font-black text-sm pointer-events-none animate-float-up z-50 select-none"
+          className="pointer-events-none absolute right-0 top-0 z-50 select-none text-sm font-black animate-float-up"
+          style={{ color: ACCENT_RED }}
         >
           +1
         </span>
       ))}
     </>
   );
+
+  if (variant === 'labeled') {
+    const labeledClass = `font-helvetica flex items-center gap-2 rounded-md px-1.5 py-1 transition hover:bg-black/5 ${
+      isBumping ? 'scale-[1.02]' : ''
+    }`;
+
+    const labeledInner = (
+      <>
+        <span className="relative flex shrink-0 items-center justify-center text-slate-900">
+          {iconInner}
+        </span>
+        <span className="hidden min-w-0 text-left leading-tight min-[992px]:block">
+          <span className="block text-base font-bold text-slate-900">Carrito</span>
+          <span className="block text-base text-slate-600">
+            {mounted ? formatMoney(subtotal) : '$0.00'}
+          </span>
+        </span>
+      </>
+    );
+
+    if (onOpen) {
+      return (
+        <button
+          type="button"
+          onClick={() => onOpen()}
+          aria-label="Abrir carrito"
+          aria-haspopup="dialog"
+          className={labeledClass}
+        >
+          {labeledInner}
+        </button>
+      );
+    }
+
+    return (
+      <Link href="/cart" className={labeledClass}>
+        {labeledInner}
+      </Link>
+    );
+  }
+
+  const className = `font-helvetica relative flex shrink-0 items-center justify-center rounded-full p-1.5 transition-all duration-300 hover:bg-black hover:text-white md:p-2 ${
+    isBumping ? 'scale-110 bg-gray-100 text-black' : 'scale-100'
+  }`;
 
   if (onOpen) {
     return (
@@ -102,14 +170,14 @@ export default function CartIcon({ onOpen }: CartIconProps) {
         aria-haspopup="dialog"
         className={className}
       >
-        {inner}
+        {iconInner}
       </button>
     );
   }
 
   return (
     <Link href="/cart" className={className}>
-      {inner}
+      {iconInner}
     </Link>
   );
 }

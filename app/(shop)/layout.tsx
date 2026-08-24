@@ -19,13 +19,13 @@ export default async function ShopLayout({
     const settings = await getPublicSettings();
 
     return (
-    <div className="shop-layout-root min-h-screen bg-white flex flex-col font-sans text-slate-900 selection:bg-black selection:text-white">
+    <div className="shop-layout-root flex min-h-screen min-w-0 w-full flex-col overflow-x-clip bg-white font-sans text-slate-900 selection:bg-black selection:text-white">
 
-            <div className="sticky top-0 z-50 bg-white">
+            <div className="sticky top-0 z-50 min-w-0 w-full overflow-x-clip bg-white">
                 <Header settings={settings} />
             </div>
 
-            <main className="flex-grow">
+            <main className="min-w-0 flex-grow">
                 {children}
             </main>
             

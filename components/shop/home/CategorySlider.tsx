@@ -47,7 +47,7 @@ export default function CategoriesSlider({ categories }: { categories: Category[
             />
           </div>
         </div>
-        <span className="font-bebas font-normal text-center text-sm uppercase tracking-[1px] text-black transition-all duration-300 group-hover/card:tracking-[2px] md:text-[20px]">
+        <span className="font-inter font-semibold text-center text-[16px] text-black transition-all duration-300">
           {cat.name}
         </span>
       </Link>
@@ -55,7 +55,7 @@ export default function CategoriesSlider({ categories }: { categories: Category[
   );
 
   return (
-    <section className="relative border-b border-slate-50 bg-white py-8">
+    <section className="relative border-b border-slate-50 py-8">
       <div className="container mx-auto ">
         
         {/* --- VISTA MÓVIL (Grid 3x2) --- */}

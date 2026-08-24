@@ -18,6 +18,8 @@ const bannerSchema = z.object({
     subheadline: z.string().optional().nullable(),
     cta_text: z.string().optional().nullable(),
     cta_url: z.string().optional().nullable(),
+    cta_bg_color: z.string().optional().nullable(),
+    cta_text_color: z.string().optional().nullable(),
     bg_color: z.string().optional().nullable(),
     alt_text: z.string().optional().nullable(),
     is_active: z.boolean(),
@@ -46,6 +48,8 @@ export default function BannerForm({ bannerId }: { bannerId?: string }) {
             subheadline: '',
             cta_text: '',
             cta_url: '',
+            cta_bg_color: '#ffffff',
+            cta_text_color: '#0f172a',
             bg_color: '#ffffff',
             alt_text: '',
             is_active: true,
@@ -66,6 +70,8 @@ export default function BannerForm({ bannerId }: { bannerId?: string }) {
                         subheadline: banner.subheadline || '',
                         cta_text: banner.cta?.text || '',
                         cta_url: banner.cta?.url || '',
+                        cta_bg_color: banner.style?.cta_bg_color || '#ffffff',
+                        cta_text_color: banner.style?.cta_text_color || '#0f172a',
                         bg_color: banner.style?.bg_color || '',
                         alt_text: banner.images?.alt || '',
                         is_active: banner.is_active,
@@ -115,6 +121,8 @@ export default function BannerForm({ bannerId }: { bannerId?: string }) {
         if (data.subheadline) formData.append('subheadline', data.subheadline);
         if (data.cta_text) formData.append('cta_text', data.cta_text);
         if (data.cta_url) formData.append('cta_url', data.cta_url);
+        if (data.cta_bg_color) formData.append('cta_bg_color', data.cta_bg_color);
+        if (data.cta_text_color) formData.append('cta_text_color', data.cta_text_color);
         if (data.bg_color) formData.append('bg_color', data.bg_color);
         if (data.alt_text) formData.append('alt_text', data.alt_text);
 
@@ -209,6 +217,21 @@ export default function BannerForm({ bannerId }: { bannerId?: string }) {
                                 label="Enlace de Destino (URL)"
                                 placeholder="Ej: /coleccion/running"
                                 registration={register('cta_url')}
+                                disabled={!hasPermission}
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Input
+                                type="color"
+                                label="Color de Fondo del Botón"
+                                registration={register('cta_bg_color')}
+                                disabled={!hasPermission}
+                            />
+                            <Input
+                                type="color"
+                                label="Color del Texto del Botón"
+                                registration={register('cta_text_color')}
                                 disabled={!hasPermission}
                             />
                         </div>

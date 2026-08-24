@@ -3,6 +3,153 @@
 
 /* --- 1. DEFINICIÓN DE ARCHIVOS (FUENTES) Hola Mundo --- */
 
+/* FUENTES HELVETICA NEUE */
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('../fonts/HelveticaNeue/HelveticaNeue-Black.woff2') format('woff2'),
+      url('../fonts/HelveticaNeue/HelveticaNeue-Black.woff') format('woff');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('../fonts/HelveticaNeue/HelveticaNeue-BlackItalic.woff2') format('woff2'),
+      url('../fonts/HelveticaNeue/HelveticaNeue-BlackItalic.woff') format('woff');
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('../fonts/HelveticaNeue/HelveticaNeue-Bold.woff2') format('woff2'),
+      url('../fonts/HelveticaNeue/HelveticaNeue-Bold.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('../fonts/HelveticaNeue/HelveticaNeue-BoldItalic.woff2') format('woff2'),
+      url('../fonts/HelveticaNeue/HelveticaNeue-BoldItalic.woff') format('woff');
+  font-weight: bold;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('../fonts/HelveticaNeue/HelveticaNeue-Heavy.woff2') format('woff2'),
+      url('../fonts/HelveticaNeue/HelveticaNeue-Heavy.woff') format('woff');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('../fonts/HelveticaNeue/HelveticaNeue-HeavyItalic.woff2') format('woff2'),
+      url('../fonts/HelveticaNeue/HelveticaNeue-HeavyItalic.woff') format('woff');
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('../fonts/HelveticaNeue/HelveticaNeue-Italic.woff2') format('woff2'),
+      url('../fonts/HelveticaNeue/HelveticaNeue-Italic.woff') format('woff');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('../fonts/HelveticaNeue/HelveticaNeue-Light.woff2') format('woff2'),
+      url('../fonts/HelveticaNeue/HelveticaNeue-Light.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('../fonts/HelveticaNeue/HelveticaNeue-LightItalic.woff2') format('woff2'),
+      url('../fonts/HelveticaNeue/HelveticaNeue-LightItalic.woff') format('woff');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('../fonts/HelveticaNeue/HelveticaNeue-Medium.woff2') format('woff2'),
+      url('../fonts/HelveticaNeue/HelveticaNeue-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('../fonts/HelveticaNeue/HelveticaNeue-MediumItalic.woff2') format('woff2'),
+      url('../fonts/HelveticaNeue/HelveticaNeue-MediumItalic.woff') format('woff');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('../fonts/HelveticaNeue/HelveticaNeue-Roman.woff2') format('woff2'),
+      url('../fonts/HelveticaNeue/HelveticaNeue-Roman.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('../fonts/HelveticaNeue/HelveticaNeue-Thin.woff2') format('woff2'),
+      url('../fonts/HelveticaNeue/HelveticaNeue-Thin.woff') format('woff');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('../fonts/HelveticaNeue/HelveticaNeue-ThinItalic.woff2') format('woff2'),
+      url('../fonts/HelveticaNeue/HelveticaNeue-ThinItalic.woff') format('woff');
+  font-weight: 100;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('../fonts/HelveticaNeue/HelveticaNeue-UltraLight.woff2') format('woff2'),
+      url('../fonts/HelveticaNeue/HelveticaNeue-UltraLight.woff') format('woff');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('../fonts/HelveticaNeue/HelveticaNeue-UltraLightItalic.woff2') format('woff2'),
+      url('../fonts/HelveticaNeue/HelveticaNeue-UltraLightItalic.woff') format('woff');
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
+
+
+
 /* Poppins local: se expone como la utilidad font-poppins */
 @font-face {
   font-family: 'Poppins';
@@ -142,16 +289,19 @@
 
 @theme {
   --color-verde: #22c55e;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
   --font-poppins: "Poppins", sans-serif;
   --font-inter: "Inter", sans-serif;
   --font-bebas: "Bebas Neue", sans-serif;
   --font-oswald: "Oswald", sans-serif;
+  --font-helvetica: "Helvetica Neue", sans-serif;
 }
 
 /* Opcional: Configuración básica de colores de fondo si los necesitas */
 :root {
   --background: #ffffff;
-  --foreground: #000000;
+  --foreground: #F8FAFC;
 }
 
 /* Formulario drawer de cuenta · transición login/registro */
@@ -258,12 +408,21 @@ body {
   background-color: white;
   color: black;
   margin: 0;
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+html {
+  overflow-x: clip;
+  max-width: 100%;
 }
 
 /* El layout de la tienda ocupa todo el ancho útil (útil con padding por scrollbar) */
 .shop-layout-root {
   width: 100%;
+  max-width: 100%;
   min-width: 0;
+  overflow-x: clip;
 }
 
 input[type='range'].slider-thumb {

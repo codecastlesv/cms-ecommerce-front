@@ -30,17 +30,19 @@ export default async function HomePage() {
     const heroItems = bannersData.home_hero_slider?.items || [];
     const featuredMain = bannersData.home_featured_main?.items || [];
     const featuredSecondary = bannersData.home_featured_secondary?.items || [];
+    const featuredByCategory = bannersData.home_featured_by_category?.items || [];
 
     return (
-        
-        <HomePageContent 
+
+        <HomePageContent
             heroItems={heroItems}
             categories={categories}
             products={products}
             brands={brands}
             featuredMain={featuredMain}
             featuredSecondary={featuredSecondary}
+            featuredByCategory={featuredByCategory}
         />
-      
+
     );
 }

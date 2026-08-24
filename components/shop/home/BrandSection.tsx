@@ -57,7 +57,7 @@ const BrandSection = ({ brands }: BrandSectionProps) => {
               transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
               className="space-y-5"
             >
-              <div className="group relative w-full overflow-hidden bg-white py-8 md:py-12">
+              <div className="group relative w-full overflow-hidden py-8 md:py-12">
                 <style dangerouslySetInnerHTML={{
                   __html: `
                     @keyframes marquee-brands {
@@ -94,8 +94,8 @@ const BrandSection = ({ brands }: BrandSectionProps) => {
                   ))}
                 </div>
 
-                <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white via-white/80 to-transparent z-20" />
-                <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-white via-white/80 to-transparent z-20" />
+                <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[var(--foreground)] via-[var(--foreground)]/80 to-transparent z-20" />
+                <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-[var(--foreground)] via-[var(--foreground)]/80 to-transparent z-20" />
               </div>
 
               {orderedBrands.length > 6 ? (
