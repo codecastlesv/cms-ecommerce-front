@@ -163,7 +163,7 @@ export default function DashboardPage() {
                                             {act.user.charAt(0).toUpperCase()}
                                         </div>
                                         <div className="pb-1">
-                                            <p className="text-sm text-slate-700 font-medium leading-tight mb-1">{act.action}</p>
+                                            <p className="text-sm text-slate-700 font-medium leading-tight mb-1">Se creó el producto Pintura CP543</p>
                                             <div className="flex items-center gap-2">
                                                 <span className="text-xs text-slate-500">{act.user}</span>
                                                 <span className="w-1 h-1 rounded-full bg-slate-300"></span>
