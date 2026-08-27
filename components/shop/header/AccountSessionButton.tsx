@@ -117,6 +117,14 @@ export default function AccountSessionButton({ onGuestClick, variant = 'icon' }:
       >
         Mis Pedidos
       </Link>
+      <Link
+        href="/wishlist"
+        role="menuitem"
+        onClick={() => setMenuOpen(false)}
+        className="block px-3.5 py-2.5 text-sm text-slate-800 transition hover:bg-slate-50"
+      >
+        Favoritos
+      </Link>
       <button
         type="button"
         role="menuitem"

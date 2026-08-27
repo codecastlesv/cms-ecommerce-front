@@ -6,6 +6,7 @@ import { X, ChevronRight, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import api from '@/lib/axios';
 import { getCategoryHref } from '@/lib/categoryUrls';
+import { MAIN_NAV, TOP_LINKS } from './navLinks';
 import { motion, useReducedMotion } from 'framer-motion';
 
 export type MenuItem = {
@@ -216,6 +217,13 @@ export default function HamburMenu({
     const highlightCatalogLinkClass =
         'block w-full rounded-sm px-1 py-2 font-inter text-[13px] font-bold tracking-[0.18px] text-[#c1001f] transition hover:underline hover:underline-offset-4';
 
+    /** Menús del header (Ofertas/Tienda/... y Sucursales/Ayuda/Contáctanos) replicados en mobile. */
+    const siteNavLinkClass =
+        'block w-full rounded-sm px-1 py-2 font-inter text-[13px] font-bold uppercase tracking-[0.18px] text-zinc-700 transition hover:text-black';
+
+    /** "Tienda" apunta a la primera categoría, igual que en el header de escritorio. */
+    const mobileTiendaHref = menuData[0]?.slug ? getCategoryHref(menuData[0].slug) : '/product';
+
     const menuLayer = (
         <div
             className={`fixed inset-0 z-[60] flex transition-opacity duration-500 ease-[cubic-bezier(0.33,1,0.36,1)] ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
@@ -291,15 +299,33 @@ export default function HamburMenu({
                                             Favoritos
                                         </button>
                                     </motion.div>
-                                    <motion.div custom={3} variants={itemVariants}>
-                                        <Link
-                                            href="/galaxia-factory"
-                                            className={specialCatalogLinkClass}
-                                            onClick={onClose}
-                                        >
-                                            Galaxia Factory
-                                        </Link>
-                                    </motion.div>
+                                </motion.div>
+                            )}
+
+                            {safeStack.length === 0 && (
+                                <motion.div
+                                    className="border-b border-gray-100 px-5 py-3"
+                                    initial={shouldReduceMotion ? false : 'closed'}
+                                    animate={isOpen ? 'open' : 'closed'}
+                                >
+                                    {MAIN_NAV.map((item, index) => (
+                                        <motion.div key={item.label} custom={index} variants={itemVariants}>
+                                            <Link
+                                                href={item.label === 'Tienda' ? mobileTiendaHref : item.href}
+                                                className={siteNavLinkClass}
+                                                onClick={onClose}
+                                            >
+                                                {item.label}
+                                            </Link>
+                                        </motion.div>
+                                    ))}
+                                    {TOP_LINKS.map((link, index) => (
+                                        <motion.div key={link.label} custom={MAIN_NAV.length + index} variants={itemVariants}>
+                                            <Link href={link.href} className={siteNavLinkClass} onClick={onClose}>
+                                                {link.label}
+                                            </Link>
+                                        </motion.div>
+                                    ))}
                                 </motion.div>
                             )}
                             {currentMobileLevel.children?.map((item, index: number) => {

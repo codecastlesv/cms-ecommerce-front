@@ -94,8 +94,8 @@ const FilterSection = ({
       }
     >
       <span
-        className={`cursor-pointer font-oswald font-bold leading-[18px] tracking-[0.2px] text-black group-hover:text-[#060520] ${
-          mobileMode ? 'text-[13px]' : 'text-xs'
+        className={`cursor-pointer font-helvetica font-bold leading-[18px] tracking-[0.2px] text-black group-hover:text-[#060520] ${
+          mobileMode ? 'text-[16px]' : 'text-[15px]'
         }`}
       >
         {title}
@@ -234,7 +234,7 @@ function DesktopMultiSelectDropdown({
             queueMicrotask(() => syncPosition());
           }
         }}
-        className="flex w-full items-center justify-between gap-2 rounded border border-gray-200 bg-white px-3 py-2.5 text-left font-inter text-[12px] text-gray-900 shadow-sm outline-none transition hover:border-gray-300 focus-visible:border-black focus-visible:ring-1 focus-visible:ring-black"
+        className="flex w-full items-center justify-between gap-2 rounded border border-gray-200 bg-white px-3 py-2.5 text-left font-helvetica text-[15px] text-gray-900 shadow-sm outline-none transition hover:border-gray-300 focus-visible:border-black focus-visible:ring-1 focus-visible:ring-black"
       >
         <span className="min-w-0 flex-1 truncate">{summary}</span>
         <ChevronDown
@@ -292,7 +292,7 @@ function DesktopMultiSelectDropdown({
 
                     return (
                       <li key={option.id} role="option" aria-selected={checked}>
-                        <label className="flex cursor-pointer items-center gap-2.5 px-3 py-2 text-left font-inter text-[12px] text-gray-800 transition-colors hover:bg-black/[0.04]">
+                        <label className="flex cursor-pointer items-center gap-2.5 px-3 py-2 text-left font-helvetica text-[15px] text-gray-800 transition-colors hover:bg-black/[0.04]">
                           <input
                             type="checkbox"
                             checked={checked}
@@ -554,13 +554,13 @@ export default function CategoryFilterSidebar({
                 }
                 notifyMobileSheetClose();
               }}
-              className={`flex items-center justify-between flex-1 rounded-sm px-1 py-0.5 text-left text-[12px] transition-all duration-200 leading-4 ${
+              className={`flex items-center justify-between flex-1 rounded-sm px-1 py-0.5 text-left text-[15px] transition-all duration-200 leading-4 ${
                 isActive ? 'font-bold text-black' : 'text-gray-600 hover:bg-black/5 hover:text-black'
               }`}
             >
-              <span className="font-inter text-[10px] leading-[11px] tracking-[0.18px]
+              <span className="font-helvetica text-[13px] leading-[11px] tracking-[0.18px]
 ">{item.name}</span>
-              <span className="ml-1 inline-flex items-center rounded-sm bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-600 transition-colors duration-200 group-hover:bg-black/5 group-hover:text-black">
+              <span className="ml-1 inline-flex items-center rounded-sm bg-gray-100 px-1.5 py-0.5 text-[13px] font-medium text-gray-600 transition-colors duration-200 group-hover:bg-black/5 group-hover:text-black">
                 {item.products_count}
               </span>
             </button>
@@ -583,7 +583,7 @@ export default function CategoryFilterSidebar({
   };
 
   return (
-    <aside className={`w-full ${mobileMode ? 'px-1 pb-8 pt-1' : ''}`}>
+    <aside className={`w-full font-helvetica ${mobileMode ? 'px-1 pb-8 pt-1' : ''}`}>
       {/* 1. Categorías / Subcategorías */}
       {filtersData?.category_navigation?.length > 0 && (
         <FilterSection 
@@ -617,11 +617,11 @@ export default function CategoryFilterSidebar({
                       onChange={() => toggleSelectedValue('brand', brand.slug)}
                       className="w-3 h-3 accent-black border-gray-300 rounded shrink-0"
                     />
-                    <span className="rounded-sm px-1 py-0.5 text-xs text-gray-600 transition-all duration-200 group-hover:bg-black/5 group-hover:text-black truncate">
+                    <span className="rounded-sm px-1 py-0.5 text-[15px] text-gray-600 transition-all duration-200 group-hover:bg-black/5 group-hover:text-black truncate">
                       {brand.name}
                     </span>
                   </span>
-                  <span className="inline-flex shrink-0 items-center rounded-sm bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-600 transition-colors duration-200 group-hover:bg-black/5 group-hover:text-black">
+                  <span className="inline-flex shrink-0 items-center rounded-sm bg-gray-100 px-1.5 py-0.5 text-[13px] font-medium text-gray-600 transition-colors duration-200 group-hover:bg-black/5 group-hover:text-black">
                     {brand.products_count}
                   </span>
                 </label>
@@ -650,11 +650,11 @@ export default function CategoryFilterSidebar({
                       onChange={() => toggleSelectedValue('sport', sport.slug)}
                       className="w-3 h-3 accent-black border-gray-300 rounded shrink-0"
                     />
-                    <span className="rounded-sm px-1 py-0.5 text-xs text-gray-600 transition-all duration-200 group-hover:bg-black/5 group-hover:text-black truncate">
+                    <span className="rounded-sm px-1 py-0.5 text-[15px] text-gray-600 transition-all duration-200 group-hover:bg-black/5 group-hover:text-black truncate">
                       {sport.name}
                     </span>
                   </span>
-                  <span className="inline-flex shrink-0 items-center rounded-sm bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-600 transition-colors duration-200 group-hover:bg-black/5 group-hover:text-black">
+                  <span className="inline-flex shrink-0 items-center rounded-sm bg-gray-100 px-1.5 py-0.5 text-[13px] font-medium text-gray-600 transition-colors duration-200 group-hover:bg-black/5 group-hover:text-black">
                     {sport.products_count}
                   </span>
                 </label>
@@ -684,7 +684,7 @@ export default function CategoryFilterSidebar({
                         onChange={() => toggleSelectedValue(filterQueryKey, paramValue)}
                         className="w-3 h-3 accent-black border-gray-300 rounded"
                       />
-                      <span className="text-xs text-gray-600 transition-colors duration-200 group-hover:text-black">
+                      <span className="text-[15px] text-gray-600 transition-colors duration-200 group-hover:text-black">
                         {option.label}
                       </span>
                     </label>
@@ -706,7 +706,7 @@ export default function CategoryFilterSidebar({
                     key={option.id}
                     onClick={() => toggleSelectedValue(filterQueryKey, paramValue)}
                     aria-pressed={active}
-                    className={`min-h-9 min-w-9 shrink-0 rounded border px-3 py-1.5 text-center font-inter text-[11px] font-semibold uppercase tracking-[0.08em] transition-all duration-200 ${
+                    className={`min-h-9 min-w-9 shrink-0 rounded border px-3 py-1.5 text-center font-helvetica text-[14px] font-semibold uppercase tracking-[0.08em] transition-all duration-200 ${
                       active
                         ? 'border-black bg-black text-white shadow-sm'
                         : 'border-gray-200 bg-white text-gray-700 hover:border-gray-900 hover:text-black'
@@ -738,7 +738,7 @@ export default function CategoryFilterSidebar({
                       onClick={() => toggleSelectedValue(filterQueryKey, paramValue)}
                       aria-pressed={active}
                       title={option.label}
-                      className={`inline-flex max-w-full items-center gap-2 rounded border px-3 py-2 text-left font-inter text-[11px] font-semibold uppercase tracking-[0.06em] transition-all duration-200 ${
+                      className={`inline-flex max-w-full items-center gap-2 rounded border px-3 py-2 text-left font-helvetica text-[14px] font-semibold uppercase tracking-[0.06em] transition-all duration-200 ${
                         active
                           ? 'border-black bg-black text-white shadow-sm'
                           : 'border-gray-200 bg-white text-gray-800 hover:border-gray-900 hover:text-black'
@@ -979,7 +979,7 @@ export default function CategoryFilterSidebar({
             </div>
 
             <div
-              className={`flex items-center justify-between text-[11px] font-medium text-gray-500 tabular-nums motion-reduce:transition-none transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              className={`flex items-center justify-between text-[14px] font-medium text-gray-500 tabular-nums motion-reduce:transition-none transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
                 activePriceThumb ? 'scale-[1.03] opacity-90' : 'scale-100 opacity-100'
               }`}
             >
@@ -989,7 +989,7 @@ export default function CategoryFilterSidebar({
           </div>
 
           {filtersData.price_range && (
-            <p className="text-[11px] text-gray-400 text-center font-medium">
+            <p className="text-[14px] text-gray-400 text-center font-medium">
               Rango sugerido: ${filtersData.price_range.min} - ${filtersData.price_range.max}
             </p>
           )}

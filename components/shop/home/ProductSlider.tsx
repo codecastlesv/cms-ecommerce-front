@@ -2,7 +2,7 @@
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
@@ -172,16 +172,13 @@ export default function ProductSlider({
     <div className="group relative px-4 md:px-0">
       <div className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="font-bebas text-[clamp(28px,5vw,36px)] font-normal uppercase leading-tight tracking-[2px] text-black md:leading-[1.05]">
-            Nuestros productos
+          <h2 className="font-helvetica text-[clamp(18px,5vw,26px)] font-bold leading-tight tracking-normal text-black md:leading-[1.05]">
+            Los más vendidos
           </h2>
-          <p className="font-inter mt-2 max-w-xl text-[14px] leading-snug text-slate-600 md:text-[16px]">
-            Descubre lo último en deporte, recién llegado a nuestra tienda.
-          </p>
         </div>
       </div>
 
-      <div className="mb-8 grid w-full max-w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2 font-inter sm:gap-3">
+      <div className="mb-8 grid w-full max-w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2 font-helvetica sm:gap-3">
         <div
           className="flex min-h-0 min-w-0 gap-1.5 overflow-x-auto overflow-y-hidden overscroll-x-contain pr-2 pb-1 [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:gap-3"
           role="group"
@@ -192,10 +189,10 @@ export default function ProductSlider({
               key={filter}
               type="button"
               onClick={() => switchFilter(filter)}
-              className={`shrink-0 whitespace-nowrap rounded-full px-2 py-2 text-[11px] font-semibold tracking-wide transition-all duration-300 sm:px-4 lg:px-6 lg:text-[12px] cursor-pointer ${
+              className={`shrink-0 whitespace-nowrap rounded-full px-2 py-2 text-[11px] font-semibold tracking-wide sm:px-4 lg:px-6 lg:text-[12px] cursor-pointer ${
                 activeFilter === filter
-                  ? "scale-[1.02] bg-black text-white shadow-md"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  ? "scale-[1.02] bg-[#08204E] text-white"
+                  : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
               }`}
             >
               {filter === "masVendidos" && "Más vendidos"}
@@ -206,7 +203,7 @@ export default function ProductSlider({
         </div>
         <Link
           href="/lo-nuevo"
-          className="shrink-0 self-center font-inter text-[12px] font-semibold text-black underline decoration-2 underline-offset-4 transition hover:text-zinc-600 md:text-[15px]"
+          className="shrink-0 self-center font-helvetica text-[12px] font-semibold text-[#08204E] underline decoration-2 underline-offset-4 transition hover:opacity-80 md:text-[15px]"
         >
           Ver todos
         </Link>
@@ -244,8 +241,10 @@ export default function ProductSlider({
               spaceBetween={12}
               slidesPerView={2}
               breakpoints={{
-                768: { slidesPerView: 3, spaceBetween: 20 },
-                1024: { slidesPerView: 4, spaceBetween: 24 },
+                640: { slidesPerView: 3, spaceBetween: 16 },
+                768: { slidesPerView: 4, spaceBetween: 16 },
+                1024: { slidesPerView: 5, spaceBetween: 20 },
+                1280: { slidesPerView: 6, spaceBetween: 20 },
               }}
               className="!pb-6 overflow-x-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             >
@@ -267,7 +266,7 @@ export default function ProductSlider({
 
                 return (
                   <SwiperSlide key={product.id} className="!h-auto pt-1">
-                    <article className="group/card flex h-full flex-col overflow-hidden rounded-lg border border-slate-200/90 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.05)] transition-all duration-500 ease-out hover:-translate-y-1 hover:border-black hover:shadow-[0_20px_44px_-12px_rgba(15,23,42,0.12)]">
+                    <article className="group/card flex h-full flex-col overflow-hidden rounded-lg border border-slate-100 bg-white transition-all duration-500 ease-out hover:-translate-y-1 hover:border-slate-300 hover:shadow-[0_12px_30px_-14px_rgba(15,23,42,0.15)]">
                       <div className="relative mb-3 aspect-square shrink-0 overflow-hidden bg-[#F6F6F6]">
                         <Link
                           href={detailHref}
@@ -285,7 +284,7 @@ export default function ProductSlider({
                           />
                         </Link>
                         {product.tag ? (
-                          <span className="pointer-events-none absolute left-0 top-0 z-10 rounded-br-sm bg-black px-2.5 py-1 font-inter text-[9px] font-bold uppercase tracking-wider text-white sm:text-[10px]">
+                          <span className="pointer-events-none absolute left-0 top-0 z-10 rounded-br-sm bg-[#08204E] px-2.5 py-1 font-helvetica text-[9px] font-bold uppercase tracking-wider text-white sm:text-[10px]">
                             {product.tag}
                           </span>
                         ) : null}
@@ -307,37 +306,38 @@ export default function ProductSlider({
                         </button>
                       </div>
 
-                      <div className="flex min-h-0 flex-1 flex-col px-2.5 pb-2 pt-0 sm:px-3">
-                        <p className="font-inter text-[10px] font-semibold uppercase leading-tight tracking-wide text-slate-400">
+                      <div className="flex min-h-0 flex-1 flex-col px-2.5 pb-3 pt-0 sm:px-3">
+                        <p className="font-helvetica text-[10px] font-semibold uppercase leading-tight tracking-wide text-slate-400">
                           {product.brand || "Marca"}
                         </p>
-                        <div className="mt-1.5 flex min-h-[44px] items-start justify-between gap-2">
-                          <h3 className="font-inter line-clamp-2 min-w-0 flex-1 text-left text-[12px] font-bold uppercase leading-snug tracking-wide text-black sm:text-[13px]">
-                            {product.name}
-                          </h3>
-                          <div className="shrink-0 text-right leading-none">
+                        <h3 className="font-helvetica mt-1.5 line-clamp-2 text-left text-[12px] font-bold leading-snug text-black sm:text-[13px]">
+                          {product.name}
+                        </h3>
+
+                        <div className="mt-2 flex items-center justify-between gap-2">
+                          <div className="leading-none">
                             {hasSale && (
-                              <span className="font-inter mr-1 text-[11px] text-slate-400 line-through">
+                              <span className="font-helvetica mr-1 text-[11px] text-slate-400 line-through">
                                 ${Number(product.price).toFixed(2)}
                               </span>
                             )}
-                            <span className="font-poppins text-[15px] font-black text-black sm:text-[16px]">
+                            <span className="font-helvetica text-[15px] font-black text-black sm:text-[16px]">
                               ${Number(displayPrice).toFixed(2)}
                             </span>
                           </div>
+                          <Link
+                            href={detailHref}
+                            aria-label={`Ver ${product.name}`}
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#E30613] text-white transition hover:brightness-95 active:scale-95"
+                          >
+                            <ShoppingCart size={16} strokeWidth={2.25} />
+                          </Link>
                         </div>
-                        <p className="font-inter mt-1 line-clamp-2 text-[11px] leading-snug text-slate-500 sm:text-[12px]">
+
+                        <p className="font-helvetica mt-1.5 line-clamp-2 text-[11px] leading-snug text-slate-500 sm:text-[12px]">
                           {formatCategoryBreadcrumb(product.category_name) || ""}
                         </p>
-                      </div>
-
-                      <div className="mt-auto px-2.5 pb-3 sm:px-3">
-                        <Link
-                          href={detailHref}
-                          className="font-inter flex w-full items-center justify-center rounded-lg border border-slate-300 bg-white py-3 text-[13px] font-bold text-black transition duration-300 hover:border-black hover:bg-black hover:text-white active:scale-[0.98] sm:py-3.5 sm:text-[14px]"
-                        >
-                          Agregar
-                        </Link>
+                        
                       </div>
                     </article>
                   </SwiperSlide>

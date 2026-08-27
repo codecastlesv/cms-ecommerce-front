@@ -41,10 +41,10 @@ const BrandSection = ({ brands }: BrandSectionProps) => {
   const marqueeBrands = orderedBrands.slice(0, 6);
 
   return (
-    <section className="py-10 md:pt-16 flex flex-col">
-      <div className="container mx-auto px-4 text-center">
-        <h2 className="font-bebas font-normal text-[28px] md:text-[36px] leading-tight md:leading-[45px] tracking-[2px] text-center uppercase mb-8 md:mb-2 md:pb-5">
-          Elige entre las mejores marcas
+    <section className="py-10 md:pt-4 flex flex-col">
+      <div className="container mx-auto px-0 text-center">
+        <h2 className="font-helvetica text-[clamp(18px,5vw,26px)] font-bold leading-tight tracking-normal text-left text-black mb-8 md:mb-2 md:pb-5">
+          Las mejores marca en un solo lugar
         </h2>
 
         <AnimatePresence mode="wait">
