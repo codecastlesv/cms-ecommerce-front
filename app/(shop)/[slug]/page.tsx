@@ -640,11 +640,11 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   }
 
   return (
-    <div className={`min-h-screen bg-white transition-[opacity,transform] duration-300 ease-out ${pageReady ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'}`}>
+    <div className={`min-h-screen bg-foreground transition-[opacity,transform] duration-300 ease-out ${pageReady ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'}`}>
       {/* --- CONTENIDO PRINCIPAL --- */}
-      <div className="container mx-auto px-4 relative bg-white">
+      <div className="container mx-auto px-4 relative bg-foreground">
         {!filtersLoading && filtersData?.current_category ? (
-          <div className="pt-4 pb-2 md:px-20 xl:px-40">
+          <div className="sticky top-(--header-height,6rem) z-30 pt-4 pb-2 lg:px-20 xl:px-40 bg-foreground">
             <CategoryBreadcrumbs
               currentCategory={filtersData.current_category}
               categoryBreadcrumb={filtersData.category_breadcrumb}
@@ -777,7 +777,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
           </AnimatePresence>
 
           {/* SIDEBAR FILTROS - STICKY */}
-          <aside className="hidden md:block w-64 shrink-0 sticky top-24 self-start">
+          <aside className="hidden md:block w-64 shrink-0 sticky top-(--header-height,6rem) self-start">
             <div className="pb-5 mb-5 relative h-7">
               <div
                 className={`absolute inset-0 transition-[opacity,transform] duration-300 ease-out ${
@@ -800,7 +800,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                     {catalogPageBadge}
                   </p>
                 )}
-                <h1 className="text-black font-bebas text-[20px] leading-5.75 tracking-[1px] font-normal">
+                <h1 className="text-black font-helvetica text-[16px] leading-5.75 tracking-[1px] font-bold">
                   TIENDA PRODUCTOS ({products.length})
                 </h1>
               </div>

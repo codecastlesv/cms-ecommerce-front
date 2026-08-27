@@ -78,10 +78,10 @@ function PriceBlock({
   if (isOnSale && currentSalePrice != null) {
     return (
       <span className="inline-flex shrink-0 items-baseline gap-1.5 tabular-nums">
-        <span className="font-inter text-[11px] font-normal leading-[18px] tracking-[0.18px] text-[#54585AAB] line-through">
+        <span className="font-helvetica text-[11px] font-normal leading-[18px] tracking-[0.18px] text-[#54585AAB] line-through">
           ${currentPrice.toFixed(2)}
         </span>
-        <span className="font-poppins text-base font-bold leading-6 tracking-[0.18px] text-black">
+        <span className="font-helvetica text-base font-bold leading-6 tracking-[0.18px] text-black">
           ${Number(currentSalePrice).toFixed(2)}
         </span>
       </span>
@@ -89,20 +89,20 @@ function PriceBlock({
   }
 
   return (
-    <span className="shrink-0 whitespace-nowrap text-right font-poppins text-base font-bold leading-6 tracking-[0.18px] text-black tabular-nums">
+    <span className="shrink-0 whitespace-nowrap text-right font-helvetica text-base font-bold leading-6 tracking-[0.18px] text-black tabular-nums">
       ${currentPrice.toFixed(2)}
     </span>
   );
 }
 
 const brandTextClass =
-  'font-inter font-normal uppercase text-[10px] leading-[11px] tracking-[0.18px] text-[#54585AAB]';
+  'font-helvetica font-normal uppercase text-[10px] leading-[11px] tracking-[0.18px] text-[#54585AAB]';
 
 const productNameTextClass =
-  'font-inter font-normal text-[12px] leading-[18px] tracking-[0.2px] text-black';
+  'font-helvetica font-normal text-[12px] leading-[18px] tracking-[0.2px] text-black';
 
 const categoryTextClass =
-  'font-inter font-normal text-[12px] leading-[18px] tracking-[0.2px] text-[#54585AAB]';
+  'font-helvetica font-normal text-[12px] leading-[18px] tracking-[0.2px] text-[#54585AAB]';
 
 const NEW_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -261,7 +261,7 @@ export default function ProductCard({ product, catalogBadge = null }: ProductCar
           className="group block transition-transform duration-300 ease-out active:scale-[0.98]"
         >
           <article
-            className="relative overflow-hidden rounded-2xl border border-zinc-200/70 bg-gradient-to-b from-white via-white to-zinc-50/90 p-[1px] shadow-[0_4px_28px_-8px_rgba(15,23,42,0.14),0_0_0_1px_rgba(255,255,255,0.08)_inset] transition-[box-shadow,border-color,transform] duration-500 ease-out group-hover:border-amber-200/50 group-hover:shadow-[0_20px_48px_-12px_rgba(15,23,42,0.2),0_0_40px_-12px_rgba(210,159,19,0.14)]"
+            className="relative overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-b from-white via-white to-zinc-50/90 p-[1px] shadow-[0_4px_28px_-8px_rgba(15,23,42,0.14),0_0_0_1px_rgba(255,255,255,0.08)_inset] transition-[box-shadow,border-color,transform] duration-500 ease-out group-hover:border-slate-300 group-hover:shadow-[0_20px_48px_-12px_rgba(15,23,42,0.2),0_0_40px_-12px_rgba(8,32,78,0.14)]"
           >
             <div className="overflow-hidden rounded-[0.9rem] bg-white/95 backdrop-blur-[2px]">
               <div className="relative aspect-square overflow-hidden bg-white p-3 sm:p-4">
@@ -330,7 +330,7 @@ export default function ProductCard({ product, catalogBadge = null }: ProductCar
       </div>
 
       <div
-        className="relative mx-auto hidden w-full max-w-42.5 self-start sm:max-w-55 lg:block lg:w-64 lg:max-w-none"
+        className="relative mx-auto hidden w-full max-w-42.5 self-start sm:max-w-55 md:block lg:max-w-64"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => {
           setIsHovered(false);
@@ -338,10 +338,10 @@ export default function ProductCard({ product, catalogBadge = null }: ProductCar
         }}
       >
         <div
-          className={`group relative w-full overflow-hidden rounded-2xl bg-gradient-to-b from-white via-white to-zinc-50/90 p-[1px] shadow-[0_0px_0px_-0px_rgba(15,23,42,0.12),0_0_0_1px_rgba(255,255,255,0.06)_inset] transition-[box-shadow,border-color,transform] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          className={`group relative w-full overflow-hidden rounded-2xl border bg-gradient-to-b from-white via-white to-zinc-50/90 p-[1px] shadow-[0_0px_0px_-0px_rgba(15,23,42,0.12),0_0_0_1px_rgba(255,255,255,0.06)_inset] transition-[box-shadow,border-color,transform] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
             isHovered
-              ? 'z-30 -translate-y-1 border-amber-200/45 shadow-[0_0px_0px_-0px_rgba(15,23,42,0.22),0_0_48px_-12px_rgba(210,159,19,0.16),0_0_0_1px_rgba(210,159,19,0.12)]'
-              : 'z-0 translate-y-0'
+              ? 'z-30 -translate-y-1 border-slate-300 shadow-[0_0px_0px_-0px_rgba(15,23,42,0.22),0_0_48px_-12px_rgba(8,32,78,0.16),0_0_0_1px_rgba(8,32,78,0.12)]'
+              : 'z-0 translate-y-0 border-slate-100'
           }`}
         >
           <div className="rounded-[0.9rem] bg-white/95 p-1.5 backdrop-blur-[2px] sm:p-2">

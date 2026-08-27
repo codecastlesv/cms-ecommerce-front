@@ -3,15 +3,16 @@
 
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { FaWhatsapp } from 'react-icons/fa';
+import { FaWhatsapp } from 'react-icons/fa'; // Solo usado en la sección "Uniformes" (comentada)
 import { motion, useReducedMotion } from 'framer-motion';
 
 import HeroSlider from '@/components/shop/home/HeroSlider';
 import TrustBadges from '@/components/shop/home/TrustBadges';
+import BenefitsStrip from '@/components/shop/home/BenefitsStrip';
 import FeaturedByCategory from '@/components/shop/home/FeaturedByCategory';
 import BrandSection from '@/components/shop/home/BrandSection';
 import FadeReveal from '@/components/shop/animations/FadeReveal';
-import NewsletterSignupForm from '@/components/shop/home/NewsletterSignupForm';
+import NewsletterSignupForm from '@/components/shop/home/NewsletterSignupForm'; // Solo usado en "Promociones y Lanzamientos" (comentada)
 
 const ProductSlider = dynamic(() => import('@/components/shop/home/ProductSlider'), {
   loading: () => <div className="min-h-105 rounded-xl bg-slate-50 animate-pulse" />,
@@ -119,7 +120,7 @@ export default function HomePageContent({
       </FadeReveal>
 
       {/* CONTENEDOR */}
-      <div className="px-4  sm:px-12   space-y-4 bg-foreground">
+      <div className="px-4  sm:px-12   space-y-4 bg-foreground mb-0">
         {/* CATEGORIAS */}
           <FadeReveal className="border-b border-gray-100 pb-3" delay={0.08} duration={0.9} y={14} scale={0.994}>
           <div className="relative">
@@ -157,7 +158,7 @@ export default function HomePageContent({
         )}
 
         {/* PRODUCTOS */}
-        <FadeReveal className="py-1 overflow-hidden" delay={0.12} duration={0.9} y={12} scale={0.994}>
+        <FadeReveal className="py-4 overflow-hidden" delay={0.12} duration={0.9} y={12} scale={0.994}>
           <div className="container mx-auto px-0 md:px-4">
             <ProductSlider products={products} />
           </div>
@@ -235,9 +236,10 @@ export default function HomePageContent({
       </div>
 
       {/* CONTACT SECTION - UNIFORMES PARA EQUIPOS Y EMPRESAS */}
-    <div className="w-full mt-2 overflow-hidden">
+    <div className="w-full overflow-hidden">
       
-      {/* --- SECCIÓN 1: CONTACTO (UNIFORMES) - ALTURA REDUCIDA A LA MITAD --- */}
+      {/* --- SECCIÓN 1: CONTACTO (UNIFORMES) - DESACTIVADA temporalmente, no borrar --- */}
+      {false && (
       <FadeReveal
         className="px-6 py-10 bg-[#F3F3F3] bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: "url('/bannerfooter.png')" }}
@@ -247,10 +249,10 @@ export default function HomePageContent({
         scale={0.995}
       >
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-8 md:flex-row">
-          
+
           {/* Columna Izquierda: Imagen con altura controlada */}
           <div className="w-full md:w-1/2 flex justify-center lg:justify-start">
-          
+
           </div>
 
           {/* Columna Derecha: Texto y Botones */}
@@ -263,13 +265,13 @@ export default function HomePageContent({
                   Diseño y personalización
                 </p>
             </div>
-            
+
             <div className="flex flex-wrap justify-center gap-3 pt-1 lg:justify-start">
               {/* Botón Cotización */}
               <button className="h-12 w-full sm:w-56 rounded-lg bg-black text-white font-inter font-semibold leading-[48px] tracking-[0.18px]  text-[13px] lg:text-[14px] text-center transition-all hover:-translate-y-1 hover:shadow-xl active:scale-95">
                 Solicitar cotización
               </button>
-              
+
               {/* Botón WhatsApp */}
               <button className="flex h-12 w-full sm:w-56 items-center justify-center gap-3 rounded-lg bg-[#25D366] text-white font-inter font-semibold leading-[48px] tracking-[0.18px]  text-[13px] lg:text-[14px] text-center transition-all hover:-translate-y-1 hover:shadow-xl active:scale-95">
                 <FaWhatsapp size={20} /> WhatsApp
@@ -278,9 +280,11 @@ export default function HomePageContent({
           </div>
         </div>
       </FadeReveal>
+      )}
 
-      {/* --- SECCIÓN 2: PROMOCIONES Y LANZAMIENTOS --- */}
-     
+      {/* --- SECCIÓN 2: PROMOCIONES Y LANZAMIENTOS - DESACTIVADA temporalmente, no borrar --- */}
+      {false && (
+      <>
       <FadeReveal className="bg-black px-7 py-10 text-white sm:px-6 sm:py-12 md:hidden" delay={0.2} duration={0.9} y={12} scale={0.995}>
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-bebas font-normal uppercase tracking-[2px] text-[28px] sm:text-[36px] mb-3">
@@ -312,78 +316,12 @@ export default function HomePageContent({
           <NewsletterSignupForm variant="desktop" />
         </div>
       </FadeReveal>
+      </>
+      )}
 
-      {/* --- SECCIÓN 3: BENEFICIOS (Burbujas con Imagenes) --- */}
-      <FadeReveal className="bg-white px-7 py-8 sm:px-6 sm:py-12" delay={0.22} duration={0.9} y={12} scale={0.996}>
-        <div className="mx-auto max-w-7xl">
-          <div className="flex flex-col md:flex-row items-start justify-between gap-6 md:gap-4">
-
-            {/* Pagos — logos en /home/metodosPago (footer / métodos de pago) */}
-          
-            {/* pagos */}
-            <div className="flex items-center gap-4 flex-1 justify-start">
-              <div className="h-12 w-12 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-full border border-zinc-200 shadow-md">
-                <img
-                  src="/home/beneficios/pagosseguros.png"
-                  alt="Envíos confiables"
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              <div className="font-inter">
-                <p className="font-bold uppercase text-zinc-900 leading-tight text-[14px]">Pagos seguros 
-                (BAC / PayPal)</p>
-              </div>
-            </div>
-
-            {/* Envíos */}
-            <div className="flex items-center gap-4 flex-1 justify-start">
-              <div className="h-12 w-12 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-full border border-zinc-200 shadow-md">
-                <img
-                  src="/home/beneficios/enviosconfiables.png"
-                  alt="Envíos confiables"
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              <div className="font-inter">
-                <p className="font-bold uppercase text-zinc-900 leading-tight text-[14px]">Envíos confiables</p>
-                
-              </div>
-            </div>
-
-            <div className="hidden lg:block h-10 w-[1.5px] bg-zinc-200 rotate-[25deg]" />
-
-            {/* Cambios */}
-            <div className="flex items-center gap-4 flex-1 justify-start">
-              <div className="h-12 w-12 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-full border border-zinc-200 shadow-md">
-                <img
-                  src="/home/beneficios/cambiosydevoluciones.png"
-                  alt="Cambios y devoluciones"
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              <div className="font-inter">
-                <p className="font-bold uppercase text-zinc-900 leading-tight text-[14px]">Cambios y devoluciones</p>
-              </div>
-            </div>
-
-            <div className="hidden lg:block h-10 w-[1.5px] bg-zinc-200 rotate-[25deg]" />
-
-            {/* Años */}
-            <div className="flex items-center gap-4 flex-1 justify-start md:justify-end">
-              <div className="h-12 w-12 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-full border border-zinc-200 shadow-md">
-                <img
-                  src="/home/beneficios/experiencia.png"
-                  alt="47 años de experiencia"
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              <div className="font-inter">
-                <p className="font-bold uppercase text-zinc-900 leading-tight text-[14px]">47 años de experiencia</p>
-              </div>
-            </div>
-
-          </div>
-        </div>
+      {/* --- SECCIÓN 3: BENEFICIOS --- */}
+      <FadeReveal delay={0.22} duration={0.9} y={12} scale={0.996}>
+        <BenefitsStrip />
       </FadeReveal>
     </div>
 

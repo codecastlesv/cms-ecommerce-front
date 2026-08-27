@@ -1,12 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import api from '@/lib/axios';
+import { getCategoryHref } from '@/lib/categoryUrls';
 import { SHOP_OPEN_AUTH_PANEL_EVENT } from '@/lib/shopAuthPanel';
 import { Search, Menu, ChevronRight } from 'lucide-react';
 import HamburMenu from './header/HamburMenu';
 import type { MenuItem } from './header/HamburMenu';
+import { MAIN_NAV, TOP_LINKS } from './header/navLinks';
 import CartIcon from './header/CartIcon';
 import SearchPanel from './header/SearchPanel';
 import AccountAuthPanel from './header/AccountAuthPanel';
@@ -20,27 +23,31 @@ interface HeaderProps {
 const NAVY = '#08204E';
 const ACCENT_RED = '#CA1220';
 
-const TOP_INFO = ['Envios a todo El Salvador', 'Retira en sucursal', 'Asesoria experta'] as const;
-const TOP_LINKS = [
-    { label: 'Sucursales', href: '#' },
-    { label: 'Ayuda', href: '#' },
-    { label: 'Contáctanos', href: '#' },
-] as const;
+const API_ORIGIN = (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api')
+    .replace(/:\/\/localhost(?=[:/]|$)/i, '://127.0.0.1')
+    .replace(/\/api\/?$/, '');
+const LOGO_URL = `${API_ORIGIN}/storage/branding/logo.webp`;
 
-const MAIN_NAV = [
-    { label: 'Ofertas', href: '#', highlight: true },
-    { label: 'Tienda', href: '#' },
-    { label: 'Proyectos e inspiración', href: '#' },
-    { label: 'Marcas', href: '#' },
-    { label: 'Servicio', href: '#' },
-    { label: 'Nosotros', href: '#' },
-] as const;
+const TOP_INFO = ['Envios a todo El Salvador', 'Retira en sucursal', 'Asesoria experta'] as const;
 
 export default function Header({ settings }: HeaderProps) {
     const router = useRouter();
     const pathname = usePathname();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+    const [logoFailed, setLogoFailed] = useState(false);
+    const [tiendaHref, setTiendaHref] = useState('/product');
+
+    useEffect(() => {
+        api.get('/shop/menu')
+            .then(({ data }) => {
+                const firstCategory = data?.data?.[0];
+                if (firstCategory?.slug) {
+                    setTiendaHref(getCategoryHref(firstCategory.slug));
+                }
+            })
+            .catch(() => {});
+    }, []);
 
     const [navStack, setNavStack] = useState<MenuItem[]>([]);
     const [activeParent, setActiveParent] = useState<MenuItem | null>(null);
@@ -159,9 +166,28 @@ export default function Header({ settings }: HeaderProps) {
         return () => window.removeEventListener(SHOP_OPEN_AUTH_PANEL_EVENT, onOpenShopAuth);
     }, []);
 
+    // Publica la altura real del header como variable CSS (--header-height) para que
+    // cualquier elemento sticky/fixed (ej. sidebar de filtros) se acomode debajo sin
+    // depender de un offset fijo que se desincroniza cada vez que el header cambia de tamaño.
+    const headerRef = useRef<HTMLElement>(null);
+    useEffect(() => {
+        const el = headerRef.current;
+        if (!el) return;
+
+        const updateHeight = () => {
+            document.documentElement.style.setProperty('--header-height', `${el.offsetHeight}px`);
+        };
+
+        updateHeight();
+        const observer = new ResizeObserver(updateHeight);
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, [pathname]);
+
     return (
         <>
             <header
+                ref={headerRef}
                 key={`header-${pathname}`}
                 suppressHydrationWarning
                 className="sticky top-0 z-50 min-w-0 max-w-full overflow-x-clip font-helvetica shadow-sm"
@@ -201,15 +227,24 @@ export default function Header({ settings }: HeaderProps) {
                 {/* ——— Main bar ——— */}
                 <div className="border-b border-gray-200/80 bg-[#F5F6F8]">
                     <div className="mx-auto flex max-w-[1440px] min-w-0 flex-wrap items-center gap-2 px-3 py-3 sm:gap-3 sm:px-6 md:flex-nowrap md:gap-2 lg:gap-6 lg:px-10 xl:px-14 min-[992px]:gap-4">
-                        {/* Logo placeholder */}
+                        {/* Logo */}
                         <Link href="/" className="flex max-w-[42%] shrink-0 items-center sm:max-w-none" aria-label={brandName}>
-                            <div className="flex h-10 w-[5.75rem] items-center justify-center rounded-md border border-dashed border-slate-300 bg-white px-1.5 sm:h-12 sm:w-36 md:h-12 md:w-36 min-[992px]:h-14 min-[992px]:w-48">
-                                <span className="text-center text-[8px] font-semibold uppercase leading-tight tracking-wide text-slate-400 sm:text-[10px]">
-                                    Logo
-                                    <br />
-                                    thumbnail
-                                </span>
-                            </div>
+                            {logoFailed ? (
+                                <div className="flex h-10 w-[5.75rem] items-center justify-center rounded-md border border-dashed border-slate-300 bg-white px-1.5 sm:h-12 sm:w-36 md:h-12 md:w-36 min-[992px]:h-14 min-[992px]:w-48">
+                                    <span className="text-center text-[8px] font-semibold uppercase leading-tight tracking-wide text-slate-400 sm:text-[10px]">
+                                        Logo
+                                        <br />
+                                        thumbnail
+                                    </span>
+                                </div>
+                            ) : (
+                                <img
+                                    src={LOGO_URL}
+                                    alt={brandName}
+                                    onError={() => setLogoFailed(true)}
+                                    className="h-12 w-auto max-w-36 object-contain sm:h-14 sm:max-w-48 md:h-14 md:max-w-48 min-[992px]:h-16 min-[992px]:max-w-56"
+                                />
+                            )}
                         </Link>
 
                         {/*
@@ -263,19 +298,25 @@ export default function Header({ settings }: HeaderProps) {
                         </button>
 
                         <nav className="hidden min-w-0 flex-1 items-center justify-center gap-1 lg:flex xl:gap-2">
-                            {MAIN_NAV.map((item) => (
-                                <Link
-                                    key={item.label}
-                                    href={item.href}
-                                    className={`whitespace-nowrap px-2.5 py-1 text-base transition hover:bg-white/10 xl:px-3 ${
-                                        'highlight' in item && item.highlight
-                                            ? 'rounded border border-[#3B6FA8]/70 bg-[#0A2A52]'
-                                            : 'rounded'
-                                    }`}
-                                >
-                                    {item.label}
-                                </Link>
-                            ))}
+                            {MAIN_NAV.map((item) => {
+                                const href = item.label === 'Tienda' ? tiendaHref : item.href;
+                                const isActive = href !== '#' && pathname === href;
+
+                                return (
+                                    <Link
+                                        key={item.label}
+                                        href={href}
+                                        aria-current={isActive ? 'page' : undefined}
+                                        className={`whitespace-nowrap px-2.5 py-1 text-base transition hover:bg-white/10 xl:px-3 ${
+                                            'highlight' in item && item.highlight
+                                                ? 'rounded border border-[#3B6FA8]/70 bg-[#0A2A52]'
+                                                : 'rounded'
+                                        } ${isActive ? 'bg-white/15 font-semibold' : ''}`}
+                                    >
+                                        {item.label}
+                                    </Link>
+                                );
+                            })}
                         </nav>
 
                         <Link
