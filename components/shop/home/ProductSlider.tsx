@@ -254,8 +254,8 @@ export default function ProductSlider({
                   name: product.name,
                   brand: product.brand,
                   seo_url: product.seo_url,
-                  product_color: product.product_color,
-                  variant_sku: product.variant_sku,
+                  variant_sku: product.sku || product.variant_sku,
+                  sku: product.sku,
                 });
                 const hasSale =
                   product.sale_price != null &&
@@ -264,10 +264,6 @@ export default function ProductSlider({
                 const displayPrice = hasSale
                   ? product.sale_price!
                   : product.price;
-                const colors = Math.max(
-                  0,
-                  Number(product.total_colors_count) || 0
-                );
 
                 return (
                   <SwiperSlide key={product.id} className="!h-auto pt-1">
@@ -333,12 +329,6 @@ export default function ProductSlider({
                         <p className="font-inter mt-1 line-clamp-2 text-[11px] leading-snug text-slate-500 sm:text-[12px]">
                           {formatCategoryBreadcrumb(product.category_name) || ""}
                         </p>
-                        {colors > 0 ? (
-                          <p className="font-inter mt-1.5 text-[11px] font-medium text-slate-500">
-                            {colors}{" "}
-                            {colors === 1 ? "color" : "colores"}
-                          </p>
-                        ) : null}
                       </div>
 
                       <div className="mt-auto px-2.5 pb-3 sm:px-3">

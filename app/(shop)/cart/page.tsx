@@ -24,13 +24,13 @@ type StoredCartItem = {
   category?: string;
   color?: string | { value?: string; color_hex?: string; swatch_image_url?: string };
   variant_label?: string | { value?: string; color_hex?: string; swatch_image_url?: string };
-  variant_id?: number;
   variant_sku?: string;
   /** Máximo permitido (desde detalle de producto); ausente = sin tope en carrito */
   stock_quantity?: number;
 };
 
-const getCartItemKey = (item: StoredCartItem): string => item.cart_key || `${item.id}-${item.size ?? ''}`;
+const getCartItemKey = (item: StoredCartItem): string =>
+  item.cart_key || `${item.id}-${item.sku ?? item.variant_sku ?? item.size ?? ''}`;
 
 const getVariantLabel = (item: StoredCartItem): string => {
   if (typeof item.variant_label === 'string' && item.variant_label.trim()) {
@@ -218,8 +218,12 @@ export default function CartPage() {
                         ) : null}
                       </p>
                       <p className="text-[14px] text-gray-500 mt-1">{item.category}</p>
-                      <p className="text-[14px] text-gray-500">{getVariantLabel(item)}</p>
-                      <p className="text-[14px] text-gray-500 mt-1">Talla {item.size}</p>
+                      {item.sku ? (
+                        <p className="text-[14px] text-gray-500">SKU {item.sku}</p>
+                      ) : null}
+                      {typeof item.variant_label === 'string' && item.variant_label.trim() ? (
+                        <p className="text-[14px] text-gray-500">{item.variant_label}</p>
+                      ) : null}
                     </div>
 
                     <div className="flex gap-2 mt-4">

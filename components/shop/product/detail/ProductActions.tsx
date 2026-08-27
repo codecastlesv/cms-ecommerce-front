@@ -7,36 +7,24 @@ import { useShopFavorites } from '@/hooks/useShopFavorites';
 import { parsePositiveSalePrice } from '@/utils/shopPricing';
 import { resolveShopProductImageSrc } from '@/lib/shopProductImage';
 
-interface DetailVariant {
-  id?: number;
-  sku?: string;
-  sale_price?: number | null;
-  price?: number;
-  stock_quantity?: number;
-  images?: Array<{ url: string }>;
-}
-
 interface DetailProduct {
   id: number;
+  sku?: string;
   name: string;
   sale_price?: number | null;
   price?: number;
   price_regular?: number;
   gallery?: string[];
   main_image?: string;
+  external_image_url?: string | null;
   in_stock?: boolean;
+  stock_quantity?: number;
   categories?: Array<{ name: string }>;
-  product_color?: string | { value?: string; color_hex?: string; swatch_image_url?: string } | null;
 }
 
-/** Precio que se guarda en carrito - oferta si hay; regular; si no, precio regular/lista. */
-function resolvePriceForCart(
-  variant: DetailVariant | null | undefined,
-  product: DetailProduct,
-): number {
-  const priceRegular = variant?.price ?? product.price_regular ?? product.price ?? 0;
-  const regularNum = typeof priceRegular === 'number' && !Number.isNaN(priceRegular) ? priceRegular : 0;
-  const saleNum = parsePositiveSalePrice(variant?.sale_price ?? product.sale_price);
+function resolvePriceForCart(product: DetailProduct): number {
+  const regularNum = Number(product.price_regular ?? product.price ?? 0) || 0;
+  const saleNum = parsePositiveSalePrice(product.sale_price);
   const onSale = saleNum !== null && regularNum > 0 && saleNum < regularNum;
   return onSale ? saleNum : regularNum;
 }
@@ -44,47 +32,23 @@ function resolvePriceForCart(
 interface CartItem {
   cart_key?: string;
   id: number;
-  variant_id?: number;
+  sku?: string;
   variant_sku?: string;
-  size: string;
+  size?: string;
   variant_label?: string;
   color?: string;
   image?: string;
   quantity?: number;
   price: number;
-  /** Inventario al añadir. El carrito valida el máximo con este valor */
+  name?: string;
+  category?: string;
   stock_quantity?: number;
 }
 
 interface ProductActionsProps {
   product: DetailProduct;
-  sizes: string[];
-  selectedSize: string;
-  selectedVariant: DetailVariant | null;
-  selectedVariantLabel?: string;
-  onSelectSize: (size: string) => void;
-  sizeStatusByValue?: Record<string, { exists: boolean; hasStock: boolean }>;
-  /** Variante actual por talla (mismo color) para stock y carrito */
-  variantsBySize?: Record<string, DetailVariant | undefined>;
+  presentacion?: string | null;
 }
-
-const resolveVariantLabel = (
-  label?: string | { value?: string; color_hex?: string; swatch_image_url?: string } | null,
-): string => {
-  if (typeof label === 'string' && label.trim()) {
-    const trimmed = label.trim();
-    if (trimmed.toLowerCase().includes('variante')) {
-      return '';
-    }
-    return trimmed;
-  }
-
-  if (label && typeof label === 'object') {
-    return label.value || label.color_hex || '';
-  }
-
-  return '';
-};
 
 function readCart(): CartItem[] {
   try {
@@ -94,44 +58,36 @@ function readCart(): CartItem[] {
   }
 }
 
-function getCartQtyForVariant(variantId: number | undefined): number {
-  if (!variantId) return 0;
+function getCartQtyForProduct(productId: number, sku?: string): number {
   const cart = readCart();
-  const item = cart.find((i) => i.variant_id === variantId);
+  const item = cart.find((i) => {
+    if (sku) {
+      return Number(i.id) === productId && (i.sku === sku || i.variant_sku === sku);
+    }
+    return Number(i.id) === productId;
+  });
   return Math.max(0, Number(item?.quantity ?? 0));
 }
 
-export default function ProductActions({
-  product,
-  sizes,
-  selectedSize,
-  selectedVariant,
-  selectedVariantLabel,
-  onSelectSize,
-  sizeStatusByValue,
-  variantsBySize = {},
-}: ProductActionsProps) {
+export default function ProductActions({ product, presentacion }: ProductActionsProps) {
   const [isAdded, setIsAdded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [cartTick, setCartTick] = useState(0);
 
   const { favoriteIds, loadingFavorites, requireAuthForFavorites, toggleFavorite } = useShopFavorites();
 
-  const activeVariant = selectedVariant;
-  const price = resolvePriceForCart(activeVariant, product);
+  const price = resolvePriceForCart(product);
   const image = resolveShopProductImageSrc(
-    activeVariant?.images?.[0]?.url || product.gallery?.[0] || product.main_image,
+    product.gallery?.[0] || product.main_image || product.external_image_url,
   );
-  const stockQty = Math.max(0, Number(activeVariant?.stock_quantity ?? 0));
-  const inCartForVariant = getCartQtyForVariant(activeVariant?.id);
-  const remainingForSelected = stockQty - inCartForVariant;
-  const isOutOfStock = activeVariant ? stockQty <= 0 : !product.in_stock;
-  const atCartLimit = Boolean(activeVariant && remainingForSelected <= 0 && stockQty > 0);
-  const cannotAddMore = !activeVariant || isOutOfStock || atCartLimit;
-
-  const cartKey = activeVariant?.id ? `${product.id}-${activeVariant.id}` : `${product.id}-${selectedSize}`;
-  const variantLabel = resolveVariantLabel(selectedVariantLabel ?? product.product_color);
-
+  const sku = (product.sku || '').trim();
+  const stockQty = Math.max(0, Number(product.stock_quantity ?? 0));
+  const inCart = getCartQtyForProduct(product.id, sku);
+  const remaining = stockQty - inCart;
+  const isOutOfStock = stockQty <= 0 && product.in_stock === false ? true : stockQty <= 0;
+  const atCartLimit = remaining <= 0 && stockQty > 0;
+  const cannotAddMore = isOutOfStock || atCartLimit;
+  const cartKey = sku ? `product-${product.id}-${sku}` : `product-${product.id}`;
   const isFavorite = favoriteIds.includes(Number(product.id));
 
   const bumpCart = useCallback(() => setCartTick((t) => t + 1), []);
@@ -147,19 +103,21 @@ export default function ProductActions({
   }, [bumpCart]);
 
   const handleAddToCart = () => {
-    if (!selectedSize || !activeVariant?.id) return;
-
-    const stock = Math.max(0, Number(activeVariant.stock_quantity ?? 0));
-    const already = getCartQtyForVariant(activeVariant.id);
-
-    if (stock <= 0) {
-      toast.error('Esta variante está agotada.');
+    if (!sku) {
+      toast.error('Este producto no tiene código de barras (SKU).');
       return;
     }
 
-    if (already >= stock) {
-      toast.warning('Ya no hay más unidades en stock para esta talla y color.', {
-        description: `Inventario: ${stock}. Ya tienes ${already} en el carrito.`,
+    const already = getCartQtyForProduct(product.id, sku);
+
+    if (stockQty <= 0) {
+      toast.error('Este producto está agotado.');
+      return;
+    }
+
+    if (already >= stockQty) {
+      toast.warning('Ya no hay más unidades en stock.', {
+        description: `Inventario: ${stockQty}. Ya tienes ${already} en el carrito.`,
       });
       return;
     }
@@ -168,9 +126,9 @@ export default function ProductActions({
     const existingItem = currentCart.find((item) => item.cart_key === cartKey);
     const nextQty = (existingItem?.quantity ?? 0) + 1;
 
-    if (nextQty > stock) {
-      toast.warning('Ya no hay más unidades en stock para esta variante.', {
-        description: `Solo puedes añadir hasta ${stock} unidad(es).`,
+    if (nextQty > stockQty) {
+      toast.warning('Ya no hay más unidades en stock.', {
+        description: `Solo puedes añadir hasta ${stockQty} unidad(es).`,
       });
       return;
     }
@@ -182,13 +140,11 @@ export default function ProductActions({
               ...item,
               quantity: nextQty,
               price,
-              variant_id: activeVariant.id,
-              variant_sku: activeVariant.sku,
-              variant_label: variantLabel,
-              color: variantLabel,
+              sku,
+              variant_sku: sku,
+              variant_label: presentacion || '',
               image,
-              size: selectedSize,
-              stock_quantity: stock,
+              stock_quantity: stockQty,
             }
           : item,
       );
@@ -201,20 +157,18 @@ export default function ProductActions({
       return;
     }
 
-    const newItem = {
+    const newItem: CartItem = {
       cart_key: cartKey,
       id: product.id,
-      variant_id: activeVariant.id,
-      variant_sku: activeVariant.sku,
+      sku,
+      variant_sku: sku,
       name: product.name,
       price,
-      size: selectedSize,
       image,
       category: product.categories?.[0]?.name || 'Producto',
-      variant_label: variantLabel,
-      color: variantLabel,
+      variant_label: presentacion || '',
       quantity: 1,
-      stock_quantity: stock,
+      stock_quantity: stockQty,
     };
 
     localStorage.setItem('cart', JSON.stringify([...currentCart, newItem]));
@@ -240,86 +194,37 @@ export default function ProductActions({
     }
   };
 
-  // cartTick fuerza recomputo al leer carrito
   void cartTick;
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center text-sm">
-        <span className="font-inter font-bold text-[12px] leading-[30px] tracking-[0.18px]">Selecciona tu talla</span>
-        <span className="font-inter underline font-bold text-[12px] leading-[20px] tracking-[0.18px] cursor-pointer hover:text-black transition">
-          Guía de tallas
-        </span>
-      </div>
+      {presentacion ? (
+        <p className="text-sm text-gray-600">
+          <span className="font-semibold text-gray-900">Presentación: </span>
+          {presentacion}
+        </p>
+      ) : null}
 
-      <div className="flex flex-wrap gap-2">
-        {sizes.map((size) => {
-          const sizeState = sizeStatusByValue?.[size] ?? { exists: true, hasStock: true };
-          const variantForSize = variantsBySize[size];
-          const vStock = Math.max(0, Number(variantForSize?.stock_quantity ?? 0));
-          const vInCart = getCartQtyForVariant(variantForSize?.id);
-          const vRemaining = vStock - vInCart;
-          const noWarehouseOrApi =
-            !sizeState.exists || !sizeState.hasStock || (variantForSize && vStock <= 0);
-          const consumedByCart = Boolean(variantForSize && vStock > 0 && vRemaining <= 0);
-          const isUnavailableForVariant = noWarehouseOrApi || consumedByCart;
-
-          return (
-            <button
-              key={size}
-              type="button"
-              disabled={isUnavailableForVariant}
-              onClick={() => {
-                if (isUnavailableForVariant) {
-                  if (consumedByCart && variantForSize) {
-                    toast.warning('Ya agregaste el máximo disponible para esta talla.', {
-                      description: `Stock: ${vStock} unidad(es) para talla ${size}.`,
-                    });
-                  }
-                  return;
-                }
-                onSelectSize(size);
-              }}
-              className={`
-                w-12 h-10 flex items-center justify-center cursor-pointer
-                border rounded-[4px] text-sm transition-all
-                ${selectedSize === size
-                  ? 'bg-black text-white border-black'
-                  : isUnavailableForVariant
-                  ? 'bg-white text-gray-400 border-gray-200 line-through cursor-not-allowed'
-                  : 'bg-white text-gray-900 border-gray-200 hover:border-black'}
-              `}
-            >
-              {size}
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="space-y-3 pt-4">
+      <div className="space-y-3 pt-2">
         <button
           type="button"
-          disabled={!selectedSize || !activeVariant || cannotAddMore}
+          disabled={cannotAddMore}
           onClick={handleAddToCart}
           className={`w-full py-4 rounded-sm font-medium text-[16px] transition active:scale-95 cursor-pointer ${
             isAdded
               ? 'bg-green-600 text-white'
-              : !selectedSize || !activeVariant || cannotAddMore
+              : cannotAddMore
               ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
               : 'bg-black text-white hover:bg-zinc-800'
           }`}
         >
           {isAdded
             ? '¡Añadido al carrito!'
-            : !activeVariant
-            ? 'Selecciona una talla disponible'
             : isOutOfStock
             ? 'Agotado'
             : atCartLimit
             ? 'No hay mas disponibles'
-            : selectedSize
-            ? 'Añadir al carrito'
-            : 'Selecciona una talla'}
+            : 'Añadir al carrito'}
         </button>
 
         <button

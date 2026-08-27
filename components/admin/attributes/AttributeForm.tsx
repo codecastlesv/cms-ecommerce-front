@@ -8,8 +8,8 @@ import { z } from 'zod';
 import api from '@/lib/axios';
 import { toast } from 'sonner';
 import {
-    ArrowLeft, Save, Plus, Trash2, GripVertical, X, Image as ImageIcon,
-    Zap, Search, Link as LinkIcon, AlertCircle, Layers, ListFilter, ChevronDown, Check, Filter
+        ArrowLeft, Save, Plus, Trash2, GripVertical, X, Image as ImageIcon,
+    Zap, Search, Link as LinkIcon, AlertCircle, ListFilter, ChevronDown, Check, Filter
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -71,7 +71,7 @@ export default function AttributeForm({ attributeId }: { attributeId?: string })
                     reset({
                         name: attr.name,
                         type: attr.type,
-                        is_variant: attr.is_variant,
+                        is_variant: false,
                         is_filterable: attr.is_filterable,
                         values: attr.values.map(v => ({
                             id: v.id,
@@ -115,7 +115,7 @@ export default function AttributeForm({ attributeId }: { attributeId?: string })
         const fd = new FormData();
         fd.append('name', data.name);
         fd.append('type', data.type);
-        fd.append('is_variant', data.is_variant ? '1' : '0');
+        fd.append('is_variant', '0');
         fd.append('is_filterable', data.is_filterable ? '1' : '0');
 
         data.values.forEach((val, index) => {
@@ -217,15 +217,6 @@ export default function AttributeForm({ attributeId }: { attributeId?: string })
                             </div>
 
                             <div className="pt-4 border-t border-slate-100 space-y-3">
-                                <label className="flex items-center gap-3 p-3 rounded-lg border border-slate-100 hover:border-slate-300 cursor-pointer transition-all bg-slate-50/50">
-                                    <input type="checkbox" {...register('is_variant')} className="accent-black w-4 h-4 rounded" />
-                                    <div>
-                                        <span className="block text-sm font-bold text-slate-800">Es Variante</span>
-                                        <span className="block text-[10px] text-slate-500">Genera SKUs (Precio/Stock). Ej: Tallas.</span>
-                                    </div>
-                                    <Layers className={`w-4 h-4 ml-auto ${watch('is_variant') ? 'text-black' : 'text-slate-300'}`} />
-                                </label>
-
                                 <label className="flex items-center gap-3 p-3 rounded-lg border border-slate-100 hover:border-slate-300 cursor-pointer transition-all bg-slate-50/50">
                                     <input type="checkbox" {...register('is_filterable')} className="accent-black w-4 h-4 rounded" />
                                     <div>

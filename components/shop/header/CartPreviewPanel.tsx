@@ -16,13 +16,15 @@ type StoredCartItem = {
   price?: number;
   quantity?: number;
   size?: string;
+  sku?: string;
   image?: string;
   category?: string;
   color?: string | { value?: string; color_hex?: string; swatch_image_url?: string };
   variant_label?: string | { value?: string; color_hex?: string; swatch_image_url?: string };
 };
 
-const getCartItemKey = (item: StoredCartItem): string => item.cart_key || `${item.id}-${item.size ?? ''}`;
+const getCartItemKey = (item: StoredCartItem): string =>
+  item.cart_key || `${item.id}-${item.sku ?? item.size ?? ''}`;
 
 function getVariantLabel(item: StoredCartItem): string {
   if (typeof item.variant_label === 'string' && item.variant_label.trim()) {

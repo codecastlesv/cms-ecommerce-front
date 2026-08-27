@@ -98,7 +98,7 @@ export default function ShopCustomerAuthForm({
           {isRegister ? 'Crear cuenta' : 'Acceder'}
         </h2>
         <p className="mt-2 text-sm font-medium tracking-wide text-white/85">
-          {isRegister ? 'Únete a Galaxia Deportes' : 'GALAXIA DEPORTES'}
+          {isRegister ? 'Únete a Castella Sagarra' : 'Castella Sagarra'}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-5">

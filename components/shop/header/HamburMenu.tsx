@@ -165,7 +165,7 @@ export default function HamburMenu({
     const safeStack = Array.isArray(navStack) ? navStack : [];
     const currentMobileLevel = safeStack.length > 0
         ? safeStack[safeStack.length - 1]
-        : { name: 'MENÚ', children: menuData };
+        : { name: 'Menú', children: menuData };
 
     const isDesktopFlatCatalog =
         !isMobile && Boolean(activeParent) && parentUsesFlatCatalogPanel(activeParent!);
@@ -212,7 +212,9 @@ export default function HamburMenu({
 
     /** Catálogos virtuales · mismos slugs que `/shop/store/catalog/{slug}` */
     const specialCatalogLinkClass =
-        'block w-full rounded-sm px-1 py-2 font-inter text-[13px] font-bold tracking-[0.18px] text-[#D29F13] transition hover:underline hover:underline-offset-4';
+        'block w-full rounded-sm px-1 py-2 font-inter text-[13px] font-bold tracking-[0.18px] text-white transition hover:underline hover:underline-offset-4';
+    const highlightCatalogLinkClass =
+        'block w-full rounded-sm px-1 py-2 font-inter text-[13px] font-bold tracking-[0.18px] text-[#c1001f] transition hover:underline hover:underline-offset-4';
 
     const menuLayer = (
         <div
@@ -225,7 +227,7 @@ export default function HamburMenu({
             />
 
             <motion.div
-                className="relative z-10 flex h-full bg-white shadow-2xl"
+                className="relative z-10 flex h-full bg-[#304c94] shadow-2xl"
                 variants={panelVariants}
                 initial="closed"
                 animate={isOpen ? 'open' : 'closed'}
@@ -234,28 +236,28 @@ export default function HamburMenu({
                 <div className="flex h-full shadow-2xl">
                 {isMobile ? (
                     /* --- VISTA MÓVIL --- */
-                    <div className="flex h-full flex-col border-r border-zinc-200/95 bg-white shadow-[4px_0_24px_-8px_rgba(15,23,42,0.12)] max-w-[350px] w-[85vw]">
-                        <div className="grid shrink-0 grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] items-center gap-1 border-b border-zinc-200 bg-white px-2 py-3">
+                    <div className="flex h-full w-[85vw] max-w-[350px] flex-col border-r border-white/15 bg-[#304c94] shadow-[4px_0_24px_-8px_rgba(15,23,42,0.12)]">
+                        <div className="grid shrink-0 grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] items-center gap-1 border-b border-white/15 bg-[#304c94] px-2 py-3">
                                 {safeStack.length > 0 ? (
                                     <button
                                         type="button"
                                         aria-label="Volver"
                                         onClick={() => setNavStack(safeStack.slice(0, -1))}
-                                        className="flex h-10 w-10 items-center justify-center justify-self-start rounded-full text-zinc-900 transition hover:bg-zinc-100 active:scale-[0.97]"
+                                        className="flex h-10 w-10 items-center justify-center justify-self-start rounded-full text-white transition hover:bg-white/10 active:scale-[0.97]"
                                     >
                                         <ChevronLeft className="h-6 w-6" strokeWidth={2} />
                                     </button>
                                 ) : (
                                     <span className="h-10 w-10 justify-self-start" aria-hidden />
                                 )}
-                                <span className="min-w-0 truncate text-center font-inter text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-500">
-                                    {safeStack.length > 0 ? currentMobileLevel.name : 'Menú'}
+                                <span className="min-w-0 truncate text-center font-inter text-[11px] font-bold capitalize tracking-[0.2em] text-white/80">
+                                    {safeStack.length > 0 ? capitalizeTitle(currentMobileLevel.name) : 'Menú'}
                                 </span>
                                 <button
                                     type="button"
                                     aria-label="Cerrar menú"
                                     onClick={onClose}
-                                    className="flex h-10 w-10 items-center justify-center justify-self-end rounded-full text-zinc-900 transition hover:bg-black hover:text-white"
+                                    className="flex h-10 w-10 items-center justify-center justify-self-end rounded-full text-white transition hover:bg-white/10"
                                 >
                                     <X className="h-5 w-5" strokeWidth={2} />
                                 </button>
@@ -263,17 +265,17 @@ export default function HamburMenu({
                         <div className="flex-1 overflow-y-auto">
                             {safeStack.length === 0 && (
                                 <motion.div
-                                    className="border-b border-gray-100 px-5 pb-3 pt-1"
+                                    className="border-b border-white/15 px-5 pb-3 pt-1"
                                     initial={shouldReduceMotion ? false : 'closed'}
                                     animate={isOpen ? 'open' : 'closed'}
                                 >
                                     <motion.div custom={0} variants={itemVariants}>
-                                        <Link href="/lo-nuevo" className={specialCatalogLinkClass} onClick={onClose}>
+                                        <Link href="/lo-nuevo" className={highlightCatalogLinkClass} onClick={onClose}>
                                             Lo nuevo
                                         </Link>
                                     </motion.div>
                                     <motion.div custom={1} variants={itemVariants}>
-                                        <Link href="/promociones" className={specialCatalogLinkClass} onClick={onClose}>
+                                        <Link href="/promociones" className={highlightCatalogLinkClass} onClick={onClose}>
                                             Promociones
                                         </Link>
                                     </motion.div>
@@ -313,18 +315,18 @@ export default function HamburMenu({
                                     >
                                         <Link
                                             href={getCategoryHref(item.slug)}
-                                            className="flex-grow flex items-center justify-between p-5 border-b border-gray-50 text-left active:bg-gray-100 border-l-4 border-l-transparent focus:border-l-black hover:bg-gray-50"
+                                            className="flex flex-grow items-center justify-between border-b border-l-4 border-white/10 border-l-transparent p-5 text-left hover:bg-white/10 focus:border-l-white active:bg-white/10"
                                             onClick={onClose}
                                         >
-                                            <span className="text-sm font-bold uppercase text-gray-800">{item.name}</span>
+                                            <span className="text-sm font-bold capitalize text-white">{capitalizeTitle(item.name)}</span>
                                         </Link>
                                         {hasChildren && (
                                             <button
                                                 onClick={() => setNavStack([...safeStack, getMobileDrillTarget(item)])}
-                                                className="px-4 flex items-center justify-center border-l border-gray-100 hover:bg-gray-50"
+                                                className="flex items-center justify-center border-l border-white/15 px-4 hover:bg-white/10"
                                                 title="Ver subcategorías"
                                             >
-                                                <ChevronRight className="w-4 h-4 text-gray-300" />
+                                                <ChevronRight className="h-4 w-4 text-white" />
                                             </button>
                                         )}
                                     </motion.div>
@@ -336,24 +338,24 @@ export default function HamburMenu({
                     /* --- VISTA ESCRITORIO --- */
                     <div className="flex h-full">
                         {/* COLUMNA 1 */}
-                        <div className="w-[400px] bg-white border-r border-gray-100 flex flex-col py-6 relative">
-                            <div className="p-6 pl-8 flex justify-between items-start">
-                                <img src="/logo/logo.png" className="h-10 w-auto" alt="Logo" />
-                               <button onClick={onClose} className="ml-auto p-2 hover:bg-black text-black hover:text-white  rounded-full transition group cursor-pointer duration-300">
-                                <X className="w-5 h-5 hover:rotate-90 transition-transform duration-300" />
+                        <div className="relative flex w-[400px] flex-col border-r border-white/15 bg-[#08204E] py-6">
+                            <div className="flex items-start justify-between p-6 pl-8">
+                                <img src="/logo/logoblanco.png" className="h-10 w-auto" alt="Logo" />
+                               <button onClick={onClose} className="group ml-auto cursor-pointer rounded-full p-2 text-white transition duration-300 hover:bg-white/10">
+                                <X className="h-5 w-5 transition-transform duration-300 hover:rotate-90" />
                                 </button>
                             </div>
                             <div className="flex flex-col gap-1 pl-9">
                                 <Link
                                     href="/lo-nuevo"
-                                    className="font-inter text-[14px] font-bold leading-[26px] tracking-[0.18px] text-[#D29F13] hover:underline hover:underline-offset-4"
+                                    className="font-inter text-[14px] font-bold leading-[26px] tracking-[0.18px] text-[#c1001f] hover:underline hover:underline-offset-4"
                                     onClick={onClose}
                                 >
                                     Lo nuevo
                                 </Link>
                                 <Link
                                     href="/promociones"
-                                    className="font-inter text-[14px] font-bold leading-[26px] tracking-[0.18px] text-[#D29F13] hover:underline hover:underline-offset-4"
+                                    className="font-inter text-[14px] font-bold leading-[26px] tracking-[0.18px] text-[#c1001f] hover:underline hover:underline-offset-4"
                                     onClick={onClose}
                                 >
                                     Promociones
@@ -369,9 +371,9 @@ export default function HamburMenu({
                                             key={item.id}
                                             href={getCategoryHref(item.slug)}
                                             onClick={onClose}
-                                            className={`flex items-center justify-between px-8 py-4 cursor-pointer transition-all border-l-6 font-inter font-normal text-[10px] leading-[26px] tracking-[0.18px] hover:bg-gray-50 ${isActive
-                                                ? 'bg-gray-200 border-l-black font-extrabold'
-                                                : 'border-l-transparent text-gray-400'}`}
+                                            className={`flex cursor-pointer items-center justify-between border-l-6 px-8 py-4 font-inter text-[10px] font-normal leading-[26px] tracking-[0.18px] transition-all hover:bg-white/10 ${isActive
+                                                ? 'border-l-white bg-white/15 font-extrabold'
+                                                : 'border-l-transparent text-white/80'}`}
                                             onMouseEnter={() => {
                                                 if (hasChildren) {
                                                     setActiveParent(item);
@@ -379,12 +381,12 @@ export default function HamburMenu({
                                                 }
                                             }}
                                         >
-                                            <div className="grid grid-cols-2 w-full gap-x-2 items-center">
-                                                <span className={`text-[13px] font-bold tracking-wider ${isActive ? 'text-black' : 'text-gray-800'}`}>
-                                                    {item.name}
+                                            <div className="grid w-full grid-cols-2 items-center gap-x-2">
+                                                <span className="text-[13px] font-bold capitalize tracking-wider text-white">
+                                                    {capitalizeTitle(item.name)}
                                                 </span>
                                                 <div className='flex justify-end'>
-                                                    {hasChildren && <ChevronRight className={`w-5 h-5 transition-colors ${isActive ? 'text-black' : 'text-gray-400'}`} />}
+                                                    {hasChildren && <ChevronRight className="h-5 w-5 text-white transition-colors" />}
                                                 </div>
                                             </div>
                                         </Link>
@@ -395,13 +397,13 @@ export default function HamburMenu({
 
                         {/* COLUMNA 2 — ancho animado + contenido con slide */}
                         <div
-                            className={`galaxia-menu-col-reveal h-full shrink-0 overflow-hidden bg-white ${showDesktopSubmenu ? 'max-w-[280px] border-r border-gray-100' : 'max-w-0'
+                            className={`galaxia-menu-col-reveal h-full shrink-0 overflow-hidden bg-[#304c94] ${showDesktopSubmenu ? 'max-w-[280px] border-r border-white/15' : 'max-w-0'
                                 }`}
                         >
                             {showDesktopSubmenu && activeParent && (
                                 <div
                                     key={`sub-${activeParent.id}`}
-                                    className="galaxia-menu-submenu-inner h-full w-[280px] shrink-0 bg-white py-10"
+                                    className="galaxia-menu-submenu-inner h-full w-[280px] shrink-0 bg-[#304c94] py-10"
                                 >
                                     {getVisibleSubmenuChildren(activeParent).map((sub) => {
                                         const hasSubChildren = sub.children && sub.children.length > 0;
@@ -411,17 +413,17 @@ export default function HamburMenu({
                                                 key={sub.id}
                                                 href={getCategoryHref(sub.slug)}
                                                 onClick={onClose}
-                                                className={`flex items-center justify-between px-8 py-3 cursor-pointer transition-all border-l-4 font-inter font-normal text-[10px] leading-[26px] tracking-[0.18px] hover:bg-gray-50 ${isSubActive
-                                                    ? 'bg-gray-100 border-l-black font-bold'
-                                                    : 'border-l-transparent text-gray-600'}`}
+                                                className={`flex cursor-pointer items-center justify-between border-l-4 px-8 py-3 font-inter text-[10px] font-normal leading-[26px] tracking-[0.18px] transition-all hover:bg-white/10 ${isSubActive
+                                                    ? 'border-l-white bg-white/15 font-bold'
+                                                    : 'border-l-transparent text-white/80'}`}
                                                 onMouseEnter={() => {
                                                     if (hasSubChildren) {
                                                         setActiveChild(sub);
                                                     }
                                                 }}
                                             >
-                                                <span className="text-[13px] font-bold">{sub.name}</span>
-                                                {hasSubChildren && <ChevronRight className="w-4 h-4 text-gray-400" />}
+                                                <span className="text-[13px] font-bold capitalize text-white">{capitalizeTitle(sub.name)}</span>
+                                                {hasSubChildren && <ChevronRight className="h-4 w-4 text-white" />}
                                             </Link>
                                         );
                                     })}
@@ -431,16 +433,16 @@ export default function HamburMenu({
 
                         {/* COLUMNA 3 — panel ancho (grid de subcategorías) */}
                         <div
-                            className={`galaxia-menu-col-reveal h-full shrink-0 overflow-hidden bg-white ${
-                                showDesktopLeaf ? 'max-w-[950px] border-r border-gray-100' : 'max-w-0'
+                            className={`galaxia-menu-col-reveal h-full shrink-0 overflow-hidden bg-[#304c94] ${
+                                showDesktopLeaf ? 'max-w-[950px] border-r border-white/15' : 'max-w-0'
                             }`}
                         >
                             {showDesktopLeaf && activeParent && (
                                 <div
                                     key={`leaf-${isDesktopFlatCatalog ? activeParent.id : activeChild?.id}`}
-                                    className="galaxia-menu-leaf-inner h-full min-w-0 max-w-[950px] shrink-0 overflow-y-auto bg-white p-12 lg:min-w-[650px]"
+                                    className="galaxia-menu-leaf-inner h-full min-w-0 max-w-[950px] shrink-0 overflow-y-auto bg-[#08204E] p-12 lg:min-w-[650px]"
                                 >
-                                    <h3 className="font-inter font-bold text-[14px] leading-[20px] tracking-[0.18px] text-black mb-4 tracking-tighter">
+                                    <h3 className="mb-4 font-inter text-[14px] font-bold capitalize leading-[20px] tracking-[0.18px] tracking-tighter text-white">
                                         {desktopLeafTitle}
                                     </h3>
                                     <div className="grid grid-cols-3 gap-x-12 gap-y-3">
@@ -448,10 +450,10 @@ export default function HamburMenu({
                                             <Link
                                                 key={leaf.id}
                                                 href={getCategoryHref(leaf.slug)}
-                                                className="font-inter text-[12px] leading-[18px] tracking-[0.2px]  text-[#54585AAB] hover:text-amber-500 hover:translate-x-1 transition-all py-1 block"
+                                                className="block py-1 font-inter text-[12px] capitalize leading-[18px] tracking-[0.2px] text-white/75 transition-all hover:translate-x-1 hover:text-white"
                                                 onClick={onClose}
                                             >
-                                                {leaf.name}
+                                                {capitalizeTitle(leaf.name)}
                                             </Link>
                                         ))}
                                     </div>

@@ -235,27 +235,16 @@ export interface InventoryStoreEntry {
     };
 }
 
-export interface ProductVariant {
-    id: number;
-    variant_sku: string;
-    style_code?: string | null;
-    variant_color?: string | null;
-    price_regular: number;
-    price_sale: number | null;
-    stock_quantity: number;
-    attributes_json: Record<string, string>;
-    status: 'active' | 'inactive';
-    images?: ProductImage[];
-    inventory_stores?: InventoryStoreEntry[];
-}
-
 export interface Product {
     id: number;
+    erp_product_id?: number | null;
     sku: string;
+    codigo?: string | null;
     name: string;
     slug: string;
     description: string | null;
     short_description: string | null;
+    external_image_url?: string | null;
     style_code: string | null;
     product_color: string | null;
     /** Referencia Brilo (proNombreCotizaciones), ej. "U:SYTE L:TE S:RU" */
@@ -263,10 +252,13 @@ export interface Product {
     details: Record<string, string> | null;
 
     status: 'draft' | 'published' | 'archived';
+    available_in_store?: boolean;
     price_regular: number;
+    cost_average?: number | null;
     price_sale: number | null;
     discount_percentage: number | null;
     weight?: number | null;
+    stock_quantity?: number;
     currency: string;
 
     brand_id: number | null;
@@ -276,7 +268,12 @@ export interface Product {
     sports?: Sport[];
     images?: ProductImage[];
     main_image_url?: string;
-    variants?: ProductVariant[];
+    attributeValues?: Array<{
+        id: number;
+        value: string;
+        slug?: string | null;
+        attribute?: { id: number; name: string; slug: string };
+    }>;
     inventory_stores?: InventoryStoreEntry[];
 
     is_featured: boolean;
@@ -293,7 +290,10 @@ export interface Product {
 
     /** Campos enriquecidos en listado admin (GET /admin/products) */
     categoria_padre?: string | null;
+    subcategoria?: string | null;
     subcategoria_genero?: string | null;
+    sub_subcategoria?: string | null;
+    presentacion?: string | null;
     /** Tercer nivel de clasificación (Sub-subcategoría en el formulario) */
     sub_subcategoria?: string | null;
     unique_style_codes?: string[];

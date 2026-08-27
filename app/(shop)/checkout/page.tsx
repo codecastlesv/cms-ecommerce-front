@@ -41,7 +41,6 @@ type CartLine = {
   size?: string;
   image?: string;
   sku?: string;
-  variant_id?: number;
   variant_sku?: string;
   variant_label?: string;
   color?: string;
@@ -483,11 +482,11 @@ function CheckoutInner() {
         name: item.name,
         quantity: item.quantity || 1,
         unit_price: Number(item.price),
-        sku: variantSku ?? undefined,
-        variant_sku: variantSku ?? undefined,
+        sku: item.sku ?? item.variant_sku ?? undefined,
+        variant_sku: item.sku ?? item.variant_sku ?? undefined,
         image: item.image ?? undefined,
         product_id: hasNumericId ? idNum : undefined,
-        variant_id: item.variant_id ?? undefined,
+        presentacion: typeof item.variant_label === 'string' ? item.variant_label : undefined,
         size: item.size ?? undefined,
         color: typeof color === 'string' && color.trim() ? color.trim() : undefined,
         variant_label: typeof color === 'string' && color.trim() ? color.trim() : undefined,

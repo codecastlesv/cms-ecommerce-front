@@ -4,10 +4,10 @@ export const getPublicSettings = async () => {
     try {
 
         return {
-            seo_title: 'Galaxia Deportes',
-            seo_description: 'Tu tienda de deportes favorita.',
+            seo_title: 'Castella Sagarra',
+            seo_description: '',
             full_logo_url: null,
-            main_color: '#2563eb',
+            main_color: '#0f172b',
             robots_index: true
         };
     } catch (error) {

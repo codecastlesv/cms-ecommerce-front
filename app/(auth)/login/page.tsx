@@ -55,7 +55,7 @@ export default function LoginPage() {
                     <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-slate-900/20">
                         <ShieldCheck className="w-7 h-7 text-white" />
                     </div>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Galaxia CMS</h1>
+                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Castella Sagarra CMS</h1>
                     <p className="text-gray-500 text-sm mt-2">Panel de Administración</p>
                 </div>
 
@@ -78,7 +78,7 @@ export default function LoginPage() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none transition-all bg-gray-50 focus:bg-white text-sm"
-                                placeholder="usuario@galaxiadeportes.com"
+                                placeholder="usuario@castella-sagarra.com"
                                 required
                                 disabled={isSubmitting}
                             />
@@ -130,7 +130,7 @@ export default function LoginPage() {
 
                 <div className="mt-8 text-center">
                     <p className="text-xs text-gray-400">
-                        © {new Date().getFullYear()} Galaxia Deportes. Acceso restringido.
+                        © {new Date().getFullYear()} Castella Sagarra. Acceso restringido.
                     </p>
                 </div>
             </div>

@@ -1,26 +1,24 @@
 'use client';
 
-import { useEffect, useState, useMemo, useRef, useCallback, type RefObject } from 'react';
-import { createPortal } from 'react-dom';
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { useForm, UseFormRegisterReturn } from 'react-hook-form';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import api from '@/lib/axios';
 import { toast } from 'sonner';
 import {
     ArrowLeft, Save, Upload, X, Package, Image as ImageIcon,
-    Layers, BarChart, Trash2, RefreshCcw, Palette, Eye, ShoppingBag,
-    AlertTriangle, Check, ChevronDown, DollarSign, Percent, EyeOff,
-    LayoutGrid, Filter, Search, Square, CheckSquare, XCircle, RotateCcw, Box, Loader2, Truck
+    Layers, BarChart, Trash2, RefreshCcw, Eye, ShoppingBag,
+    AlertTriangle, Check, ChevronDown, DollarSign, Percent,
+    XCircle, Loader2, Truck
 } from 'lucide-react';
 import PermissionGate from '@/components/auth/PermissionGate';
 import { usePermission } from '@/hooks/usePermission';
 import { useCatalog } from '@/components/providers/CatalogContext';
 import { handleError } from '@/lib/errorHandler';
-import { colorGroupElementId, getVariantColorLabel, getVariantGroupKey, resolveVariantDeepLinkTarget, resolveVariantGroupScrollKey } from '@/lib/variantGroupUtils';
 import { ADMIN_PRODUCT_NAME_CLASS } from '@/components/admin/AdminProductName';
-import { Product, Category, ProductVariant, ProductImage } from '@/types';
+import { Product, Category, ProductImage } from '@/types';
 
 /** Ruta raíz → … → categoría (ids), usando el mapa `parent_id` del listado admin. */
 function categoryPathFromId(categoryId: number, byId: Map<number, Category>): number[] {
@@ -129,294 +127,6 @@ function resolveBestCategoryPath(
     return best;
 }
 
-function getVariantTalla(variant: ProductVariant): string {
-    const attrs = variant.attributes_json;
-    if (!attrs || typeof attrs !== 'object') {
-        return '—';
-    }
-
-    const talla = attrs.talla ?? attrs.Talla ?? attrs.size ?? attrs.Size;
-    if (talla != null && String(talla).trim() !== '') {
-        return String(talla).trim().toUpperCase();
-    }
-
-    return '—';
-}
-
-function computeVariantStockTotal(variant: ProductVariant): number {
-    const fromStores = (variant.inventory_stores ?? []).reduce(
-        (sum, inv) => sum + (Number(inv.qty_on_hand) || 0),
-        0,
-    );
-
-    if (fromStores > 0) {
-        return fromStores;
-    }
-
-    return Number(variant.stock_quantity) || 0;
-}
-
-function useFloatingPanelPosition(
-    triggerRef: RefObject<HTMLElement | null>,
-    open: boolean,
-    panelWidth: number,
-) {
-    const [style, setStyle] = useState<{ top: number; left: number } | null>(null);
-
-    const update = useCallback(() => {
-        const el = triggerRef.current;
-        if (!el) return;
-
-        const rect = el.getBoundingClientRect();
-        const margin = 8;
-        const gap = 6;
-        let left = rect.right - panelWidth;
-        left = Math.max(margin, Math.min(left, window.innerWidth - panelWidth - margin));
-
-        setStyle({
-            top: rect.bottom + gap,
-            left,
-        });
-    }, [triggerRef, panelWidth]);
-
-    useEffect(() => {
-        if (!open) {
-            setStyle(null);
-            return;
-        }
-
-        update();
-        window.addEventListener('scroll', update, true);
-        window.addEventListener('resize', update);
-        return () => {
-            window.removeEventListener('scroll', update, true);
-            window.removeEventListener('resize', update);
-        };
-    }, [open, update]);
-
-    return style;
-}
-
-const STOCK_PANEL_WIDTH = 224;
-
-function VariantStockBadge({ variant }: { variant: ProductVariant }) {
-    const [open, setOpen] = useState(false);
-    const [mounted, setMounted] = useState(false);
-    const triggerRef = useRef<HTMLButtonElement>(null);
-    const panelRef = useRef<HTMLDivElement>(null);
-    const panelStyle = useFloatingPanelPosition(triggerRef, open, STOCK_PANEL_WIDTH);
-    const stores = variant.inventory_stores ?? [];
-    const total = computeVariantStockTotal(variant);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    useEffect(() => {
-        if (!open) return;
-
-        const handleClickOutside = (event: MouseEvent) => {
-            const target = event.target as Node;
-            if (
-                triggerRef.current?.contains(target) ||
-                panelRef.current?.contains(target)
-            ) {
-                return;
-            }
-            setOpen(false);
-        };
-
-        const handleEscape = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') setOpen(false);
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        document.addEventListener('keydown', handleEscape);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-            document.removeEventListener('keydown', handleEscape);
-        };
-    }, [open]);
-
-    const badgeTone =
-        total <= 0 ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
-        : total <= 5 ? 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'
-        : 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100';
-
-    const panel =
-        open && mounted && panelStyle
-            ? createPortal(
-                <div
-                    ref={panelRef}
-                    role="dialog"
-                    aria-label="Stock por bodega"
-                    className="fixed z-[9999] rounded-lg border border-slate-200 bg-white p-3 shadow-2xl animate-in fade-in zoom-in-95"
-                    style={{ top: panelStyle.top, left: panelStyle.left, width: STOCK_PANEL_WIDTH }}
-                >
-                    <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-slate-500">
-                        Stock por bodega
-                    </p>
-                    {stores.length > 0 ? (
-                        <ul className="space-y-1 text-xs">
-                            {stores.map((inv) => (
-                                <li
-                                    key={inv.id}
-                                    className="flex items-center justify-between gap-2 rounded-md bg-slate-50 px-2 py-1"
-                                >
-                                    <span className="truncate font-medium text-slate-700" title={inv.store?.name}>
-                                        {inv.store?.code?.trim() || inv.store?.name || 'Bodega'}
-                                    </span>
-                                    <span className="shrink-0 font-bold tabular-nums text-slate-900">
-                                        {Number(inv.qty_on_hand) || 0}
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p className="text-xs text-slate-400">
-                            Sin desglose por bodega. Total consolidado: {total} u.
-                        </p>
-                    )}
-                </div>,
-                document.body,
-            )
-            : null;
-
-    return (
-        <>
-            <button
-                ref={triggerRef}
-                type="button"
-                onClick={() => setOpen((prev) => !prev)}
-                className={`inline-flex items-center gap-0.5 rounded-full border px-2 py-0.5 text-[11px] font-bold tabular-nums transition-colors ${badgeTone}`}
-                title="Ver desglose por bodega"
-                aria-expanded={open}
-            >
-                {total} u.
-                <ChevronDown className={`h-3 w-3 transition-transform ${open ? 'rotate-180' : ''}`} />
-            </button>
-            {panel}
-        </>
-    );
-}
-
-const IMAGE_PANEL_WIDTH = 256;
-
-function VariantImagePicker({
-    variant,
-    existingImages,
-    isOpen,
-    onToggle,
-    onLink,
-}: {
-    variant: ProductVariant;
-    existingImages: ProductImage[];
-    isOpen: boolean;
-    onToggle: () => void;
-    onLink: (variantId: number, imageId: number) => void;
-}) {
-    const [mounted, setMounted] = useState(false);
-    const triggerRef = useRef<HTMLButtonElement>(null);
-    const panelRef = useRef<HTMLDivElement>(null);
-    const panelStyle = useFloatingPanelPosition(triggerRef, isOpen, IMAGE_PANEL_WIDTH);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    useEffect(() => {
-        if (!isOpen) return;
-
-        const handleClickOutside = (event: MouseEvent) => {
-            const target = event.target as Node;
-            if (
-                triggerRef.current?.contains(target) ||
-                panelRef.current?.contains(target)
-            ) {
-                return;
-            }
-            onToggle();
-        };
-
-        const handleEscape = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') onToggle();
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        document.addEventListener('keydown', handleEscape);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-            document.removeEventListener('keydown', handleEscape);
-        };
-    }, [isOpen, onToggle]);
-
-    const panel =
-        isOpen && mounted && panelStyle
-            ? createPortal(
-                <div
-                    ref={panelRef}
-                    role="dialog"
-                    aria-label="Asignar imágenes a variante"
-                    className="fixed z-[9999] rounded-lg border border-slate-200 bg-white p-2 shadow-2xl animate-in fade-in zoom-in-95"
-                    style={{ top: panelStyle.top, left: panelStyle.left, width: IMAGE_PANEL_WIDTH }}
-                >
-                    <div className="grid grid-cols-5 gap-1.5">
-                        {existingImages.map((img) => {
-                            const isLinked = variant.images?.some((vi) => vi.id === img.id);
-                            return (
-                                <button
-                                    key={img.id}
-                                    type="button"
-                                    onClick={() => onLink(variant.id, img.id)}
-                                    className={`relative aspect-square cursor-pointer rounded border overflow-hidden ${isLinked ? 'border-black ring-1 ring-black' : 'border-slate-200 hover:border-slate-400'}`}
-                                >
-                                    <img src={img.full_url || img.url} alt="" className="h-full w-full object-cover" />
-                                    {isLinked ? (
-                                        <span className="absolute inset-0 flex items-center justify-center bg-black/25">
-                                            <Check className="h-3 w-3 text-white" />
-                                        </span>
-                                    ) : null}
-                                </button>
-                            );
-                        })}
-                    </div>
-                    <button
-                        type="button"
-                        onClick={onToggle}
-                        className="mt-2 w-full rounded py-1 text-[10px] font-bold text-red-500 hover:bg-slate-50"
-                    >
-                        Cerrar
-                    </button>
-                </div>,
-                document.body,
-            )
-            : null;
-
-    return (
-        <div className="inline-flex items-center justify-center gap-0.5">
-            {variant.images?.slice(0, 2).map((vi) => (
-                <img
-                    key={vi.id}
-                    src={vi.full_url || vi.url}
-                    alt=""
-                    className="h-6 w-6 shrink-0 rounded border object-cover"
-                />
-            ))}
-            <button
-                ref={triggerRef}
-                type="button"
-                onClick={onToggle}
-                className={`flex h-6 w-6 shrink-0 items-center justify-center rounded border transition-colors ${variant.images?.length ? 'border-green-200 bg-green-50 text-green-700' : 'border-slate-200 text-slate-400 hover:bg-slate-50'}`}
-                title="Asignar imágenes"
-                aria-expanded={isOpen}
-            >
-                <LayoutGrid className="h-3 w-3" />
-            </button>
-            {panel}
-        </div>
-    );
-}
-
 const schema = z.object({
     name: z.string().min(1, "El nombre es obligatorio"),
     sku: z.string().optional().default(''),
@@ -483,14 +193,6 @@ const FormSelect = ({ label, error, registration, children, ...props }: React.Se
 
 export default function ProductForm({ productId }: { productId?: string }) {
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const variantDeepLink = useMemo(
-        () => resolveVariantDeepLinkTarget({
-            style: searchParams.get('style'),
-            color: searchParams.get('color'),
-        }),
-        [searchParams],
-    );
     const { can } = usePermission();
     const isEditing = Boolean(productId);
     const [productDbId, setProductDbId] = useState<number | null>(null);
@@ -500,25 +202,13 @@ export default function ProductForm({ productId }: { productId?: string }) {
         brands,
         categories: allCategories,
         sports,
-        attributes,
     } = useCatalog();
     const [loading, setLoading] = useState(false);
-    const [generatingVariants, setGeneratingVariants] = useState(false);
     const [isSyncingBrilo, setIsSyncingBrilo] = useState(false);
-    const [activeTab, setActiveTab] = useState(() => (variantDeepLink.target ? 'variants' : 'general'));
-    const colorScrollDoneRef = useRef(false);
+    const [activeTab, setActiveTab] = useState('general');
 
-    const [variants, setVariants] = useState<ProductVariant[]>([]);
     const [existingImages, setExistingImages] = useState<ProductImage[]>([]);
-    const [variantSelection, setVariantSelection] = useState<Record<number, number[]>>({});
-    const [variantImageSelector, setVariantImageSelector] = useState<number | null>(null);
-    const [selectedVariantIds, setSelectedVariantIds] = useState<number[]>([]);
-    const [variantSearchQuery, setVariantSearchQuery] = useState('');
-    const [generatorOpen, setGeneratorOpen] = useState(false);
-
-    const [bulkPrice, setBulkPrice] = useState('');
-    const [bulkStock, setBulkStock] = useState('');
-    const [bulkOffer, setBulkOffer] = useState('');
+    const [loadedProduct, setLoadedProduct] = useState<Product | null>(null);
 
     const [selectedParentId, setSelectedParentId] = useState("");
     const [selectedChildId, setSelectedChildId] = useState("");
@@ -531,7 +221,6 @@ export default function ProductForm({ productId }: { productId?: string }) {
     const [newImages, setNewImages] = useState<File[]>([]);
     const [previewImages, setPreviewImages] = useState<string[]>([]);
 
-    const [previewFilters, setPreviewFilters] = useState<Record<string, string>>({});
     const [previewMainImage, setPreviewMainImage] = useState<string | null>(null);
 
     const hasPermission = isEditing ? can('edit_products') : can('create_products');
@@ -547,6 +236,7 @@ export default function ProductForm({ productId }: { productId?: string }) {
         setIsProductLoading(true);
         try {
             const { data } = await api.get<Product>(`/admin/products/${productId}`);
+            setLoadedProduct(data);
             setProductDbId(data.id);
             setProductDisplayName(data.name);
             const cats = data.categories ?? [];
@@ -576,7 +266,6 @@ export default function ProductForm({ productId }: { productId?: string }) {
                 robots_follow: !!data.robots_follow,
             });
             if (data.images) setExistingImages(data.images);
-            if (data.variants) setVariants(data.variants);
         } catch {
             toast.error('Error cargando producto');
         } finally {
@@ -608,10 +297,10 @@ export default function ProductForm({ productId }: { productId?: string }) {
         setIsSyncingBrilo(true);
         try {
             await api.post(`/admin/products/${productId}/sync-brilo-stock`);
-            toast.success('¡Stock sincronizado con Brilo correctamente!');
+            toast.success('¡Stock sincronizado con Olympus correctamente!');
             await loadProduct();
         } catch (e) {
-            toast.error(handleError(e, 'No se pudo sincronizar el stock con Brilo'));
+            toast.error(handleError(e, 'No se pudo sincronizar el stock con Olympus'));
         } finally {
             setIsSyncingBrilo(false);
         }
@@ -689,134 +378,6 @@ export default function ProductForm({ productId }: { productId?: string }) {
         try { await api.delete(`/admin/product-images/${id}`); setExistingImages(p => p.filter(i => i.id !== id)); } catch (e) { toast.error("Error"); }
     };
 
-    const filteredVariants = useMemo(() => {
-        if (!variantSearchQuery) return variants;
-        const q = variantSearchQuery.toLowerCase();
-        return variants.filter(v => v.variant_sku.toLowerCase().includes(q) || Object.values(v.attributes_json).some(val => String(val).toLowerCase().includes(q)));
-    }, [variants, variantSearchQuery]);
-
-    const groupedFilteredVariants = useMemo(() => {
-        const map = new Map<string, ProductVariant[]>();
-
-        for (const variant of filteredVariants) {
-            const key = getVariantGroupKey(variant);
-            const bucket = map.get(key) ?? [];
-            bucket.push(variant);
-            map.set(key, bucket);
-        }
-
-        return Array.from(map.entries())
-            .sort(([a], [b]) => a.localeCompare(b))
-            .map(([groupKey, groupVariants]) => ({
-                groupKey,
-                groupVariants: groupVariants.sort((a, b) =>
-                    getVariantTalla(a).localeCompare(getVariantTalla(b)),
-                ),
-            }));
-    }, [filteredVariants]);
-
-    useEffect(() => {
-        colorScrollDoneRef.current = false;
-    }, [productId, variantDeepLink.target, variantDeepLink.mode]);
-
-    useEffect(() => {
-        if (variantDeepLink.target) {
-            setActiveTab('variants');
-        }
-    }, [variantDeepLink.target]);
-
-    useEffect(() => {
-        if (!variantDeepLink.target || !variantDeepLink.mode || activeTab !== 'variants') return;
-        if (isProductLoading || !productDbId) return;
-        if (colorScrollDoneRef.current) return;
-
-        const scrollKey = resolveVariantGroupScrollKey(
-            groupedFilteredVariants,
-            variantDeepLink.target,
-            variantDeepLink.mode,
-        );
-        if (!scrollKey) return;
-
-        const elementId = colorGroupElementId(scrollKey);
-
-        const scrollToGroup = () => {
-            const element = document.getElementById(elementId);
-            if (element) {
-                setTimeout(() => {
-                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 100);
-                colorScrollDoneRef.current = true;
-                return true;
-            }
-            return false;
-        };
-
-        if (!scrollToGroup()) {
-            const retryTimer = setTimeout(scrollToGroup, 300);
-            return () => clearTimeout(retryTimer);
-        }
-    }, [
-        variantDeepLink.target,
-        variantDeepLink.mode,
-        activeTab,
-        isProductLoading,
-        productDbId,
-        groupedFilteredVariants,
-    ]);
-
-    const handleBulkUpdate = async () => {
-        if (!confirm(`¿Actualizar ${selectedVariantIds.length} items?`)) return;
-        const updates: any = {};
-        if (bulkStock) updates.stock_quantity = parseInt(bulkStock);
-        if (bulkPrice) updates.price_regular = parseFloat(bulkPrice);
-        if (bulkOffer) updates.price_sale = parseFloat(bulkOffer);
-        try {
-            await Promise.all(selectedVariantIds.map(id => api.put(`/admin/product-variants/${id}`, updates)));
-            setVariants(prev => prev.map(v => selectedVariantIds.includes(v.id) ? { ...v, ...updates } : v));
-            toast.success("Actualizado");
-            setBulkStock(''); setBulkPrice(''); setBulkOffer(''); setSelectedVariantIds([]);
-        } catch (e) { toast.error("Error"); }
-    };
-
-    const handleBulkDelete = async () => {
-        if (!confirm("¿Eliminar selección?")) return;
-        try {
-            await Promise.all(selectedVariantIds.map(id => api.delete(`/admin/product-variants/${id}`)));
-            setVariants(prev => prev.filter(v => !selectedVariantIds.includes(v.id)));
-            setSelectedVariantIds([]);
-            toast.success("Eliminados");
-        } catch (e) { toast.error("Error"); }
-    };
-
-    const handleGenerateVariants = async () => {
-        if (!productDbId || !productId) return toast.error("Guarda primero");
-        setGeneratingVariants(true);
-        try {
-            await api.post(`/admin/products/${productDbId}/variants/generate`, { selection: variantSelection });
-            const { data } = await api.get<Product>(`/admin/products/${productId}`);
-            setVariants(data.variants || []);
-            setVariantSelection({});
-            toast.success("Generadas");
-        } catch (e) { toast.error("Error al generar"); }
-        finally { setGeneratingVariants(false); }
-    };
-
-    const handleUpdateVariant = async (id: number, field: string, value: any) => {
-        setVariants(prev => prev.map(v => v.id === id ? { ...v, [field]: value } : v));
-        try { await api.put(`/admin/product-variants/${id}`, { [field]: value }); } catch (e) { }
-    };
-
-    const handleLinkImageToVariant = async (variantId: number, imageId: number) => {
-        try {
-            await api.post(`/admin/product-variants/${variantId}/images`, { image_ids: [imageId] });
-            if (!productId) return;
-            const { data } = await api.get<Product>(`/admin/products/${productId}`);
-            setVariants(data.variants || []);
-            setVariantImageSelector(null);
-            toast.success("Imagen vinculada");
-        } catch (e) { toast.error("Error"); }
-    };
-
     const onSubmit = async (data: ProductFormData) => {
         if (!hasPermission) return;
         setLoading(true);
@@ -877,69 +438,25 @@ export default function ProductForm({ productId }: { productId?: string }) {
     };
 
     const PreviewEcommerce = () => {
-        const activeVariant = variants.find(v =>
-            Object.entries(previewFilters).every(([key, val]) => v.attributes_json[key] === val)
+        const displayImages = existingImages.filter(i => i.is_visible);
+        const mainImageSrc = previewMainImage || displayImages[0]?.full_url || displayImages[0]?.url || previewImages[0];
+        const reg = Number(watch('price_regular')) || 0;
+        const sale = Number(watch('price_sale')) || 0;
+        const isSale = sale > 0 && sale < reg;
+        const stock = Number(loadedProduct?.stock_quantity ?? 0);
+
+        const priceDisplay = (
+            <div className="flex items-baseline gap-3">
+                <span className="text-2xl font-black text-slate-900">${(isSale ? sale : reg).toFixed(2)}</span>
+                {isSale && <span className="text-lg text-slate-400 line-through decoration-1">${reg.toFixed(2)}</span>}
+            </div>
         );
 
-        let displayImages = activeVariant?.images?.length ? activeVariant.images : existingImages.filter(i => i.is_visible);
-
-        const mainImageSrc = previewMainImage || displayImages[0]?.full_url || displayImages[0]?.url || previewImages[0];
-
-        let priceDisplay = null;
-        let stockDisplay = null;
-
-        if (activeVariant) {
-            const reg = Number(activeVariant.price_regular);
-            const sale = Number(activeVariant.price_sale);
-            const isSale = sale > 0 && sale < reg;
-
-            priceDisplay = (
-                <div className="flex items-baseline gap-3">
-                    <span className="text-2xl font-black text-slate-900">${(isSale ? sale : reg).toFixed(2)}</span>
-                    {isSale && <span className="text-lg text-slate-400 line-through decoration-1">${reg.toFixed(2)}</span>}
-                </div>
-            );
-
-            const stock = activeVariant.stock_quantity;
-            stockDisplay = stock > 10
-                ? <span className="text-green-600 font-bold text-xs flex items-center gap-1"><Check className="w-3 h-3" /> En Stock ({stock})</span>
-                : stock > 0
-                    ? <span className="text-amber-600 font-bold text-xs flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Poco Stock ({stock})</span>
-                    : <span className="text-red-600 font-bold text-xs flex items-center gap-1"><XCircle className="w-3 h-3" /> Agotado</span>;
-
-        } else {
-            const prices = variants.length > 0
-                ? variants.map(v => Number(v.price_sale || v.price_regular))
-                : [Number(watch('price_sale') || watch('price_regular'))];
-
-            const minPrice = Math.min(...prices);
-            const maxPrice = Math.max(...prices);
-
-            priceDisplay = (
-                <div className="text-2xl font-black text-slate-900">
-                    {minPrice !== maxPrice ? `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(2)}` : `$${minPrice.toFixed(2)}`}
-                </div>
-            );
-            stockDisplay = <span className="text-slate-400 text-xs">Selecciona opciones para ver stock</span>;
-        }
-
-        const availableAttributes: Record<string, string[]> = {};
-        variants.forEach(v => {
-            Object.entries(v.attributes_json).forEach(([key, val]) => {
-                if (!availableAttributes[key]) availableAttributes[key] = [];
-                if (!availableAttributes[key].includes(String(val))) availableAttributes[key].push(String(val));
-            });
-        });
-
-        const handleFilterClick = (attr: string, val: string) => {
-            setPreviewFilters(prev => {
-                const next = { ...prev };
-                if (next[attr] === val) delete next[attr];
-                else next[attr] = val;
-                return next;
-            });
-            setPreviewMainImage(null);
-        };
+        const stockDisplay = stock > 10
+            ? <span className="text-green-600 font-bold text-xs flex items-center gap-1"><Check className="w-3 h-3" /> En Stock ({stock})</span>
+            : stock > 0
+                ? <span className="text-amber-600 font-bold text-xs flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Poco Stock ({stock})</span>
+                : <span className="text-red-600 font-bold text-xs flex items-center gap-1"><XCircle className="w-3 h-3" /> Agotado</span>;
 
         return (
             <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 flex flex-col md:flex-row gap-10 max-w-5xl mx-auto font-sans">
@@ -954,7 +471,7 @@ export default function ProductForm({ productId }: { productId?: string }) {
                                 <span className="text-xs font-medium uppercase tracking-widest">Sin Imagen</span>
                             </div>
                         )}
-                        {Number(activeVariant?.price_sale || watch('price_sale')) > 0 && (
+                        {isSale && (
                             <span className="absolute top-4 left-4 bg-black text-white text-[10px] font-bold px-3 py-1.5 uppercase tracking-widest shadow-lg">
                                 Oferta
                             </span>
@@ -964,7 +481,7 @@ export default function ProductForm({ productId }: { productId?: string }) {
                     {displayImages.length > 1 && (
                         <div className="grid grid-cols-5 gap-2">
                             {displayImages.slice(0, 5).map((img, i) => (
-                                <button key={i} onClick={() => setPreviewMainImage(img.full_url || img.url)} className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${mainImageSrc === (img.full_url || img.url) ? 'border-black opacity-100' : 'border-transparent opacity-70 hover:opacity-100'}`}>
+                                <button key={i} type="button" onClick={() => setPreviewMainImage(img.full_url || img.url)} className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${mainImageSrc === (img.full_url || img.url) ? 'border-black opacity-100' : 'border-transparent opacity-70 hover:opacity-100'}`}>
                                     <img src={img.full_url || img.url} className="w-full h-full object-cover" />
                                 </button>
                             ))}
@@ -987,44 +504,11 @@ export default function ProductForm({ productId }: { productId?: string }) {
 
                     <div className="h-px bg-slate-100 w-full mb-6" />
 
-                    <div className="space-y-6 mb-8">
-                        {Object.entries(availableAttributes).map(([attr, values]) => (
-                            <div key={attr}>
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="text-xs font-bold text-slate-900 uppercase tracking-wide">{attr}: <span className="text-slate-500 font-normal">{previewFilters[attr]}</span></span>
-                                    {previewFilters[attr] && <button onClick={() => handleFilterClick(attr, previewFilters[attr])} className="text-[10px] text-slate-400 underline hover:text-black">Limpiar</button>}
-                                </div>
-                                <div className="flex flex-wrap gap-2">
-                                    {values.map(val => {
-                                        const isSelected = previewFilters[attr] === val;
-                                        return (
-                                            <button
-                                                key={val}
-                                                onClick={() => handleFilterClick(attr, val)}
-                                                className={`px-4 py-2 text-sm font-medium border transition-all duration-200 min-w-[3rem] ${isSelected ? 'bg-black text-white border-black shadow-md' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'}`}
-                                            >
-                                                {val}
-                                            </button>
-                                        )
-                                    })}
-                                </div>
-                            </div>
-                        ))}
-
-                        {Object.keys(previewFilters).length > 0 && (
-                            <button onClick={() => setPreviewFilters({})} className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-black transition mt-4">
-                                <RotateCcw className="w-3 h-3" /> Resetear todos los filtros
-                            </button>
-                        )}
-                    </div>
-
                     <div className="mt-auto space-y-4">
-                        <button disabled={!activeVariant && variants.length > 0} className="w-full bg-black text-white py-4 font-bold uppercase tracking-widest text-sm hover:bg-slate-800 transition flex items-center justify-center gap-3 shadow-xl shadow-black/10 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button type="button" className="w-full bg-black text-white py-4 font-bold uppercase tracking-widest text-sm hover:bg-slate-800 transition flex items-center justify-center gap-3 shadow-xl shadow-black/10">
                             <ShoppingBag className="w-4 h-4" />
-                            {variants.length > 0 && !activeVariant ? 'Selecciona Opciones' : 'Agregar al Carrito'}
+                            Agregar al Carrito
                         </button>
-                        <div className="text-xs text-center text-slate-400 flex items-center justify-center gap-4">
-                        </div>
                     </div>
                 </div>
             </div>
@@ -1100,7 +584,6 @@ export default function ProductForm({ productId }: { productId?: string }) {
                         <div className="flex flex-wrap gap-1 p-1 bg-slate-100 rounded-lg mb-2">
                             {[
                                 { id: 'general', label: 'General', icon: Package },
-                                { id: 'variants', label: 'Variantes', icon: Palette },
                                 { id: 'seo', label: 'SEO', icon: BarChart },
                                 { id: 'preview', label: 'Vista Previa', icon: Eye },
                             ].map(tab => (
@@ -1110,20 +593,57 @@ export default function ProductForm({ productId }: { productId?: string }) {
 
                         {activeTab === 'general' && (
                             <div className="space-y-6 animate-in fade-in zoom-in-95">
-                                <input type="hidden" {...register('sku')} />
                                 <input type="hidden" {...register('style_code')} />
                                 <input type="hidden" {...register('product_color')} />
 
                                 <FormSection title="Info Básica" icon={Package}>
                                     <FormInput label="Nombre *" registration={register('name')} error={errors.name?.message} className={ADMIN_PRODUCT_NAME_CLASS} />
-                                    <div className="mt-4">
-                                        <FormInput
-                                            label="Referencia de Cotización (Brilo)"
-                                            registration={register('pro_nombre_cotizaciones')}
-                                            placeholder="Ej. U:SYTE L:TE S:RU"
-                                            className="font-mono"
-                                        />
+                                    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <FormInput label="SKU / Código de barras" registration={register('sku')} className="font-mono" />
+                                        <div>
+                                            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1 block mb-1.5">Código ERP</label>
+                                            <div className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm font-mono text-slate-700">
+                                                {loadedProduct?.codigo || '—'}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1 block mb-1.5">IdProducto ERP</label>
+                                            <div className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm font-mono text-slate-700">
+                                                {loadedProduct?.erp_product_id ?? '—'}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1 block mb-1.5">Stock</label>
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex-1 bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm font-mono text-slate-700">
+                                                    {loadedProduct?.stock_quantity ?? 0}
+                                                </div>
+                                                {isEditing ? (
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleSyncBriloStock}
+                                                        disabled={isSyncingBrilo}
+                                                        className="inline-flex items-center gap-1.5 shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                                        title="Sincronizar stock con Brilo"
+                                                    >
+                                                        {isSyncingBrilo ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCcw className="h-3.5 w-3.5" />}
+                                                        Sincronizar con Olympus
+                                                    </button>
+                                                ) : null}
+                                            </div>
+                                        </div>
                                     </div>
+                                    <div className="mt-4">
+                                        <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1 block mb-1.5">Presentación</label>
+                                        <div className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm text-slate-700">
+                                            {loadedProduct?.attributeValues?.find((value) => {
+                                                const slug = value.attribute?.slug?.toLowerCase();
+                                                const name = value.attribute?.name?.toLowerCase();
+                                                return slug === 'presentacion' || name === 'presentación' || name === 'presentacion';
+                                            })?.value || '—'}
+                                        </div>
+                                    </div>
+                                    
                                 </FormSection>
 
                                 <FormSection title="Clasificación" icon={Layers}>
@@ -1137,7 +657,6 @@ export default function ProductForm({ productId }: { productId?: string }) {
                                             <FormSelect label="Sub-subcategoría" value={selectedGrandChildId} onChange={e => setSelectedGrandChildId(e.target.value)} disabled={!selectedChildId}><option value="">-- Seleccionar --</option>{grandChildCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</FormSelect>
                                         </div>
                                         <div>
-                                            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1 block mb-2">Deportes</label>
                                             <div className="flex flex-wrap gap-2">{sports.map(s => (<label key={s.id} className="cursor-pointer border rounded-md px-3 py-1.5 text-xs font-medium hover:border-black transition select-none has-[:checked]:bg-black has-[:checked]:text-white has-[:checked]:border-black"><input type="checkbox" value={s.id} {...register('sports')} className="sr-only" />{s.name}</label>))}</div>
                                         </div>
                                     </div>
@@ -1175,233 +694,6 @@ export default function ProductForm({ productId }: { productId?: string }) {
                                     <textarea {...register('description')} className="w-full border border-slate-200 rounded-lg p-4 text-sm h-40 focus:ring-2 focus:ring-black/5 outline-none mb-4" placeholder="Descripción detallada..."></textarea>
                                     <textarea {...register('short_description')} className="w-full border border-slate-200 rounded-lg p-4 text-sm h-24 focus:ring-2 focus:ring-black/5 outline-none" placeholder="Resumen..."></textarea>
                                 </FormSection>
-                            </div>
-                        )}
-
-                        {activeTab === 'variants' && (
-                            <div className="space-y-6 animate-in fade-in">
-                                {isEditing ? (
-                                    <>
-                                        <div className="flex flex-col items-end gap-1.5 w-full">
-                                            <button
-                                                type="button"
-                                                onClick={handleSyncBriloStock}
-                                                disabled={isSyncingBrilo || variants.length === 0}
-                                                className="inline-flex items-center gap-2 rounded-lg border border-amber-300/40 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-amber-50 shadow-md transition-all hover:from-black hover:to-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
-                                            >
-                                                {isSyncingBrilo ? (
-                                                    <>
-                                                        <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
-                                                        Sincronizando stock...
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <RefreshCcw className="h-4 w-4 shrink-0" />
-                                                        Sincronizar stock con Brilo
-                                                    </>
-                                                )}
-                                            </button>
-                                            {variants.length > 0 ? (
-                                                <span className="text-[11px] font-medium text-slate-500">
-                                                    Consulta el ERP y actualiza inventario por bodega
-                                                </span>
-                                            ) : null}
-                                        </div>
-
-                                        <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-                                            <button
-                                                type="button"
-                                                onClick={() => setGeneratorOpen((prev) => !prev)}
-                                                className="w-full flex items-center justify-between gap-3 px-5 py-4 text-left hover:bg-slate-50 transition-colors"
-                                            >
-                                                <span className="text-sm font-bold text-slate-800">
-                                                    🛠️ Abrir Generador Avanzado de Variantes
-                                                </span>
-                                                <ChevronDown className={`h-4 w-4 shrink-0 text-slate-500 transition-transform ${generatorOpen ? 'rotate-180' : ''}`} />
-                                            </button>
-
-                                            {generatorOpen ? (
-                                                <div className="border-t border-slate-100 px-6 pb-6 pt-5 animate-in slide-in-from-top-2">
-                                                    <div className="flex justify-between items-start mb-4">
-                                                        <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                                                            <Filter className="w-3 h-3" /> Generador
-                                                        </h4>
-                                                        <div className={`text-[10px] px-2 py-1 rounded font-medium border ${selectedParentId ? 'bg-black text-white border-black' : 'bg-amber-50 text-amber-700 border-amber-100'}`}>
-                                                            {selectedParentId ? `Filtro: ${allCategories.find(c => c.id === Number(selectedParentId))?.name}` : '⚠️ Sin filtro'}
-                                                        </div>
-                                                    </div>
-                                                    <div className="space-y-6">
-                                                        {attributes.filter(a => a.is_variant).map(attr => {
-                                                            const filtered = attr.values.filter(v => {
-                                                                if (!selectedParentId) return true;
-                                                                if (!v.category_ids || v.category_ids.length === 0) return true;
-                                                                return v.category_ids.includes(Number(selectedParentId));
-                                                            });
-                                                            if (!filtered.length) return null;
-                                                            return (
-                                                                <div key={attr.id} className="pb-4 border-b border-slate-100 last:border-0 last:pb-0">
-                                                                    <div className="flex justify-between items-center mb-2">
-                                                                        <p className="text-xs font-bold text-slate-700">{attr.name}</p>
-                                                                        <button type="button" onClick={() => { const visibleIds = filtered.map(v => v.id); const current = variantSelection[attr.id] || []; const allSelected = visibleIds.every(id => current.includes(id)); setVariantSelection(p => ({ ...p, [attr.id]: allSelected ? [] : visibleIds })); }} className="text-[10px] font-bold text-slate-400 hover:text-black hover:underline">Seleccionar Todo</button>
-                                                                    </div>
-                                                                    <div className="flex flex-wrap gap-2">
-                                                                        {filtered.map(v => {
-                                                                            const isSel = variantSelection[attr.id]?.includes(v.id);
-                                                                            return <button key={v.id} type="button" onClick={() => setVariantSelection(p => { const c = p[attr.id] || []; return { ...p, [attr.id]: c.includes(v.id) ? c.filter(i => i !== v.id) : [...c, v.id] }; })} className={`px-3 py-1.5 text-xs font-medium rounded border transition-all flex items-center gap-2 ${isSel ? 'bg-black text-white border-black' : 'bg-white text-slate-600 hover:border-slate-400'}`}>{isSel && <Check className="w-3 h-3" />} {v.value}</button>
-                                                                        })}
-                                                                    </div>
-                                                                </div>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                    <button type="button" onClick={handleGenerateVariants} disabled={generatingVariants} className="w-full mt-4 bg-black text-white py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-slate-800 disabled:opacity-50">{generatingVariants ? 'Procesando...' : 'Generar Variantes'}</button>
-                                                </div>
-                                            ) : null}
-                                        </div>
-
-                                        {variants.length > 0 ? (
-                                            <div className="space-y-5">
-                                                <div className="flex gap-4 items-center bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                                                    <div className="relative flex-1">
-                                                        <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
-                                                        <input placeholder="Buscar variante (SKU, Talla, Color)..." value={variantSearchQuery} onChange={e => setVariantSearchQuery(e.target.value)} className="w-full pl-9 bg-slate-50 border-0 rounded-lg py-2 text-xs font-medium focus:ring-1 focus:ring-black outline-none" />
-                                                    </div>
-                                                    <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-                                                        <span>{filteredVariants.length} resultados</span>
-                                                        <span className="text-slate-300">·</span>
-                                                        <span>{groupedFilteredVariants.length} grupos</span>
-                                                    </div>
-                                                </div>
-
-                                                {selectedVariantIds.length > 0 ? (
-                                                    <div className="bg-slate-900 text-white p-2.5 flex flex-wrap items-center justify-between gap-3 rounded-xl shadow-lg animate-in slide-in-from-top-2">
-                                                        <div className="flex flex-wrap items-center gap-3">
-                                                            <button type="button" onClick={() => setSelectedVariantIds([])} className="text-slate-400 hover:text-white transition"><XCircle className="w-5 h-5" /></button>
-                                                            <span className="text-xs font-bold px-2 py-0.5 bg-slate-800 rounded">{selectedVariantIds.length} seleccionados</span>
-                                                            <div className="h-4 w-px bg-slate-700 mx-1 hidden sm:block" />
-                                                            <div className="flex flex-wrap gap-2 items-center">
-                                                                <input placeholder="Stock" value={bulkStock} onChange={e => setBulkStock(e.target.value)} className="w-14 bg-slate-800 border-none rounded text-[10px] text-center text-white placeholder-slate-500 focus:ring-1 focus:ring-white h-7" />
-                                                                <input placeholder="Precio" value={bulkPrice} onChange={e => setBulkPrice(e.target.value)} className="w-14 bg-slate-800 border-none rounded text-[10px] text-center text-white placeholder-slate-500 focus:ring-1 focus:ring-white h-7" />
-                                                                <input placeholder="Oferta" value={bulkOffer} onChange={e => setBulkOffer(e.target.value)} className="w-14 bg-slate-800 border-none rounded text-[10px] text-center text-white placeholder-slate-500 focus:ring-1 focus:ring-white h-7" />
-                                                                <button type="button" onClick={handleBulkUpdate} className="text-[10px] font-bold hover:underline bg-white text-black px-2 py-1 rounded h-7">Aplicar</button>
-                                                            </div>
-                                                        </div>
-                                                        <button type="button" onClick={handleBulkDelete} className="text-red-400 hover:text-red-200 text-xs font-bold flex items-center gap-1 bg-red-900/30 px-2 py-1 rounded hover:bg-red-900/50"><Trash2 className="w-3 h-3" /> Eliminar</button>
-                                                    </div>
-                                                ) : null}
-
-                                                {groupedFilteredVariants.map(({ groupKey, groupVariants }) => (
-                                                    <div
-                                                        key={groupKey}
-                                                        id={colorGroupElementId(groupKey)}
-                                                        className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-visible scroll-mt-28"
-                                                    >
-                                                        <div className="flex items-center gap-2 rounded-t-xl px-4 py-2 bg-slate-50 border-b border-slate-200">
-                                                            <Box className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                                                            <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-800">
-                                                                Estilo: {groupKey}
-                                                            </h4>
-                                                            <span className="ml-auto text-[10px] font-medium text-slate-400">{groupVariants.length} talla{groupVariants.length !== 1 ? 's' : ''}</span>
-                                                        </div>
-
-                                                        <div className="overflow-x-auto overflow-y-visible rounded-b-xl">
-                                                            <table className="w-full text-left min-w-[680px]">
-                                                                <thead className="bg-white text-[10px] uppercase text-slate-500 font-bold border-b border-slate-100">
-                                                                    <tr>
-                                                                        <th className="px-2 py-1.5 w-8">
-                                                                            <button type="button" onClick={() => {
-                                                                                const ids = groupVariants.map(v => v.id);
-                                                                                const allSelected = ids.every(id => selectedVariantIds.includes(id));
-                                                                                setSelectedVariantIds(prev => allSelected ? prev.filter(id => !ids.includes(id)) : [...new Set([...prev, ...ids])]);
-                                                                            }} className="text-slate-400 hover:text-black">
-                                                                                {groupVariants.every(v => selectedVariantIds.includes(v.id)) && groupVariants.length > 0 ? <CheckSquare className="w-3.5 h-3.5 text-black" /> : <Square className="w-3.5 h-3.5" />}
-                                                                            </button>
-                                                                        </th>
-                                                                        <th className="px-2 py-1.5 w-16">Talla</th>
-                                                                        <th className="px-2 py-1.5">SKU / Código de barra</th>
-                                                                        <th className="px-2 py-1.5 text-center w-28">Precio</th>
-                                                                        <th className="px-2 py-1.5 text-center w-24">Estado</th>
-                                                                        <th className="px-2 py-1.5 text-center w-24">Imágenes</th>
-                                                                        <th className="px-2 py-1.5 text-center w-24">Stock Total</th>
-                                                                        <th className="px-2 py-1.5 w-8" />
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody className="divide-y divide-slate-50">
-                                                                    {groupVariants.map(v => {
-                                                                        const isSelected = selectedVariantIds.includes(v.id);
-                                                                        return (
-                                                                            <tr key={v.id} className={`hover:bg-slate-50/50 transition-colors ${isSelected ? 'bg-indigo-50/30' : ''}`}>
-                                                                                <td className="px-2 py-1">
-                                                                                    <button type="button" onClick={() => setSelectedVariantIds(p => p.includes(v.id) ? p.filter(i => i !== v.id) : [...p, v.id])} className={`${isSelected ? 'text-black' : 'text-slate-300 hover:text-slate-500'}`}>
-                                                                                        {isSelected ? <CheckSquare className="w-3.5 h-3.5" /> : <Square className="w-3.5 h-3.5" />}
-                                                                                    </button>
-                                                                                </td>
-                                                                                <td className="px-2 py-1">
-                                                                                    <span className="inline-flex min-w-[2rem] items-center justify-center rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-bold text-slate-800 leading-none">
-                                                                                        {getVariantTalla(v)}
-                                                                                    </span>
-                                                                                </td>
-                                                                                <td className="px-2 py-1">
-                                                                                    <div className="font-mono text-[11px] font-semibold leading-tight text-slate-700">{v.variant_sku}</div>
-                                                                                    {getVariantColorLabel(v) ? (
-                                                                                        <div className="text-[9px] font-medium uppercase leading-tight text-slate-400">
-                                                                                            Color: {getVariantColorLabel(v)}
-                                                                                        </div>
-                                                                                    ) : null}
-                                                                                </td>
-                                                                                <td className="px-2 py-1">
-                                                                                    <div className="flex items-center gap-1">
-                                                                                        <input type="number" step="0.01" title="Precio regular" className="w-full min-w-0 border rounded px-1 py-0.5 text-center text-[11px] font-medium leading-tight focus:ring-1 focus:ring-black outline-none bg-transparent hover:bg-white focus:bg-white" defaultValue={v.price_regular} onBlur={e => handleUpdateVariant(v.id, 'price_regular', parseFloat(e.target.value))} />
-                                                                                        <input type="number" step="0.01" title="Precio oferta" placeholder="Of." className="w-full min-w-0 border rounded px-1 py-0.5 text-center text-[10px] font-medium leading-tight focus:ring-1 focus:ring-black outline-none bg-transparent hover:bg-white focus:bg-white placeholder-slate-300" defaultValue={v.price_sale || ''} onBlur={e => handleUpdateVariant(v.id, 'price_sale', parseFloat(e.target.value))} />
-                                                                                    </div>
-                                                                                </td>
-                                                                                <td className="px-2 py-1">
-                                                                                    <div className="relative">
-                                                                                        <select value={v.status} onChange={e => handleUpdateVariant(v.id, 'status', e.target.value)} className={`w-full appearance-none border rounded py-0.5 pl-5 pr-1 text-[11px] font-medium leading-tight focus:ring-1 focus:ring-black outline-none bg-transparent hover:bg-white cursor-pointer ${v.status === 'active' ? 'text-green-700 border-green-200' : 'text-slate-500'}`}><option value="active">Activo</option><option value="inactive">Inactivo</option></select>
-                                                                                        <div className={`absolute left-1.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full ${v.status === 'active' ? 'bg-green-500' : 'bg-slate-300'}`} />
-                                                                                    </div>
-                                                                                </td>
-                                                                                <td className="px-2 py-1 text-center">
-                                                                                    <VariantImagePicker
-                                                                                        variant={v}
-                                                                                        existingImages={existingImages}
-                                                                                        isOpen={variantImageSelector === v.id}
-                                                                                        onToggle={() => setVariantImageSelector(variantImageSelector === v.id ? null : v.id)}
-                                                                                        onLink={handleLinkImageToVariant}
-                                                                                    />
-                                                                                </td>
-                                                                                <td className="px-2 py-1 text-center">
-                                                                                    <VariantStockBadge variant={v} />
-                                                                                </td>
-                                                                                <td className="px-2 py-1 text-right">
-                                                                                    <button type="button" onClick={() => { if (confirm('¿Eliminar?')) api.delete(`/admin/product-variants/${v.id}`).then(() => { setVariants(p => p.filter(i => i.id !== v.id)); toast.success('Eliminada'); }); }} className="text-slate-300 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
-                                                                                </td>
-                                                                            </tr>
-                                                                        );
-                                                                    })}
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                    </div>
-                                                ))}
-
-                                                {groupedFilteredVariants.length === 0 ? (
-                                                    <div className="text-center py-10 text-sm text-slate-400 border border-dashed border-slate-200 rounded-xl bg-white">
-                                                        No hay variantes que coincidan con la búsqueda.
-                                                    </div>
-                                                ) : null}
-                                            </div>
-                                        ) : (
-                                            <div className="text-center py-12 text-slate-400 border-2 border-dashed border-slate-200 rounded-xl bg-white">
-                                                Aún no hay variantes. Abre el generador avanzado para crear combinaciones de talla y color.
-                                            </div>
-                                        )}
-                                    </>
-                                ) : (
-                                    <div className="text-center py-12 text-slate-400 border-2 border-dashed border-slate-200 rounded-xl bg-white">
-                                        Guarda primero para habilitar variantes e inventario.
-                                    </div>
-                                )}
                             </div>
                         )}
 

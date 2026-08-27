@@ -75,11 +75,11 @@ const Footer = () => {
             <div className="flex flex-col items-start md:items-center w-full">
               <img
                 src="/logo/logoblanco.png"
-                alt="Galaxia Deportes"
+                alt="Castella Sagarra"
                 className="mb-6 w-20 md:w-32"
               />
               <p className="font-inter font-medium text-[14px] leading-[22px] tracking-[0.2px] text-left md:text-center text-gray-300 max-w-[280px]">
-                47 años equipando atletas y equipos.
+                Lorem Ipsum is simply dummy text of the printing and typesetting industry.
               </p>
             </div>
 
@@ -96,25 +96,18 @@ const Footer = () => {
           <FooterColumn title="Contáctanos" id="contact" isOpen={openSection === 'contact'} onToggle={toggleSection}>
             <li className="flex items-center gap-3">WhatsApp</li>
             <Link href="/tiendas" className="flex items-center gap-3"><li>Tiendas</li></Link>
-            <Link href="/mayoreo" className="flex items-center gap-3"><li>Mayoreo</li></Link>
-            <Link href="/uniformes-personalizados" className="flex items-center gap-3"><li>Uniformes personalizados</li></Link>
           </FooterColumn>
 
           {/* Columna 3 - Nosotros */}
           <FooterColumn title="Nosotros" id="about" isOpen={openSection === 'about'} onToggle={toggleSection}>
-            <Link href="/galaxia-factory"  className="flex items-center gap-3"><li >Galaxia Factory</li></Link>
-            <Link href="/starcard"  className="flex items-center gap-3"><li >StarCard</li></Link>
-            <Link href="/giftcard"  className="flex items-center gap-3"><li >Gift card</li></Link>
-            <Link href="/historia"  className="flex items-center gap-3"><li >Historia</li></Link>
-            <Link href="/embajadores"  className="flex items-center gap-3"><li >Embajadores de marca</li></Link>
-            <Link href="/talento"  className="flex items-center gap-3"><li >Trabaja con nosotros</li></Link>
+            <Link href="/"  className="flex items-center gap-3"><li >List</li></Link>
+            
           </FooterColumn>
 
           {/* Columna 4 - Servicio al Cliente */}
           <FooterColumn title="Servicio al Cliente" id="service" isOpen={openSection === 'service'} onToggle={toggleSection}>
             <li className="flex items-center gap-3">Términos y condiciones</li>
             <li className="flex items-center gap-3">Cambios y devoluciones</li>
-            <li className="flex items-center gap-3">Guía de tallas</li>
           </FooterColumn>
         </div>
 
@@ -124,7 +117,7 @@ const Footer = () => {
           <div className="flex flex-col gap-6 md:mx-20 md:flex-row md:justify-between md:gap-4">
 
             <div className="order-4 flex flex-wrap gap-2 pt-2 text-[11px] tracking-widest text-gray-500 md:order-1">
-              <span className="uppercase">© 2026 GALAXIA DEPORTES</span>
+              <span className="uppercase">© 2026 CASTELLA SAGARRA</span>
               <span className="hidden md:inline">|</span>
               <Link href="/terminos" className="hover:text-white">Términos</Link>
               <span className="hidden md:inline">|</span>

@@ -84,14 +84,17 @@ export function buildProductSeoSlug(
   return parts.length > 0 ? parts.join('-') : 'producto';
 }
 
-/** Extrae el UPC del final del slug de la URL. */
+/** Extrae el SKU/UPC del final del slug de la URL. */
 export function extractUpcFromSlug(slug: string): string | null {
   const trimmed = slug.trim();
   if (!trimmed) return null;
-  if (/^\d+$/.test(trimmed)) return trimmed;
+  if (/^[A-Za-z0-9]+$/.test(trimmed)) return trimmed;
 
-  const match = trimmed.match(/-(\d+)$/);
-  return match ? match[1] : null;
+  const digits = trimmed.match(/-(\d+)$/);
+  if (digits) return digits[1];
+
+  const alphanumeric = trimmed.match(/-([A-Za-z0-9]{3,})$/);
+  return alphanumeric ? alphanumeric[1] : null;
 }
 
 /**

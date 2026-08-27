@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Galaxia Deportes",
-  description: "Galaxia Deportes CMS E-commerce",
+  title: "Castella Sagarra",
+  description: "Castella Sagarra CMS E-commerce",
 };
 
 export default function RootLayout({

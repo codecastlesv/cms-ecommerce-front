@@ -6,8 +6,8 @@ import { getPublicSettings } from '@/lib/public-api';
 export async function generateMetadata() {
     const settings = await getPublicSettings();
     return {
-        title: settings?.seo_title || 'Galaxia Deportes',
-        description: settings?.seo_description || 'Tienda de deportes online',
+        title: settings?.seo_title || 'Castella Sagarra',
+        description: settings?.seo_description || 'Tienda online',
     };
 }
 

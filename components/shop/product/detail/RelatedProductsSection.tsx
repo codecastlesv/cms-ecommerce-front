@@ -14,6 +14,7 @@ export interface RelatedProductItem {
   name: string;
   brand_name?: string | null;
   product_color?: string | null;
+  sku?: string | null;
   variant_sku?: string | null;
   categoria_hija?: string | null;
   price: number;
@@ -51,8 +52,8 @@ export default function RelatedProductsSection({ products }: RelatedProductsSect
               name: item.name,
               brand_name: item.brand_name,
               seo_url: item.seo_url,
-              product_color: item.product_color,
-              variant_sku: item.variant_sku,
+              variant_sku: item.sku || item.variant_sku,
+              sku: item.sku || item.variant_sku,
             })}
             className="group block"
           >

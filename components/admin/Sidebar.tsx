@@ -71,9 +71,9 @@ export default function Sidebar() {
                         <img src={logoUrl} alt="Logo" className="w-full h-full object-contain" />
                     </div>
                 ) : (
-                    <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center font-bold shadow-lg shadow-blue-900/50 flex-shrink-0">G</div>
+                    <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center font-bold shadow-lg shadow-blue-900/50 flex-shrink-0">CS</div>
                 )}
-                <span className="text-lg font-bold tracking-wide truncate">Galaxia CMS</span>
+                <span className="text-lg font-bold tracking-wide truncate">Castella CMS</span>
             </div>
 
             <div className="p-6 pb-2 shrink-0">

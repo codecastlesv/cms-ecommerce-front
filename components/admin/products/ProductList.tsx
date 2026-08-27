@@ -10,9 +10,8 @@ import {
 import { toast } from 'sonner';
 import { useConfirm } from '@/components/providers/ConfirmDialogProvider';
 import { usePermission } from '@/hooks/usePermission';
-import { Product, ProductVariant, PaginatedResponse } from '@/types';
+import { Product, PaginatedResponse } from '@/types';
 import { handleError } from '@/lib/errorHandler';
-import { resolveStyleRowGroupKey, buildAdminProductVariantEditUrl } from '@/lib/variantGroupUtils';
 import ExcelImportButton from '@/components/ExcelImportButton';
 import ZipImagesImportButton from '@/components/ZipImagesImportButton';
 import MassStockSyncButton from '@/components/admin/products/MassStockSyncButton';
@@ -20,112 +19,10 @@ import { AdminProductName } from '@/components/admin/AdminProductName';
 import { useCatalog } from '@/components/providers/CatalogContext';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 
-const TABLE_COLS = 11;
-
-interface StyleGroup {
-    styleCode: string;
-    variants: ProductVariant[];
-}
+const TABLE_COLS = 10;
 
 function formatMoney(value: number): string {
     return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function groupVariantsByStyle(product: Product): StyleGroup[] {
-    const variants = product.variants ?? [];
-    const grouped = new Map<string, ProductVariant[]>();
-
-    for (const variant of variants) {
-        const key = variant.style_code?.trim() || product.style_code?.trim() || '—';
-        const bucket = grouped.get(key) ?? [];
-        bucket.push(variant);
-        grouped.set(key, bucket);
-    }
-
-    if (grouped.size === 0) {
-        return [{
-            styleCode: product.style_code?.trim() || '—',
-            variants: [],
-        }];
-    }
-
-    return Array.from(grouped.entries()).map(([styleCode, styleVariants]) => ({
-        styleCode,
-        variants: styleVariants,
-    }));
-}
-
-function resolveStyleColor(variants: ProductVariant[]): string | null {
-    for (const variant of variants) {
-        const color = variant.variant_color?.trim();
-        if (color) return color;
-    }
-    return null;
-}
-
-function resolveStylePrice(variants: ProductVariant[], product: Product): number {
-    if (variants.length === 0) {
-        return Number(product.price_regular) || 0;
-    }
-
-    const prices = variants
-        .map((v) => Number(v.price_regular))
-        .filter((p) => Number.isFinite(p) && p > 0);
-
-    return prices.length > 0 ? Math.min(...prices) : Number(product.price_regular) || 0;
-}
-
-function resolveStyleImage(variants: ProductVariant[]): string | null {
-    for (const variant of variants) {
-        const image = variant.images?.[0];
-        if (image?.full_url) return image.full_url;
-        if (image?.url) return image.url;
-    }
-
-    return null;
-}
-
-function UpcMeta({ upcs }: { upcs: string[] }) {
-    if (!upcs.length) {
-        return <span className="text-[10px] text-slate-400 italic">Sin UPCs</span>;
-    }
-
-    const visible = upcs.slice(0, 2);
-    const rest = upcs.length - visible.length;
-
-    return (
-        <div className="mt-1 text-[10px] text-slate-400 font-mono leading-relaxed">
-            <span title={upcs.join(', ')}>{visible.join(', ')}</span>
-            {rest > 0 ? (
-                <span
-                    className="ml-1 inline-flex items-center px-1 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 font-bold tabular-nums"
-                    title={`${rest} UPC(s) más: ${upcs.slice(2).join(', ')}`}
-                >
-                    +{rest}
-                </span>
-            ) : null}
-        </div>
-    );
-}
-
-function ColorBadge({ color }: { color: string | null }) {
-    if (!color) {
-        return <span className="text-slate-300 italic text-xs">—</span>;
-    }
-
-    const isNa = color.toUpperCase() === 'N/A';
-
-    return (
-        <span
-            className={`inline-flex text-[10px] px-2 py-0.5 rounded-full border font-semibold uppercase tracking-wide ${
-                isNa
-                    ? 'bg-slate-50 text-slate-400 border-slate-100'
-                    : 'bg-slate-100 text-slate-700 border-slate-200'
-            }`}
-        >
-            {color}
-        </span>
-    );
 }
 
 export default function ProductList() {
@@ -234,19 +131,10 @@ export default function ProductList() {
     const productRows = useMemo(() => {
         if (!data?.data) return [];
 
-        return data.data.flatMap((product) => {
-            const styleGroups = groupVariantsByStyle(product);
-            const rowCount = styleGroups.length;
-
-            return styleGroups.map((group, index) => ({
-                key: `${product.id}-${group.styleCode}-${index}`,
-                product,
-                group,
-                rowCount,
-                isFirstInFamily: index === 0,
-                isLastInFamily: index === rowCount - 1,
-            }));
-        });
+        return data.data.map((product) => ({
+            key: String(product.id),
+            product,
+        }));
     }, [data?.data]);
 
     const handleExportExcel = async () => {
@@ -283,7 +171,7 @@ export default function ProductList() {
         if (!can('delete_products')) return;
         confirm({
             title: '¿Eliminar producto?',
-            message: 'Esta acción eliminará el producto y sus variantes. Es irreversible.',
+            message: 'Esta acción eliminará el producto. Es irreversible.',
             variant: 'danger',
             confirmText: 'Sí, eliminar',
             onConfirm: async () => {
@@ -322,6 +210,7 @@ export default function ProductList() {
                 </div>
                 {(can('create_products') || can('edit_products') || can('view_products')) && (
                     <div className="flex flex-wrap items-center gap-2">
+                        {/* 
                         {can('create_products') && (
                             <ExcelImportButton onSuccess={() => refetch()} />
                         )}
@@ -333,19 +222,20 @@ export default function ProductList() {
                                 type="button"
                                 onClick={handleExportExcel}
                                 disabled={exporting}
-                                className="bg-white border border-emerald-300 text-emerald-800 px-4 py-2.5 rounded-xl text-sm font-bold flex items-center hover:bg-emerald-50 transition-all shadow-sm active:scale-95 disabled:opacity-60 disabled:pointer-events-none"
+                                className="bg-white border border-emerald-300 text-emerald-800 px-4 py-2.5 rounded-xl text-"
                             >
                                 {exporting ? (
                                     <Loader2 className="w-4 h-4 mr-2 animate-spin shrink-0" />
                                 ) : (
                                     <Download className="w-4 h-4 mr-2 shrink-0" />
                                 )}
-                                {exporting ? 'Exportando…' : 'Exportar Catálogo Excel'}
+                                {exporting ? 'Exportando...' : 'Exportar Catálogo Excel'}
                             </button>
                         )}
                         {can('edit_products') && (
                             <MassStockSyncButton onCompleted={() => refetch()} />
                         )}
+                        */}
                         {can('create_products') && (
                             <Link
                                 href="/products/create"
@@ -448,15 +338,14 @@ export default function ProductList() {
                     <table className="w-full text-left border-collapse min-w-[1200px]">
                         <thead className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                             <tr>
-                                <th className="px-4 py-4 min-w-[160px]">Familia</th>
+                                <th className="px-4 py-4 min-w-[180px]">Producto</th>
                                 <th className="px-4 py-4 w-20">Foto</th>
-                                <th className="px-4 py-4 min-w-[120px]">Estilo</th>
+                                <th className="px-4 py-4 min-w-[120px]">Código / SKU</th>
                                 <th className="px-4 py-4">Categoría</th>
-                                <th className="px-4 py-4">Género</th>
-                                <th className="px-4 py-4">Sub-subcategoría</th>
-                                <th className="px-4 py-4">Color</th>
+                                <th className="px-4 py-4">Subcategoría</th>
+                                <th className="px-4 py-4">Presentación</th>
                                 <th className="px-4 py-4">Marca</th>
-                                <th className="px-4 py-4">Precio</th>
+                                <th className="px-4 py-4">Precio / Stock</th>
                                 <th className="px-4 py-4 text-center">Estado</th>
                                 <th className="px-4 py-4 text-right">Acciones</th>
                             </tr>
@@ -482,51 +371,41 @@ export default function ProductList() {
                                 </tr>
                             ) : (
                                 productRows.map((row) => {
-                                    const { product, group, rowCount, isFirstInFamily, isLastInFamily } = row;
-                                    const upcs = group.variants.map((v) => v.variant_sku).filter(Boolean);
-                                    const styleColor = resolveStyleColor(group.variants);
-                                    const stylePrice = resolveStylePrice(group.variants, product);
-                                    const styleImage = resolveStyleImage(group.variants);
-                                    const variantGroupKey = resolveStyleRowGroupKey(group.variants, group.styleCode);
+                                    const { product } = row;
+                                    const imageUrl = product.main_image_url || product.external_image_url;
+                                    const stock = Number(product.stock_quantity ?? 0);
 
                                     return (
                                         <tr
                                             key={row.key}
-                                            className={`group align-middle hover:bg-slate-50/70 transition-colors ${
-                                                isLastInFamily ? 'border-b-2 border-slate-200' : 'border-b border-slate-100'
-                                            }`}
+                                            className="group align-middle hover:bg-slate-50/70 transition-colors border-b border-slate-100"
                                         >
-                                            {isFirstInFamily ? (
-                                                <td
-                                                    rowSpan={rowCount}
-                                                    className="px-4 py-4 align-middle bg-slate-50/40 border-r border-slate-100"
-                                                >
-                                                    <div className="flex items-start gap-2">
-                                                        <AdminProductName
-                                                            name={product.name}
-                                                            className="text-slate-900 font-bold text-base leading-snug line-clamp-3"
+                                            <td className="px-4 py-4 align-middle">
+                                                <div className="flex items-start gap-2">
+                                                    <AdminProductName
+                                                        name={product.name}
+                                                        className="text-slate-900 font-bold text-base leading-snug line-clamp-3"
+                                                    />
+                                                    {product.is_featured ? (
+                                                        <span
+                                                            className="w-2 h-2 rounded-full bg-yellow-400 shrink-0 mt-1.5"
+                                                            title="Destacado"
                                                         />
-                                                        {product.is_featured ? (
-                                                            <span
-                                                                className="w-2 h-2 rounded-full bg-yellow-400 shrink-0 mt-1.5"
-                                                                title="Destacado"
-                                                            />
-                                                        ) : null}
-                                                    </div>
-                                                    {rowCount > 1 ? (
-                                                        <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                                                            {rowCount} estilos
-                                                        </p>
                                                     ) : null}
-                                                </td>
-                                            ) : null}
+                                                </div>
+                                                {product.erp_product_id ? (
+                                                    <p className="mt-1 text-[10px] font-mono text-slate-400">
+                                                        ERP #{product.erp_product_id}
+                                                    </p>
+                                                ) : null}
+                                            </td>
 
                                             <td className="px-4 py-3">
                                                 <div className="w-12 h-12 rounded-lg border border-slate-200 bg-slate-100 overflow-hidden flex items-center justify-center shrink-0">
-                                                    {styleImage ? (
+                                                    {imageUrl ? (
                                                         <img
-                                                            src={styleImage}
-                                                            alt={`${product.name} ${group.styleCode}`}
+                                                            src={imageUrl}
+                                                            alt={product.name}
                                                             className="w-full h-full object-cover"
                                                         />
                                                     ) : (
@@ -537,9 +416,9 @@ export default function ProductList() {
 
                                             <td className="px-4 py-3">
                                                 <div className="font-mono text-sm font-bold text-slate-800">
-                                                    {group.styleCode}
+                                                    {product.codigo || '—'}
                                                 </div>
-                                                <UpcMeta upcs={upcs} />
+                                                <p className="font-mono text-[11px] text-slate-500">{product.sku}</p>
                                             </td>
 
                                             <td className="px-4 py-3 text-sm text-slate-600">
@@ -547,15 +426,11 @@ export default function ProductList() {
                                             </td>
 
                                             <td className="px-4 py-3 text-sm text-slate-600">
-                                                {product.subcategoria_genero || <span className="text-slate-300 italic">—</span>}
+                                                {product.subcategoria || product.subcategoria_genero || <span className="text-slate-300 italic">—</span>}
                                             </td>
 
                                             <td className="px-4 py-3 text-sm text-slate-600">
-                                                {product.sub_subcategoria || <span className="text-slate-300 italic">—</span>}
-                                            </td>
-
-                                            <td className="px-4 py-3">
-                                                <ColorBadge color={styleColor} />
+                                                {product.presentacion || <span className="text-slate-300 italic">—</span>}
                                             </td>
 
                                             <td className="px-4 py-3 text-sm text-slate-600">
@@ -563,7 +438,10 @@ export default function ProductList() {
                                             </td>
 
                                             <td className="px-4 py-3 text-sm font-bold text-slate-800 tabular-nums whitespace-nowrap">
-                                                ${formatMoney(stylePrice)}
+                                                <div>${formatMoney(Number(product.price_regular) || 0)}</div>
+                                                <div className="text-[11px] font-medium text-slate-500">
+                                                    Stock {Number.isFinite(stock) ? stock : 0}
+                                                </div>
                                             </td>
 
                                             <td className="px-4 py-3 text-center">
@@ -573,18 +451,18 @@ export default function ProductList() {
                                             <td className="px-4 py-3 text-right">
                                                 <div className="flex justify-end gap-1 sm:group-hover:opacity-100 transition-opacity">
                                                     <Link
-                                                        href={buildAdminProductVariantEditUrl(product.id, variantGroupKey)}
+                                                        href={`/products/${product.id}`}
                                                         className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                        title="Editar variante"
+                                                        title="Editar producto"
                                                     >
                                                         <Edit2 className="w-4 h-4" />
                                                     </Link>
-                                                    {can('delete_products') && isFirstInFamily ? (
+                                                    {can('delete_products') ? (
                                                         <button
                                                             type="button"
                                                             onClick={() => handleDelete(product.id)}
                                                             className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                            title="Eliminar familia"
+                                                            title="Eliminar producto"
                                                         >
                                                             <Trash2 className="w-4 h-4" />
                                                         </button>

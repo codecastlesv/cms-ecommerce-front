@@ -3,7 +3,7 @@
 
 /* --- 1. DEFINICIÓN DE ARCHIVOS (FUENTES) Hola Mundo --- */
 
-/* FUENTES HELVETICA NEUE */
+/* FUENTES HELVETICA NEUE 
 @font-face {
   font-family: 'Helvetica Neue';
   src: url('../fonts/HelveticaNeue/HelveticaNeue-Black.woff2') format('woff2'),
@@ -147,7 +147,7 @@
   font-style: italic;
   font-display: swap;
 }
-
+*/
 
 
 /* Poppins local: se expone como la utilidad font-poppins */
