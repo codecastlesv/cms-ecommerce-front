@@ -309,9 +309,9 @@ export default function Header({ settings }: HeaderProps) {
                                         aria-current={isActive ? 'page' : undefined}
                                         className={`whitespace-nowrap px-2.5 py-1 text-base transition hover:bg-white/10 xl:px-3 ${
                                             'highlight' in item && item.highlight
-                                                ? 'rounded border border-[#3B6FA8]/70 bg-[#0A2A52]'
+                                                ? 'rounded border-[#3B6FA8]/70 text-white'
                                                 : 'rounded'
-                                        } ${isActive ? 'bg-white/15 font-semibold' : ''}`}
+                                        } ${isActive ? 'bg-white/15 font-semibold border-b-3 border-b-red-600' : ''}`}
                                     >
                                         {item.label}
                                     </Link>
