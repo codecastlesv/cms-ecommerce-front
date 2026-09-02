@@ -11,6 +11,7 @@ import {
   handleShopProductImageError,
   resolveShopProductImageSrc,
 } from '@/lib/shopProductImage';
+import { toSentenceCase } from '@/lib/categoryUrls';
 
 type StoredCartItem = {
   cart_key?: string;
@@ -182,10 +183,47 @@ export default function CartPage() {
                     : null;
                 const atStockMax = maxStock !== null && qty >= maxStock;
 
+                const stepperAndFav = (
+                  <div className="flex w-full gap-2 min-[495px]:w-auto">
+                    <div className="flex flex-1 items-center border border-gray-300 rounded-sm overflow-hidden h-10 min-[495px]:flex-none min-[495px]:w-24">
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(item, -1)}
+                        className="px-3 text-gray-500 hover:bg-gray-100 h-full flex items-center justify-center"
+                      >
+                        -
+                      </button>
+                      <span className="flex-1 text-center text-sm font-medium">{item.quantity}</span>
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(item, 1)}
+                        disabled={atStockMax}
+                        className="px-3 h-full flex items-center justify-center text-lg hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
+                      >
+                        +
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleFavoriteClick(item.id)}
+                      disabled={loadingFavorites}
+                      className="shrink-0 border border-gray-300 rounded-sm w-10 h-10 flex items-center justify-center hover:bg-gray-100"
+                    >
+                      {loadingFavorites ? (
+                        <div className="w-4 h-4 border-2 border-gray-300 border-t-red-500 rounded-full animate-spin"></div>
+                      ) : favoriteIds.includes(Number(item.id)) ? (
+                        <AiFillHeart size={18} className="text-red-500" />
+                      ) : (
+                        <AiOutlineHeart size={18} className="text-gray-500" />
+                      )}
+                    </button>
+                  </div>
+                );
+
                 return (
-                <div key={getCartItemKey(item)} className="flex gap-4 border-b pb-6 relative pr-2">
+                <div key={getCartItemKey(item)} className="flex flex-col gap-4 border-b pb-6 relative pr-2 min-[495px]:flex-row">
                   <div className="absolute top-0 right-0 flex items-center gap-2">
-                    <span className="text-[15px] font-semibold tabular-nums">${lineTotal.toFixed(2)}</span>
+                    <span className="font-helvetica text-[18px] font-bold tabular-nums">${lineTotal.toFixed(2)}</span>
                     <button
                       type="button"
                       onClick={() => removeItem(item)}
@@ -196,71 +234,42 @@ export default function CartPage() {
                     </button>
                   </div>
 
-                  <div className="w-[150px] h-[150px] bg-[#f6f6f6] flex-shrink-0">
-                    <img
-                      src={resolveShopProductImageSrc(item.image)}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                      onError={handleShopProductImageError}
-                    />
-                  </div>
+                  <div className="flex flex-col gap-4 min-[495px]:flex-row">
+                    <div className="w-[150px] h-[150px] bg-[#f6f6f6] flex-shrink-0">
+                      <img
+                        src={resolveShopProductImageSrc(item.image)}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                        onError={handleShopProductImageError}
+                      />
+                    </div>
 
-                  <div className="flex flex-col flex-1 justify-between min-w-0 pr-[7.5rem]">
-                    <div>
-                      <h3 className="font-bold text-[16px] pr-2">{item.name}</h3>
-                      <p className="text-[13px] text-gray-600 mt-0.5">
-                        ${unit.toFixed(2)} c/u
-                        {qty > 1 ? (
-                          <span className="text-gray-500">
-                            {' '}
-                            · {qty} unidades
-                          </span>
+                    <div className="flex flex-col flex-1 justify-between min-w-0 min-[495px]:pr-[7.5rem]">
+                      <div>
+                        <h3 className="font-inter font-bold text-[16px] pr-2">{item.name}</h3>
+                        <p className="text-[13px] text-gray-600 mt-0.5">
+                          ${unit.toFixed(2)} c/u
+                          {qty > 1 ? (
+                            <span className="text-gray-500">
+                              {' '}
+                              · {qty} unidades
+                            </span>
+                          ) : null}
+                        </p>
+                        <p className="text-[14px] text-gray-500 mt-1">{item.category ? toSentenceCase(item.category) : ''}</p>
+                        {item.sku ? (
+                          <p className="text-[14px] text-gray-500">SKU {item.sku}</p>
                         ) : null}
-                      </p>
-                      <p className="text-[14px] text-gray-500 mt-1">{item.category}</p>
-                      {item.sku ? (
-                        <p className="text-[14px] text-gray-500">SKU {item.sku}</p>
-                      ) : null}
-                      {typeof item.variant_label === 'string' && item.variant_label.trim() ? (
-                        <p className="text-[14px] text-gray-500">{item.variant_label}</p>
-                      ) : null}
-                    </div>
-
-                    <div className="flex gap-2 mt-4">
-                      <div className="flex items-center border border-gray-300 rounded-sm overflow-hidden h-10 w-24">
-                        <button
-                          type="button"
-                          onClick={() => updateQuantity(item, -1)}
-                          className="px-3 text-gray-500 hover:bg-gray-100 h-full flex items-center justify-center"
-                        >
-                          -
-                        </button>
-                        <span className="flex-1 text-center text-sm font-medium">{item.quantity}</span>
-                        <button
-                          type="button"
-                          onClick={() => updateQuantity(item, 1)}
-                          disabled={atStockMax}
-                          className="px-3 h-full flex items-center justify-center text-lg hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
-                        >
-                          +
-                        </button>
+                        {typeof item.variant_label === 'string' && item.variant_label.trim() ? (
+                          <p className="text-[14px] text-gray-500">{item.variant_label}</p>
+                        ) : null}
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => handleFavoriteClick(item.id)}
-                        disabled={loadingFavorites}
-                        className="border border-gray-300 rounded-sm w-10 h-10 flex items-center justify-center hover:bg-gray-100"
-                      >
-                        {loadingFavorites ? (
-                          <div className="w-4 h-4 border-2 border-gray-300 border-t-red-500 rounded-full animate-spin"></div>
-                        ) : favoriteIds.includes(Number(item.id)) ? (
-                          <AiFillHeart size={18} className="text-red-500" />
-                        ) : (
-                          <AiOutlineHeart size={18} className="text-gray-500" />
-                        )}
-                      </button>
+
+                      <div className="mt-4 hidden min-[495px]:block">{stepperAndFav}</div>
                     </div>
                   </div>
+
+                  <div className="min-[495px]:hidden">{stepperAndFav}</div>
                 </div>
                 );
               })}
@@ -285,11 +294,11 @@ export default function CartPage() {
             <div className="space-y-4 text-[15px] mb-6">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span className="font-helvetica text-[18px] font-bold">${subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between font-bold text-[16px] border-t border-gray-200 pt-4 mt-2">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span className="font-helvetica text-[19px] font-bold">${total.toFixed(2)}</span>
               </div>
             </div>
 
@@ -298,7 +307,7 @@ export default function CartPage() {
                 type="button"
                 onClick={() => router.push('/checkout')}
                 disabled={cartItems.length === 0}
-                className="w-full bg-black text-white py-4 rounded-sm font-medium hover:bg-zinc-800 transition disabled:opacity-50 disabled:pointer-events-none"
+                className="w-full bg-[#E30613] text-white py-4 rounded-sm font-medium hover:brightness-95 transition disabled:opacity-50 disabled:pointer-events-none"
               >
                 Continuar al Pago
               </button>

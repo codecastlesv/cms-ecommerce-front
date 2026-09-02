@@ -8,6 +8,7 @@ import { useState } from "react";
 import type { Swiper as SwiperType } from "swiper";
 import { motion, useReducedMotion } from 'framer-motion';
 import { resolveShopProductImageSrc } from "@/lib/shopProductImage";
+import { toSentenceCase } from "@/lib/categoryUrls";
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -39,7 +40,7 @@ export default function CategoriesSlider({ categories }: { categories: Category[
           <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-white shadow-[0_8px_24px_rgba(15,23,42,0.08)] transition-all duration-300 group-hover/card:border-black group-hover/card:shadow-[0_18px_40px_rgba(0,0,0,0.16)] group-hover/card:ring-4 group-hover/card:black/10">
             <Image
               src={resolveShopProductImageSrc(cat.image_url)}
-              alt={cat.name}
+              alt={toSentenceCase(cat.name)}
               width={160}
               height={160}
               unoptimized
@@ -48,7 +49,7 @@ export default function CategoriesSlider({ categories }: { categories: Category[
           </div>
         </div>
         <span className="font-inter font-semibold text-center text-[16px] text-black transition-all duration-300">
-          {cat.name}
+          {toSentenceCase(cat.name)}
         </span>
       </Link>
     </motion.div>

@@ -26,7 +26,17 @@ export function getCategoryHref(slug: string): string {
   return clean ? `/${clean}` : '/';
 }
 
-/** 'Accesorio Deportivo > N/A > Mochilas' → 'Accesorio Deportivo > Mochilas' */
+/** 'CARETAS Y GAFAS' → 'Caretas y gafas' (no es CSS `capitalize`: solo la primera letra queda en mayúscula). */
+export function toSentenceCase(text: string): string {
+  const trimmed = text.trim();
+  if (!trimmed) {
+    return '';
+  }
+
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+}
+
+/** 'ACCESORIO DEPORTIVO > N/A > MOCHILAS' → 'Accesorio deportivo > Mochilas' */
 export function formatCategoryBreadcrumb(label: string | null | undefined): string {
   if (!label?.trim()) {
     return '';
@@ -36,6 +46,7 @@ export function formatCategoryBreadcrumb(label: string | null | undefined): stri
     .split('>')
     .map((part) => part.trim())
     .filter((part) => part && !isNaCategoryLabel(part))
+    .map(toSentenceCase)
     .join(' > ');
 }
 

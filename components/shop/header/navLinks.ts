@@ -6,7 +6,7 @@ export const TOP_LINKS = [
 
 export const MAIN_NAV = [
     { label: 'Ofertas', href: '/', highlight: true },
-    { label: 'Tienda', href: '#' },
+    { label: 'Tienda', href: '/tienda' },
     { label: 'Proyectos e inspiración', href: '#' },
     { label: 'Marcas', href: '#' },
     { label: 'Servicio', href: '#' },

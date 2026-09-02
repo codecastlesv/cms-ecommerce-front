@@ -213,16 +213,13 @@ export default function HamburMenu({
 
     /** Catálogos virtuales · mismos slugs que `/shop/store/catalog/{slug}` */
     const specialCatalogLinkClass =
-        'block w-full rounded-sm px-1 py-2 font-inter text-[13px] font-bold tracking-[0.18px] text-white transition hover:underline hover:underline-offset-4';
+        'block w-full rounded-sm px-1 py-2 font-helvetica text-[1em] font-bold tracking-[0.18px] text-white transition hover:underline hover:underline-offset-4';
     const highlightCatalogLinkClass =
-        'block w-full rounded-sm px-1 py-2 font-inter text-[13px] font-bold tracking-[0.18px] text-[#c1001f] transition hover:underline hover:underline-offset-4';
+        'block w-full rounded-sm px-1 py-2 font-helvetica text-[1em] font-bold tracking-[0.18px] text-[#c1001f] transition hover:underline hover:underline-offset-4';
 
     /** Menús del header (Ofertas/Tienda/... y Sucursales/Ayuda/Contáctanos) replicados en mobile. */
     const siteNavLinkClass =
-        'block w-full rounded-sm px-1 py-2 font-inter text-[13px] font-bold uppercase tracking-[0.18px] text-zinc-700 transition hover:text-black';
-
-    /** "Tienda" apunta a la primera categoría, igual que en el header de escritorio. */
-    const mobileTiendaHref = menuData[0]?.slug ? getCategoryHref(menuData[0].slug) : '/product';
+        'block w-full rounded-sm px-1 py-2 font-helvetica text-[1em] font-bold uppercase tracking-[0.18px] text-white transition hover:text-white/80';
 
     const menuLayer = (
         <div
@@ -244,8 +241,8 @@ export default function HamburMenu({
                 <div className="flex h-full shadow-2xl">
                 {isMobile ? (
                     /* --- VISTA MÓVIL --- */
-                    <div className="flex h-full w-[85vw] max-w-[350px] flex-col border-r border-white/15 bg-[#304c94] shadow-[4px_0_24px_-8px_rgba(15,23,42,0.12)]">
-                        <div className="grid shrink-0 grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] items-center gap-1 border-b border-white/15 bg-[#304c94] px-2 py-3">
+                    <div className="flex h-full w-[85vw] max-w-[350px] flex-col border-r border-white/15 bg-[#08204E] shadow-[4px_0_24px_-8px_rgba(15,23,42,0.12)]">
+                        <div className="grid shrink-0 grid-cols-[2.75rem_minmax(0,1fr)_2.75rem] items-center gap-1 border-b border-white/15 bg-[#08204E] px-2 py-3">
                                 {safeStack.length > 0 ? (
                                     <button
                                         type="button"
@@ -258,7 +255,7 @@ export default function HamburMenu({
                                 ) : (
                                     <span className="h-10 w-10 justify-self-start" aria-hidden />
                                 )}
-                                <span className="min-w-0 truncate text-center font-inter text-[11px] font-bold capitalize tracking-[0.2em] text-white/80">
+                                <span className="min-w-0 truncate text-center font-helvetica text-[1em] font-bold capitalize tracking-[0.2em] text-white">
                                     {safeStack.length > 0 ? capitalizeTitle(currentMobileLevel.name) : 'Menú'}
                                 </span>
                                 <button
@@ -311,7 +308,7 @@ export default function HamburMenu({
                                     {MAIN_NAV.map((item, index) => (
                                         <motion.div key={item.label} custom={index} variants={itemVariants}>
                                             <Link
-                                                href={item.label === 'Tienda' ? mobileTiendaHref : item.href}
+                                                href={item.href}
                                                 className={siteNavLinkClass}
                                                 onClick={onClose}
                                             >
@@ -344,7 +341,7 @@ export default function HamburMenu({
                                             className="flex flex-grow items-center justify-between border-b border-l-4 border-white/10 border-l-transparent p-5 text-left hover:bg-white/10 focus:border-l-white active:bg-white/10"
                                             onClick={onClose}
                                         >
-                                            <span className="text-sm font-bold capitalize text-white">{capitalizeTitle(item.name)}</span>
+                                            <span className="font-helvetica text-[1em] font-bold capitalize text-white">{capitalizeTitle(item.name)}</span>
                                         </Link>
                                         {hasChildren && (
                                             <button

@@ -1193,7 +1193,7 @@ function CheckoutInner() {
 
   if (!cartReady) {
     return (
-      <div className="max-w-[1100px] mx-auto px-4 py-20 font-sans text-center text-gray-600">
+      <div className="max-w-[1100px] mx-auto px-4 py-20 font-helvetica text-center text-gray-600">
         Cargando checkout…
       </div>
     );
@@ -1201,7 +1201,7 @@ function CheckoutInner() {
 
   if (displayLines.length === 0) {
     return (
-      <div className="max-w-lg mx-auto px-4 py-20 font-sans text-center">
+      <div className="max-w-lg mx-auto px-4 py-20 font-helvetica text-center">
         <h1 className="text-2xl font-bold tracking-tight text-slate-900 mb-2">Tu carrito está vacío</h1>
         <p className="text-sm text-gray-600 mb-8">
           Agrega productos desde la tienda para continuar con el pago.
@@ -1225,7 +1225,7 @@ function CheckoutInner() {
   }
 
   return (
-    <div className="max-w-[1100px] mx-auto px-4 py-12 md:py-16 font-sans text-slate-900">
+    <div className="max-w-[1100px] mx-auto px-4 py-12 md:py-16 font-helvetica text-slate-900">
       <div className="mb-6">
         <Link href="/cart" className="text-sm text-gray-600 hover:text-black underline">
           ← Volver al carrito
@@ -1566,7 +1566,7 @@ function CheckoutInner() {
                     (documentType === 'DUI' && duiUniqueStatus !== 'available') ||
                     (!isAuthenticated && emailExists !== true && !acceptsTerms)
                   }
-                  className="w-full sm:w-auto bg-black text-white px-6 py-3 rounded-sm text-sm font-medium hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none"
+                  className="w-full sm:w-auto bg-[#E30613] text-white px-6 py-3 rounded-sm font-inter text-sm font-bold hover:brightness-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none"
                 >
                   Continuar
                 </button>
@@ -1751,7 +1751,7 @@ function CheckoutInner() {
                 <button
                   type="button"
                   onClick={handleContinueStep2}
-                  className="w-full sm:w-auto bg-black text-white px-6 py-3 rounded-sm text-sm font-medium hover:bg-zinc-800"
+                  className="w-full sm:w-auto bg-[#E30613] text-white px-6 py-3 rounded-sm font-inter text-sm font-bold hover:brightness-95"
                 >
                   Continuar al pago
                 </button>
@@ -1827,7 +1827,7 @@ function CheckoutInner() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full bg-black text-white py-4 rounded-sm font-medium hover:bg-zinc-800 transition disabled:opacity-60"
+                  className="w-full bg-[#E30613] text-white py-4 rounded-sm font-inter font-bold hover:brightness-95 transition disabled:opacity-60"
                 >
                   {submitting ? 'Procesando…' : `Pagar $${orderTotal.toFixed(2)}`}
                 </button>
@@ -1853,7 +1853,7 @@ function CheckoutInner() {
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold leading-tight">{item.name}</p>
+                    <p className="font-inter text-sm font-semibold leading-tight">{item.name}</p>
                     {item.variant_label ? <p className="text-xs text-gray-500 mt-0.5">{item.variant_label}</p> : null}
                     {item.size ? <p className="text-xs text-gray-500 mt-0.5">Talla {item.size}</p> : null}
                     <p className="text-sm mt-1">
@@ -1866,17 +1866,17 @@ function CheckoutInner() {
             <div className="space-y-2 text-sm border-t border-gray-200 pt-4">
               <div className="flex justify-between">
                 <span className="text-gray-600">Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span className="font-helvetica text-[17px] font-bold">${subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">
                   {deliveryMethod === 'pickup' ? 'Envío (retiro en tienda)' : 'Envío'}
                 </span>
-                <span>${shippingCost.toFixed(2)}</span>
+                <span className="font-helvetica text-[17px] font-bold">${shippingCost.toFixed(2)}</span>
               </div>
               <div className="flex justify-between font-bold text-base pt-2 border-t border-gray-200">
                 <span>Total</span>
-                <span>${orderTotal.toFixed(2)}</span>
+                <span className="font-helvetica text-[19px] font-bold">${orderTotal.toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -1893,7 +1893,7 @@ export default function CheckoutPage() {
   return (
     <Suspense
       fallback={
-        <div className="max-w-[1100px] mx-auto px-4 py-20 font-sans text-center text-gray-600">Cargando checkout…</div>
+        <div className="max-w-[1100px] mx-auto px-4 py-20 font-helvetica text-center text-gray-600">Cargando checkout…</div>
       }
     >
       <CheckoutInner />

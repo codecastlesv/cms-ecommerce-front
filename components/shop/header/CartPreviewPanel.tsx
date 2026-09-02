@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
-import { X, ShoppingBag } from 'lucide-react';
+import { X, ShoppingBag, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   handleShopProductImageError,
   resolveShopProductImageSrc,
@@ -21,6 +22,7 @@ type StoredCartItem = {
   category?: string;
   color?: string | { value?: string; color_hex?: string; swatch_image_url?: string };
   variant_label?: string | { value?: string; color_hex?: string; swatch_image_url?: string };
+  stock_quantity?: number;
 };
 
 const getCartItemKey = (item: StoredCartItem): string =>
@@ -92,6 +94,47 @@ export default function CartPreviewPanel({ isOpen, onClose }: CartPreviewPanelPr
     return () => window.removeEventListener('keydown', onKey);
   }, [isOpen, onClose]);
 
+  const removeItem = (targetItem: StoredCartItem) => {
+    const itemKey = getCartItemKey(targetItem);
+    const newCart = cartItems.filter((item) => getCartItemKey(item) !== itemKey);
+    setCartItems(newCart);
+    localStorage.setItem('cart', JSON.stringify(newCart));
+    window.dispatchEvent(new Event('cartUpdated'));
+  };
+
+  const updateQuantity = (targetItem: StoredCartItem, delta: number) => {
+    const itemKey = getCartItemKey(targetItem);
+    const item = cartItems.find((cartItem) => getCartItemKey(cartItem) === itemKey);
+    if (!item) return;
+
+    const currentQty = item.quantity || 1;
+    const maxStock =
+      typeof item.stock_quantity === 'number' && item.stock_quantity > 0
+        ? item.stock_quantity
+        : null;
+
+    if (delta > 0 && maxStock !== null && currentQty >= maxStock) {
+      toast.warning('No hay más unidades en stock para este producto.', {
+        description: `Máximo ${maxStock} unidad(es).`,
+      });
+      return;
+    }
+
+    const newQuantity = currentQty + delta;
+    if (newQuantity < 1) {
+      removeItem(targetItem);
+      return;
+    }
+
+    const newCart = cartItems.map((cartItem) =>
+      getCartItemKey(cartItem) === itemKey ? { ...cartItem, quantity: newQuantity } : cartItem,
+    );
+
+    setCartItems(newCart);
+    localStorage.setItem('cart', JSON.stringify(newCart));
+    window.dispatchEvent(new Event('cartUpdated'));
+  };
+
   if (!mounted) return null;
 
   const subtotal = cartItems.reduce(
@@ -122,14 +165,14 @@ export default function CartPreviewPanel({ isOpen, onClose }: CartPreviewPanelPr
       >
         <header className="flex shrink-0 items-center justify-between gap-4 border-b border-neutral-100 px-6 py-5 sm:px-8">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-neutral-900 text-white">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#08204E] text-white">
               <ShoppingBag className="h-5 w-5 stroke-[1.5]" />
             </div>
             <div className="min-w-0">
-              <p className="font-oswald text-[22px] font-medium uppercase tracking-[0.06em] text-neutral-950">
+              <p className="font-helvetica text-[22px] font-bold uppercase tracking-[0.01em] text-neutral-950">
                 Tu carrito
               </p>
-              <p className="truncate font-inter text-[12px] leading-tight tracking-wide text-neutral-500">
+              <p className="truncate font-helvetica text-[12px] leading-tight tracking-wide text-neutral-500">
                 {lineCount === 0
                   ? 'Aún no hay productos'
                   : `${lineCount} ${lineCount === 1 ? 'artículo' : 'artículos'} · vista rápida`}
@@ -149,10 +192,10 @@ export default function CartPreviewPanel({ isOpen, onClose }: CartPreviewPanelPr
         <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4 sm:px-8">
           {cartItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
-              <p className="font-poppins text-[15px] font-medium text-neutral-900">
+              <p className="font-helvetica text-[15px] font-medium text-neutral-900">
                 Tu bolsa está vacía
               </p>
-              <p className="mt-2 max-w-[260px] font-inter text-[13px] leading-relaxed text-neutral-500">
+              <p className="mt-2 max-w-[260px] font-helvetica text-[13px] leading-relaxed text-neutral-500">
                 Explora la tienda y agrega tus favoritos para verlos aquí.
               </p>
             </div>
@@ -163,6 +206,10 @@ export default function CartPreviewPanel({ isOpen, onClose }: CartPreviewPanelPr
                 const unit = Number(item.price || 0);
                 const lineTotal = unit * qty;
                 const variant = getVariantLabel(item);
+                const maxStock =
+                  typeof item.stock_quantity === 'number' && item.stock_quantity > 0
+                    ? item.stock_quantity
+                    : null;
 
                 return (
                   <li
@@ -178,10 +225,20 @@ export default function CartPreviewPanel({ isOpen, onClose }: CartPreviewPanelPr
                       />
                     </div>
                     <div className="min-w-0 flex-1 pt-0.5">
-                      <p className="font-poppins text-[14px] font-semibold leading-snug text-neutral-950 line-clamp-2">
-                        {item.name}
-                      </p>
-                      <div className="mt-1.5 font-inter text-[12px] text-neutral-500">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="font-helvetica text-[14px] font-semibold leading-snug text-neutral-950 line-clamp-2">
+                          {item.name}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => removeItem(item)}
+                          aria-label="Eliminar producto"
+                          className="shrink-0 rounded-full p-1 text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-900"
+                        >
+                          <Trash2 className="h-4 w-4 stroke-[1.75]" />
+                        </button>
+                      </div>
+                      <div className="mt-1.5 font-helvetica text-[12px] text-neutral-500">
                         <p>
                           <span className="text-neutral-600">{variant}</span>
                           {item.size ? (
@@ -194,9 +251,34 @@ export default function CartPreviewPanel({ isOpen, onClose }: CartPreviewPanelPr
                             </>
                           ) : null}
                         </p>
-                        <p className="mt-1 tabular-nums text-neutral-700">
+                      </div>
+
+                      <div className="mt-2 flex items-center justify-between gap-2">
+                        <div className="flex items-center rounded-sm border border-neutral-300">
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item, -1)}
+                            aria-label="Disminuir cantidad"
+                            className="flex h-7 w-7 items-center justify-center text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
+                          >
+                            -
+                          </button>
+                          <span className="flex h-7 w-8 items-center justify-center border-x border-neutral-300 font-helvetica text-[13px] font-medium tabular-nums">
+                            {qty}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item, 1)}
+                            disabled={maxStock !== null && qty >= maxStock}
+                            aria-label="Aumentar cantidad"
+                            className="flex h-7 w-7 items-center justify-center text-sm font-medium text-neutral-700 transition hover:bg-neutral-50 disabled:cursor-not-allowed disabled:text-neutral-300"
+                          >
+                            +
+                          </button>
+                        </div>
+                        <p className="font-helvetica text-[13px] font-bold tabular-nums text-neutral-700">
                           {qty} × ${unit.toFixed(2)}{' '}
-                          <span className="font-medium text-neutral-900">→ ${lineTotal.toFixed(2)}</span>
+                          <span className="text-neutral-900">→ ${lineTotal.toFixed(2)}</span>
                         </p>
                       </div>
                     </div>
@@ -209,10 +291,10 @@ export default function CartPreviewPanel({ isOpen, onClose }: CartPreviewPanelPr
 
         <footer className="shrink-0 border-t border-neutral-100 bg-white px-6 py-6 sm:px-8">
           <div className="mb-6 flex items-end justify-between gap-4 border-b border-neutral-100 pb-5">
-            <span className="font-inter text-[13px] font-medium uppercase tracking-wide text-neutral-500">
+            <span className="font-helvetica text-[13px] font-medium uppercase tracking-wide text-neutral-500">
               Subtotal
             </span>
-            <span className="font-poppins text-[22px] font-semibold tabular-nums text-neutral-950">
+            <span className="font-helvetica text-[22px] font-semibold tabular-nums text-neutral-950">
               ${subtotal.toFixed(2)}
             </span>
           </div>
@@ -221,13 +303,15 @@ export default function CartPreviewPanel({ isOpen, onClose }: CartPreviewPanelPr
             <Link
               href="/cart"
               onClick={onClose}
-              className="flex w-full items-center justify-center rounded-sm border border-neutral-900 bg-black text-white py-3.5 text-center font-inter text-[13px] font-semibold uppercase tracking-[0.12em] text-neutral-900 transition"
+              aria-disabled={checkoutDisabled}
+              className={`flex w-full items-center justify-center rounded-sm border border-[#08204E] bg-[#08204E] py-3.5 text-center font-helvetica text-[13px] font-semibold uppercase tracking-[0.12em] text-white transition hover:brightness-110 ${
+                checkoutDisabled ? 'pointer-events-none opacity-40' : ''
+              }`}
             >
               Ver carrito
             </Link>
-  
           </div>
-          <p className="mt-4 text-center font-inter text-[11px] leading-relaxed text-neutral-400">
+          <p className="mt-4 text-center font-helvetica text-[11px] leading-relaxed text-neutral-400">
             Cambia cantidades o elimina ítems en la página del carrito.
           </p>
         </footer>

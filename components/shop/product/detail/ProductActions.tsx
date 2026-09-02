@@ -73,6 +73,7 @@ export default function ProductActions({ product, presentacion }: ProductActions
   const [isAdded, setIsAdded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [cartTick, setCartTick] = useState(0);
+  const [quantity, setQuantity] = useState(1);
 
   const { favoriteIds, loadingFavorites, requireAuthForFavorites, toggleFavorite } = useShopFavorites();
 
@@ -89,6 +90,7 @@ export default function ProductActions({ product, presentacion }: ProductActions
   const cannotAddMore = isOutOfStock || atCartLimit;
   const cartKey = sku ? `product-${product.id}-${sku}` : `product-${product.id}`;
   const isFavorite = favoriteIds.includes(Number(product.id));
+  const maxQuantity = Math.max(1, remaining);
 
   const bumpCart = useCallback(() => setCartTick((t) => t + 1), []);
 
@@ -101,6 +103,10 @@ export default function ProductActions({ product, presentacion }: ProductActions
       window.removeEventListener('storage', onCart);
     };
   }, [bumpCart]);
+
+  useEffect(() => {
+    setQuantity((q) => Math.min(Math.max(q, 1), maxQuantity));
+  }, [maxQuantity]);
 
   const handleAddToCart = () => {
     if (!sku) {
@@ -124,7 +130,7 @@ export default function ProductActions({ product, presentacion }: ProductActions
 
     const currentCart = readCart();
     const existingItem = currentCart.find((item) => item.cart_key === cartKey);
-    const nextQty = (existingItem?.quantity ?? 0) + 1;
+    const nextQty = (existingItem?.quantity ?? 0) + quantity;
 
     if (nextQty > stockQty) {
       toast.warning('Ya no hay más unidades en stock.', {
@@ -152,6 +158,7 @@ export default function ProductActions({ product, presentacion }: ProductActions
       localStorage.setItem('cart', JSON.stringify(updatedCart));
       window.dispatchEvent(new Event('cartUpdated'));
       setIsAdded(true);
+      setQuantity(1);
       setTimeout(() => setIsAdded(false), 2000);
       bumpCart();
       return;
@@ -167,13 +174,14 @@ export default function ProductActions({ product, presentacion }: ProductActions
       image,
       category: product.categories?.[0]?.name || 'Producto',
       variant_label: presentacion || '',
-      quantity: 1,
+      quantity,
       stock_quantity: stockQty,
     };
 
     localStorage.setItem('cart', JSON.stringify([...currentCart, newItem]));
     window.dispatchEvent(new Event('cartUpdated'));
     setIsAdded(true);
+    setQuantity(1);
     setTimeout(() => setIsAdded(false), 2000);
     bumpCart();
   };
@@ -206,6 +214,32 @@ export default function ProductActions({ product, presentacion }: ProductActions
       ) : null}
 
       <div className="space-y-3 pt-2">
+        {!cannotAddMore && (
+          <div className="flex w-fit items-center rounded-sm border border-gray-300">
+            <button
+              type="button"
+              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              disabled={quantity <= 1}
+              aria-label="Disminuir cantidad"
+              className="flex h-11 w-11 items-center justify-center text-lg font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:text-gray-300"
+            >
+              -
+            </button>
+            <span className="flex h-11 w-12 items-center justify-center border-x border-gray-300 text-[16px] font-medium tabular-nums">
+              {quantity}
+            </span>
+            <button
+              type="button"
+              onClick={() => setQuantity((q) => Math.min(maxQuantity, q + 1))}
+              disabled={quantity >= maxQuantity}
+              aria-label="Aumentar cantidad"
+              className="flex h-11 w-11 items-center justify-center text-lg font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:text-gray-300"
+            >
+              +
+            </button>
+          </div>
+        )}
+
         <button
           type="button"
           disabled={cannotAddMore}
@@ -215,7 +249,7 @@ export default function ProductActions({ product, presentacion }: ProductActions
               ? 'bg-green-600 text-white'
               : cannotAddMore
               ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              : 'bg-black text-white hover:bg-zinc-800'
+              : 'bg-[#E30613] text-white hover:brightness-95'
           }`}
         >
           {isAdded

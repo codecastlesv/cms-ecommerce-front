@@ -3,8 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import api from '@/lib/axios';
-import { getCategoryHref } from '@/lib/categoryUrls';
 import { SHOP_OPEN_AUTH_PANEL_EVENT } from '@/lib/shopAuthPanel';
 import { Search, Menu, ChevronRight } from 'lucide-react';
 import HamburMenu from './header/HamburMenu';
@@ -36,18 +34,6 @@ export default function Header({ settings }: HeaderProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [logoFailed, setLogoFailed] = useState(false);
-    const [tiendaHref, setTiendaHref] = useState('/product');
-
-    useEffect(() => {
-        api.get('/shop/menu')
-            .then(({ data }) => {
-                const firstCategory = data?.data?.[0];
-                if (firstCategory?.slug) {
-                    setTiendaHref(getCategoryHref(firstCategory.slug));
-                }
-            })
-            .catch(() => {});
-    }, []);
 
     const [navStack, setNavStack] = useState<MenuItem[]>([]);
     const [activeParent, setActiveParent] = useState<MenuItem | null>(null);
@@ -299,7 +285,7 @@ export default function Header({ settings }: HeaderProps) {
 
                         <nav className="hidden min-w-0 flex-1 items-center justify-center gap-1 lg:flex xl:gap-2">
                             {MAIN_NAV.map((item) => {
-                                const href = item.label === 'Tienda' ? tiendaHref : item.href;
+                                const href = item.href;
                                 const isActive = href !== '#' && pathname === href;
 
                                 return (

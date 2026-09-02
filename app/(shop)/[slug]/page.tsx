@@ -3,11 +3,16 @@
 import { useEffect, useState, use, useTransition, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import api from '@/lib/axios';
-import { normalizeCategoryPublicSlug } from '@/lib/categoryUrls';
+import {
+  buildCatalogBreadcrumbTrail,
+  formatCategoryBreadcrumb,
+  normalizeCategoryPublicSlug,
+  toSentenceCase,
+} from '@/lib/categoryUrls';
 import ProductCard from '@/components/shop/product/ProductCard';
 import CategoryFilterSidebar from '@/components/shop/category/CategoryFilterSidebar';
 import CategoryBreadcrumbs from '@/components/shop/category/CategoryBreadcrumbs';
-import { AlertCircle, SlidersHorizontal, X } from 'lucide-react';
+import { AlertCircle, ChevronDown, SlidersHorizontal, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface CategoryPageProps {
@@ -24,6 +29,13 @@ interface CategoryFiltersResponse {
   sports: Brand[];
   dynamic_filters: DynamicFilter[];
   price_range: { min: number; max: number };
+}
+
+interface PageMeta {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
 }
 
 interface CategoryNavItem {
@@ -293,6 +305,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
   // Estados de datos
   const [products, setProducts] = useState<Product[]>([]);
+  const [pageMeta, setPageMeta] = useState<PageMeta | null>(null);
   const [filtersData, setFiltersData] = useState<CategoryFiltersResponse | null>(null);
   
   // Estados de control de UI
@@ -315,8 +328,21 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   );
   const catalogPageBadge = SPECIAL_CATALOG_PAGE_BADGE[catalogRouteSlug] ?? null;
   const isVirtualCatalogRoute =
-    catalogRouteSlug === 'lo-nuevo' || catalogRouteSlug === 'promociones';
+    catalogRouteSlug === 'lo-nuevo' || catalogRouteSlug === 'promociones' || catalogRouteSlug === 'tienda';
   const catalogApiSlug = isVirtualCatalogRoute ? catalogRouteSlug : selectedCategorySlug;
+
+  // Nombre de la categoría activa (real o seleccionada dentro de un catálogo virtual) para el título de la grilla.
+  const activeCategoryTrail = filtersData
+    ? buildCatalogBreadcrumbTrail(
+        filtersData.current_category,
+        filtersData.category_breadcrumb,
+        filtersData.category_navigation,
+        selectedCategorySlug,
+      )
+    : [];
+  const pageTitle = activeCategoryTrail.length > 0
+    ? formatCategoryBreadcrumb(activeCategoryTrail[activeCategoryTrail.length - 1].name)
+    : toSentenceCase(filtersData?.current_category?.name ?? '');
 
   /**
    * 1. CARGA INICIAL DE FILTROS
@@ -473,6 +499,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         });
 
         setProducts(filteredProducts);
+        setPageMeta(response.data.meta ?? null);
         setCategoryNotFound(false);
       }
     } catch (error) {
@@ -625,6 +652,33 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     });
   };
 
+  const hasActiveFilters = Object.keys(currentFilters).length > 0;
+
+  const handleClearFilters = () => {
+    setMobileFiltersOpen(false);
+    startTransition(() => {
+      router.push(`/${catalogRouteSlug}`, { scroll: false });
+    });
+  };
+
+  const handlePageChange = (nextPage: number) => {
+    const newParams = new URLSearchParams(searchParams.toString());
+
+    if (nextPage <= 1) {
+      newParams.delete('page');
+    } else {
+      newParams.set('page', String(nextPage));
+    }
+
+    startTransition(() => {
+      router.push(`?${newParams.toString()}`, { scroll: false });
+    });
+
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   // Pantalla de error 404
   if (categoryNotFound) {
     return (
@@ -733,14 +787,25 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                         Filtros
                       </h2>
                     </div>
-                    <button
-                      type="button"
-                      aria-label="Cerrar panel de filtros"
-                      onClick={() => setMobileFiltersOpen(false)}
-                      className="shrink-0 rounded-full p-2 text-zinc-500 transition hover:bg-zinc-100 hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
-                    >
-                      <X size={16} aria-hidden />
-                    </button>
+                    <div className="flex shrink-0 items-center gap-3">
+                      {hasActiveFilters && (
+                        <button
+                          type="button"
+                          onClick={handleClearFilters}
+                          className="font-helvetica text-[12px] font-medium text-gray-500 underline underline-offset-2 transition hover:text-black"
+                        >
+                          Limpiar
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        aria-label="Cerrar panel de filtros"
+                        onClick={() => setMobileFiltersOpen(false)}
+                        className="rounded-full p-2 text-zinc-500 transition hover:bg-zinc-100 hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+                      >
+                        <X size={16} aria-hidden />
+                      </button>
+                    </div>
                   </div>
 
                   <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 py-4">
@@ -795,14 +860,20 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                     : 'opacity-100 translate-y-0'
                 }`}
               >
-                {catalogPageBadge && (
-                  <p className="mb-1 font-inter text-[12px] font-bold tracking-[0.2px] text-[#D29F13]">
-                    {catalogPageBadge}
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-black font-helvetica text-[16px] leading-5.75 tracking-[1px] font-bold">
+                    Filtros
                   </p>
-                )}
-                <h1 className="text-black font-helvetica text-[16px] leading-5.75 tracking-[1px] font-bold">
-                  TIENDA PRODUCTOS ({products.length})
-                </h1>
+                  {hasActiveFilters && (
+                    <button
+                      type="button"
+                      onClick={handleClearFilters}
+                      className="shrink-0 font-helvetica text-[12px] font-medium text-gray-500 underline underline-offset-2 transition hover:text-black"
+                    >
+                      Limpiar filtros
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
             <div className="relative">
@@ -849,6 +920,40 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
           {/* GRID DE PRODUCTOS */}
           <main className="w-full min-w-0 flex-1 py-2 md:py-10 md:pr-2">
+            <div className="flex items-end justify-end gap-4 pb-4 md:justify-between md:pb-6">
+              <div className="hidden md:block">
+                {catalogPageBadge && (
+                  <p className="mb-1 font-inter text-[12px] font-bold tracking-[0.2px] text-[#D29F13]">
+                    {catalogPageBadge}
+                  </p>
+                )}
+                <h1 className="font-helvetica text-[26px] font-bold leading-tight text-black">
+                  {pageTitle}
+                </h1>
+                <p className="mt-1 font-helvetica text-[14px] text-gray-500">
+                  {products.length} {products.length === 1 ? 'producto encontrado' : 'productos encontrados'}
+                </p>
+              </div>
+              <label className="flex shrink-0 items-center gap-2 font-helvetica text-[13px] font-medium text-gray-500">
+                Ordenar por
+                <span className="relative inline-flex items-center">
+                  <select
+                    value={currentFilters.sort || 'newest'}
+                    onChange={(e) => handleFilterChange('sort', e.target.value)}
+                    className="cursor-pointer appearance-none rounded-md border border-gray-200 bg-white py-1.5 pl-3 pr-8 font-helvetica text-[13px] font-medium text-gray-700 outline-none transition-colors hover:border-gray-300 focus:border-black"
+                  >
+                    <option value="newest">Lo nuevo</option>
+                    <option value="price_asc">Precio: Bajo a Alto</option>
+                    <option value="price_desc">Precio: Alto a Bajo</option>
+                    <option value="name_asc">Nombre: A-Z</option>
+                  </select>
+                  <ChevronDown
+                    size={14}
+                    className="pointer-events-none absolute right-2.5 text-gray-400"
+                  />
+                </span>
+              </label>
+            </div>
             <div className="relative min-h-112">
               <div
                 className={`absolute inset-0 transition-[opacity,transform] duration-300 ease-out ${
@@ -909,6 +1014,30 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                 )}
               </div>
             </div>
+
+            {pageMeta && pageMeta.last_page > 1 ? (
+              <div className="mt-6 flex items-center justify-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(pageMeta.current_page - 1)}
+                  disabled={pageMeta.current_page <= 1}
+                  className="rounded-md border border-gray-200 px-4 py-2 text-[12px] font-bold uppercase tracking-wide transition hover:border-black disabled:cursor-not-allowed disabled:opacity-30"
+                >
+                  Anterior
+                </button>
+                <span className="text-[12px] font-medium text-gray-500">
+                  Página {pageMeta.current_page} de {pageMeta.last_page}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(pageMeta.current_page + 1)}
+                  disabled={pageMeta.current_page >= pageMeta.last_page}
+                  className="rounded-md border border-gray-200 px-4 py-2 text-[12px] font-bold uppercase tracking-wide transition hover:border-black disabled:cursor-not-allowed disabled:opacity-30"
+                >
+                  Siguiente
+                </button>
+              </div>
+            ) : null}
           </main>
         </div>
       </div>

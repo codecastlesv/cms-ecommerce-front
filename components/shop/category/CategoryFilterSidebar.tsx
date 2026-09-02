@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronDown, ChevronRight } from 'lucide-react';
-import { categorySlugsMatch, normalizeCategoryPublicSlug } from '@/lib/categoryUrls';
+import { categorySlugsMatch, normalizeCategoryPublicSlug, toSentenceCase } from '@/lib/categoryUrls';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { Dispatch, SetStateAction } from 'react';
@@ -463,30 +463,6 @@ export default function CategoryFilterSidebar({
   const minPercent = ((priceDraft.min - priceRangeMin) / priceRangeWidth) * 100;
   const maxPercent = ((priceDraft.max - priceRangeMin) / priceRangeWidth) * 100;
 
-  const priceSpanOk = priceRangeMax - priceRangeMin >= SHOP_PRICE_SLIDER_GAP;
-  /** Fin del slider del mínimo (siempre hay al menos `$SHOP_PRICE_SLIDER_GAP` hasta el máximo). */
-  const minRangeInputMax =
-    priceSpanOk
-      ? Math.max(priceRangeMin, Math.min(priceRangeMax, priceDraft.max - SHOP_PRICE_SLIDER_GAP))
-      : priceRangeMax;
-  /** Piso del slider del máximo. */
-  const maxRangeInputMin =
-    priceSpanOk
-      ? Math.min(priceRangeMax, Math.max(priceRangeMin, priceDraft.min + SHOP_PRICE_SLIDER_GAP))
-      : priceRangeMin;
-
-  const minSlideMaxAttr = Math.max(priceRangeMin, Math.min(priceRangeMax, minRangeInputMax));
-  const maxSlideMinAttr = Math.min(priceRangeMax, Math.max(priceRangeMin, maxRangeInputMin));
-
-  const minSlideValue = Math.min(
-    Math.max(priceDraft.min, priceRangeMin),
-    minSlideMaxAttr
-  );
-  const maxSlideValue = Math.max(
-    Math.min(priceDraft.max, priceRangeMax),
-    maxSlideMinAttr
-  );
-
   const updateNearestPriceThumbFromX = (clientX: number) => {
     if (activePriceThumb) {
       return;
@@ -558,8 +534,7 @@ export default function CategoryFilterSidebar({
                 isActive ? 'font-bold text-black' : 'text-gray-600 hover:bg-black/5 hover:text-black'
               }`}
             >
-              <span className="font-helvetica text-[13px] leading-[11px] tracking-[0.18px]
-">{item.name}</span>
+              <span className="font-helvetica text-[13px] leading-[15px] tracking-[0.18px]">{toSentenceCase(item.name)}</span>
               <span className="ml-1 inline-flex items-center rounded-sm bg-gray-100 px-1.5 py-0.5 text-[13px] font-medium text-gray-600 transition-colors duration-200 group-hover:bg-black/5 group-hover:text-black">
                 {item.products_count}
               </span>
@@ -878,11 +853,11 @@ export default function CategoryFilterSidebar({
               <input
                 type="range"
                 min={priceRangeMin}
-                max={minSlideMaxAttr}
+                max={priceRangeMax}
                 step={1}
-                value={minSlideValue}
+                value={priceDraft.min}
                 aria-valuemin={priceRangeMin}
-                aria-valuemax={minSlideMaxAttr}
+                aria-valuemax={priceRangeMax}
                 onChange={(e) => {
                   const raw = Number(e.target.value);
                   setPriceDraft((current) =>
@@ -928,11 +903,11 @@ export default function CategoryFilterSidebar({
 
               <input
                 type="range"
-                min={maxSlideMinAttr}
+                min={priceRangeMin}
                 max={priceRangeMax}
                 step={1}
-                value={maxSlideValue}
-                aria-valuemin={maxSlideMinAttr}
+                value={priceDraft.max}
+                aria-valuemin={priceRangeMin}
                 aria-valuemax={priceRangeMax}
                 onChange={(e) => {
                   const raw = Number(e.target.value);
@@ -979,8 +954,8 @@ export default function CategoryFilterSidebar({
             </div>
 
             <div
-              className={`flex items-center justify-between text-[14px] font-medium text-gray-500 tabular-nums motion-reduce:transition-none transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                activePriceThumb ? 'scale-[1.03] opacity-90' : 'scale-100 opacity-100'
+              className={`flex items-center justify-between text-[14px] font-medium text-gray-500 tabular-nums motion-reduce:transition-none transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                activePriceThumb ? 'opacity-90' : 'opacity-100'
               }`}
             >
               <span>${priceDraft.min}</span>

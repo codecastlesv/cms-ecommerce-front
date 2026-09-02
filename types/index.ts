@@ -292,7 +292,6 @@ export interface Product {
     categoria_padre?: string | null;
     subcategoria?: string | null;
     subcategoria_genero?: string | null;
-    sub_subcategoria?: string | null;
     presentacion?: string | null;
     /** Tercer nivel de clasificación (Sub-subcategoría en el formulario) */
     sub_subcategoria?: string | null;

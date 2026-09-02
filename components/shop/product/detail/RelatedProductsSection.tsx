@@ -39,7 +39,7 @@ export default function RelatedProductsSection({ products }: RelatedProductsSect
   }
 
   return (
-    <section className="mt-16 pt-10">
+    <section className="pt-10">
       <h2 className="font-bold text-gray-900 text-lg sm:text-xl mb-6">
         También podría gustarte
       </h2>

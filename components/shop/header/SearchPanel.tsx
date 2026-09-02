@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Search, X, ChevronDown } from 'lucide-react';
 import ProductCard, { type Product } from '@/components/shop/product/ProductCard';
 import api from '@/lib/axios';
+import { toSentenceCase } from '@/lib/categoryUrls';
 
 interface SearchPanelProps {
     isOpen: boolean;
@@ -135,8 +136,10 @@ export default function SearchPanel({ isOpen, onClose, onOpen }: SearchPanelProp
         setIsCategoryOpen(false);
     };
 
-    const selectedCategoryName =
-        categories.find((c) => c.slug === selectedCategorySlug)?.name || 'Todas las categorías';
+    const selectedCategoryName = (() => {
+        const name = categories.find((c) => c.slug === selectedCategorySlug)?.name;
+        return name ? toSentenceCase(name) : 'Todas las categorías';
+    })();
 
     const moreResultsHref = (() => {
         const params = new URLSearchParams();
@@ -271,7 +274,7 @@ export default function SearchPanel({ isOpen, onClose, onOpen }: SearchPanelProp
                                             onOpen?.();
                                         }}
                                     >
-                                        {cat.name}
+                                        {toSentenceCase(cat.name)}
                                     </button>
                                 </li>
                             ))}

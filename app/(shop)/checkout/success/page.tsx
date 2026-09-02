@@ -97,17 +97,17 @@ function resolvePaymentUi(order: OrderPayload | null): PaymentUi {
 function PaymentStatusSection({ paymentUi }: { paymentUi: PaymentUi }) {
   return (
     <div className="flex flex-col gap-2 text-center">
-      <span className="text-xs text-gray-500">Estado del pago</span>
+      <span className="text-[1em] text-gray-500">Estado del pago</span>
 
       {paymentUi.kind === 'auth_hold' ? (
         <>
-          <span className="mx-auto inline-flex max-w-full items-center gap-1.5 rounded-full border border-stone-200/90 bg-stone-50/90 px-3 py-1 text-[11px] font-medium tracking-wide text-stone-700 shadow-[0_1px_0_rgba(0,0,0,0.03)]">
+          <span className="mx-auto inline-flex max-w-full items-center gap-1.5 rounded-full border border-stone-200/90 bg-stone-50/90 px-3 py-1 text-[16px] font-medium tracking-wide text-stone-700 shadow-[0_1px_0_rgba(0,0,0,0.03)]">
             <span aria-hidden className="opacity-90">
               ⏳
             </span>
             Autorizado / Fondos retenidos
           </span>
-          <p className="mx-auto max-w-sm text-left text-xs leading-relaxed text-gray-500 sm:text-center">
+          <p className="mx-auto max-w-sm text-left text-[16px] leading-relaxed text-gray-500 sm:text-center">
             Tu pago ha sido autorizado de forma segura. Estamos verificando las existencias físicas de tus productos en
             tienda; el cargo final a tu tarjeta se ejecutará únicamente cuando el pedido esté listo para despacho.
           </p>
@@ -115,7 +115,7 @@ function PaymentStatusSection({ paymentUi }: { paymentUi: PaymentUi }) {
       ) : null}
 
       {paymentUi.kind === 'paid_complete' ? (
-        <span className="mx-auto inline-flex max-w-full items-center gap-1.5 rounded-full border border-emerald-200/70 bg-emerald-50/80 px-3 py-1 text-[11px] font-medium tracking-wide text-emerald-900/80 shadow-[0_1px_0_rgba(0,0,0,0.03)]">
+        <span className="mx-auto inline-flex max-w-full items-center gap-1.5 rounded-full border border-emerald-200/70 bg-emerald-50/80 px-3 py-1 text-[16px] font-medium tracking-wide text-emerald-900/80 shadow-[0_1px_0_rgba(0,0,0,0.03)]">
           <span aria-hidden className="opacity-90">
             ✓
           </span>
@@ -125,13 +125,13 @@ function PaymentStatusSection({ paymentUi }: { paymentUi: PaymentUi }) {
 
       {paymentUi.kind === 'declined' ? (
         <>
-          <span className="mx-auto inline-flex max-w-full items-center gap-1.5 rounded-full border border-red-200/80 bg-red-50/70 px-3 py-1 text-[11px] font-medium tracking-wide text-red-900/85 shadow-[0_1px_0_rgba(0,0,0,0.03)]">
+          <span className="mx-auto inline-flex max-w-full items-center gap-1.5 rounded-full border border-red-200/80 bg-red-50/70 px-3 py-1 text-[16px] font-medium tracking-wide text-red-900/85 shadow-[0_1px_0_rgba(0,0,0,0.03)]">
             <span aria-hidden className="opacity-90">
               ❌
             </span>
             Declinado
           </span>
-          <p className="mx-auto max-w-sm text-left text-xs leading-relaxed text-gray-500 sm:text-center">{paymentUi.detail}</p>
+          <p className="mx-auto max-w-sm text-left text-[16px] leading-relaxed text-gray-500 sm:text-center">{paymentUi.detail}</p>
         </>
       ) : null}
     </div>
@@ -197,9 +197,9 @@ type DetailRowProps = { label: string; value: string };
 
 function DetailRow({ label, value }: DetailRowProps) {
   return (
-    <div className="flex flex-col gap-0.5 text-center">
-      <span className="text-xs text-gray-500">{label}</span>
-      <span className="text-sm font-semibold text-gray-700 break-words">{value}</span>
+    <div className="flex flex-col gap-0.5 text-left">
+      <span className="font-helvetica text-[1em] font-bold text-slate-900">{label}</span>
+      <span className="font-helvetica text-[1em] text-gray-500 break-words">{value}</span>
     </div>
   );
 }
@@ -296,46 +296,43 @@ function CheckoutSuccessContent() {
   return (
     <div className="flex w-full flex-col items-center justify-center px-4 py-10 font-sans text-slate-900 antialiased">
       <div className="flex w-full max-w-md flex-col items-center">
-        <div
-          className="mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-gray-100 ring-1 ring-gray-200/90"
-          aria-hidden
-        >
-          <CheckCircleIcon className="h-14 w-14 text-black" />
+        <div className="mb-6 flex items-center justify-center" aria-hidden>
+          <CheckCircleIcon className="h-20 w-20 text-green-500" />
         </div>
 
-        <h1 className="mb-10 max-w-sm text-center text-lg font-bold uppercase tracking-[0.2em] text-black sm:text-xl">
-          ¡SU OPERACIÓN FUE EXITOSA!
+        <h1 className="mb-10 max-w-sm text-center font-helvetica text-2xl font-bold text-slate-900">
+          ¡Su operación fue exitosa!
         </h1>
 
         {loadingOrder && !order ? (
-          <p className="text-sm text-gray-500 mb-6">Cargando detalles del pedido…</p>
+          <p className="text-[1em] text-gray-500 mb-6">Cargando detalles del pedido…</p>
         ) : null}
 
         {showGenericConfirmation ? (
-          <div className="w-full space-y-6 text-center">
+          <div className="w-full space-y-6 text-left">
             <div className="flex flex-col gap-0.5">
-              <span className="text-xs text-gray-500">Referencia de pedido</span>
-              <span className="text-sm font-semibold text-slate-600 break-all">{orderIdParam}</span>
+              <span className="font-helvetica text-[1em] font-bold text-slate-900">Referencia de pedido</span>
+              <span className="font-inter text-[1em] font-bold text-gray-500 break-all">{orderIdParam}</span>
             </div>
-            <p className="text-sm leading-relaxed text-gray-600">
+            <p className="text-[1em] leading-relaxed text-gray-600">
               Tu pago fue procesado. No pudimos cargar el detalle completo del pedido en este momento; conserva esta
               referencia y revisa tu correo o tu cuenta para más información.
             </p>
           </div>
         ) : (
           <div className="w-full space-y-6">
-            <div className="flex flex-col gap-0.5 text-center">
-              <span className="text-xs text-gray-500">Número orden</span>
-              <span className="text-sm font-semibold text-slate-600 break-words">{orderNumberDisplay}</span>
-            </div>
-
             {order ? <PaymentStatusSection paymentUi={resolvePaymentUi(order)} /> : null}
             {loadingOrder && !order ? (
               <div className="flex flex-col gap-2 text-center">
-                <span className="text-xs text-gray-500">Estado del pago</span>
-                <span className="text-xs text-gray-400">Cargando…</span>
+                <span className="text-[1em] text-gray-500">Estado del pago</span>
+                <span className="text-[1em] text-gray-400">Cargando…</span>
               </div>
             ) : null}
+
+            <div className="flex flex-col gap-0.5 text-left">
+              <span className="font-helvetica text-[1em] font-bold text-slate-900">Número orden</span>
+              <span className="font-inter text-[1em] font-bold text-gray-500 break-words">{orderNumberDisplay}</span>
+            </div>
 
             {order ? (
               <>
@@ -384,7 +381,7 @@ function CheckoutSuccessContent() {
 
         <Link
           href="/"
-          className="mt-12 w-full max-w-md rounded-xl bg-black py-4 text-center text-sm font-semibold text-white transition hover:bg-zinc-800"
+          className="mt-12 w-full max-w-md rounded-sm bg-[#E30613] py-4 text-center font-inter text-[1em] font-bold text-white transition hover:brightness-95"
         >
           Continuar comprando
         </Link>
