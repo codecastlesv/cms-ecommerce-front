@@ -5,7 +5,7 @@ interface Props {
     params: Promise<{ id: string }>;
 }
 export const metadata = {
-    title: 'Editar Categorias | Galaxia Admin',
+    title: 'Editar Categorias | Castella Admin',
 };
 export default async function EditCategoryPage({ params }: Props) {
     const { id } = await params;

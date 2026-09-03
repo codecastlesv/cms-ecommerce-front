@@ -8,7 +8,7 @@ interface Props {
 export async function generateMetadata({ params }: Props) {
     const { slug } = await params;
     return {
-        title: `Editar ${decodeURIComponent(slug)} | Galaxia Admin`,
+        title: `Editar ${decodeURIComponent(slug)} | Castella Admin`,
     };
 }
 

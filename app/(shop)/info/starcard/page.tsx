@@ -118,7 +118,7 @@ export default async function StarcardPage() {
                     <div className="animate-marquee-infinite group-hover:[animation-play-state:paused]">
                         {[...logoItems, ...logoItems].map((_, i) => (
                             <div key={i} className="flex items-center gap-6 px-8 select-none">
-                                <img src="/logo/logoblanco.png" alt="Logo Galaxia" className='w-15 h-12' />
+                                <img src="/logo/logoblanco.png" alt="Logo Castella" className='w-15 h-12' />
                                 <span className="font-bebas text-white uppercase tracking-[0.08em] sm:text-4xl lg:text-xl">
                                     Starcard
                                 </span>

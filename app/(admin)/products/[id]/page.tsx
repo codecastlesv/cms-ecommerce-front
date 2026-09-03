@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 import ProductForm from '@/components/admin/products/ProductForm';
 
 export const metadata: Metadata = {
-    title: 'Editar Producto | Galaxia Admin',
+    title: 'Editar Producto | Castella Admin',
 };
 
 interface PageProps {

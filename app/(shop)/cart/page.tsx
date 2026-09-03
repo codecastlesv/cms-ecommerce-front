@@ -162,7 +162,7 @@ export default function CartPage() {
             <p className="text-sm text-gray-700 mb-2">Accede a una experiencia de compra más ágil, organizada y hecha para ti.</p>
             {!isLoggedIn() ? (
               <p className="text-sm text-gray-800">
-                Tu cuenta Galaxia se creará automáticamente durante el pago para que puedas rastrear este pedido.
+                Tu cuenta Castella se creará automáticamente durante el pago para que puedas rastrear este pedido.
               </p>
             ) : null}
           </div>

@@ -1,7 +1,7 @@
 import OrderList from "@/components/admin/orders/OrderList";
 
 export const metadata = {
-    title: 'Pedidos | Galaxia Admin',
+    title: 'Pedidos | Castella Admin',
     description: 'Gestión y seguimiento de órdenes de compra.',
 };
 

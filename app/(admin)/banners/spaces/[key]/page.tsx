@@ -6,7 +6,7 @@ interface Props {
 }
 
 export const metadata = {
-    title: 'Gestionar Espacio | Galaxia Admin',
+    title: 'Gestionar Espacio | Castella Admin',
 };
 
 export default async function ManageSpacePage({ params }: Props) {

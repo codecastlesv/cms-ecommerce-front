@@ -153,7 +153,7 @@ export default function ProductList() {
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = 'catalogo_productos_galaxia_sin_stock.xlsx';
+            link.download = 'catalogo_productos_castella_sin_stock.xlsx';
             document.body.appendChild(link);
             link.click();
             link.remove();

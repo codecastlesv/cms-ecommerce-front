@@ -64,7 +64,7 @@ export default async function WorkWithUsPage() {
                         <img 
                             src={content.quienes_somos_equipo?.imagen_equipo} 
                             className="w-full h-full object-cover " 
-                            alt="Equipo Galaxia" 
+                            alt="Equipo Castella" 
                         />
                     </div>
                     

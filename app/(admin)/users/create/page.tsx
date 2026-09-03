@@ -2,7 +2,7 @@ import UserForm from "@/components/admin/users/UserForm";
 import PermissionGate from "@/components/auth/PermissionGate";
 
 export const metadata = {
-    title: 'Nuevo Usuario | Galaxia Admin',
+    title: 'Nuevo Usuario | Castella Admin',
 };
 
 export default function CreateUserPage() {

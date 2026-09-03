@@ -2,7 +2,7 @@ import AttributeForm from '@/components/admin/attributes/AttributeForm';
 import PermissionGate from '@/components/auth/PermissionGate';
 
 export const metadata = {
-    title: 'Crear Atributo | Galaxia Admin',
+    title: 'Crear Atributo | Castella Admin',
 };
 
 export default function CreateAttributePage() {

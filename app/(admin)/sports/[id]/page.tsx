@@ -6,7 +6,7 @@ interface Props {
 }
 
 export const metadata = {
-    title: 'Editar Deporte | Galaxia Admin',
+    title: 'Editar Deporte | Castella Admin',
 };
 
 export default async function EditSportPage({ params }: Props) {

@@ -42,7 +42,7 @@ export default async function Factory() {
                     {bannerImage ? (
                         <img
                             src={bannerImage}
-                            alt={banner.titulo || 'Galaxia Factory'}
+                            alt={banner.titulo || 'Castella Factory'}
                             className="object-cover object-center w-full h-full"
                         />
                     ) : (
@@ -133,7 +133,7 @@ export default async function Factory() {
                 <section className="my-14 flex items-center justify-center sm:my-16 md:my-24 lg:my-28">
                     <img 
                         src={content.imagen_telaraña} 
-                        alt="Estructura Galaxia Factory" 
+                        alt="Estructura Castella" 
                         className="w-full max-w-5xl rounded-lg object-cover aspect-[16/10] sm:aspect-[4/3] lg:aspect-[17/10] shadow-xl transition-transform duration-500 hover:scale-[1.01]" 
                     />
                 </section>

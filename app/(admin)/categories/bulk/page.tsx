@@ -1,7 +1,7 @@
 import BulkCategoryForm from '@/components/admin/categories/BulkCategoryForm';
 import PermissionGate from '@/components/auth/PermissionGate';
 export const metadata = {
-    title: 'Carga Masiva de Categorías | Galaxia Admin',
+    title: 'Carga Masiva de Categorías | Castella Admin',
 };
 export default function BulkPage() {
     return (

@@ -264,7 +264,7 @@ export default function CategoryForm({ categoryId }: CategoryFormProps) {
                                     </p>
                                 </div>
 
-                                <Input label="Meta Title" placeholder="Ej: Ropa Deportiva | Galaxia" registration={register('seo_title')} disabled={!hasPermission} />
+                                <Input label="Meta Title" placeholder="Ej: Duchas para baño | Castella" registration={register('seo_title')} disabled={!hasPermission} />
 
                                 <Input
                                     label="Canonical URL"

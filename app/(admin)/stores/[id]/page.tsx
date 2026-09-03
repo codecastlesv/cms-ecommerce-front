@@ -5,7 +5,7 @@ interface Props {
 }
 
 export const metadata = {
-    title: 'Editar Sucursal | Galaxia Admin',
+    title: 'Editar Sucursal | Castella Admin',
 };
 
 export default async function EditStorePage({ params }: Props) {

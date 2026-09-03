@@ -6,7 +6,7 @@ interface Props {
 }
 
 export const metadata = {
-    title: 'Editar Rol | Galaxia Admin',
+    title: 'Editar Rol | Castella Admin',
 };
 
 export default async function EditRolePage({ params }: Props) {

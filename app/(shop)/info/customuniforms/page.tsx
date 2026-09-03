@@ -31,7 +31,7 @@ export default async function CustomUniformsHero() {
                 <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105">
                     <img
                         src={content["seccion banner"].imagen_fondo}
-                        alt="Equipo celebrando con uniformes Galaxia Deportes"
+                        alt="Uniformes Castella"
                         className="object-cover object-center w-full h-full"
                     />
                 </div>
@@ -236,7 +236,7 @@ leading-[75px] tracking-[4px] text-white">
                             <h3 className="font-bebas font-normal text-[28px] md:text-[40px] leading-[49px] tracking-[2px]">
                                 {content.eslogan_final}
                             </h3>
-                            <img src="/logo/logo.png" alt="Galaxia Deportes" className=" w-24 sm:w-28 md:w-32" />
+                            <img src="/logo/logo.png" alt="Castella Sagarra" className=" w-24 sm:w-28 md:w-32" />
                         </div>
                     </section>
                 </div>

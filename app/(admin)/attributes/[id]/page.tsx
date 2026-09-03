@@ -6,7 +6,7 @@ interface Props {
 }
 
 export const metadata = {
-    title: 'Editar Atributo | Galaxia Admin',
+    title: 'Editar Atributo | Castella Admin',
 };
 
 export default async function EditAttributePage({ params }: Props) {

@@ -2,7 +2,7 @@ import BannerForm from '@/components/admin/banners/BannerForm';
 import PermissionGate from '@/components/auth/PermissionGate';
 
 export const metadata = {
-    title: 'Nuevo Banner | Galaxia Admin',
+    title: 'Nuevo Banner | Castella Admin',
 };
 
 export default function CreateBannerPage() {

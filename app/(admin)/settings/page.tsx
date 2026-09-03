@@ -2,7 +2,7 @@ import SettingsForm from "@/components/admin/settings/SettingsForm";
 import PermissionGate from "@/components/auth/PermissionGate";
 
 export const metadata = {
-    title: 'Configuración General | Galaxia Admin',
+    title: 'Configuración General | Castella Admin',
 };
 
 export default function SettingsPage() {

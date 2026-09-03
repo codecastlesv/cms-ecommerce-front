@@ -2,7 +2,7 @@ import RoleForm from '@/components/admin/roles/RoleForm';
 import PermissionGate from '@/components/auth/PermissionGate';
 
 export const metadata = {
-    title: 'Crear Rol | Galaxia Admin',
+    title: 'Crear Rol | Castella Admin',
 };
 
 export default function CreateRolePage() {

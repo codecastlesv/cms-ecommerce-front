@@ -111,7 +111,7 @@ export default function SearchPanel({ isOpen, onClose, onOpen }: SearchPanelProp
                     };
                     return {
                         ...item,
-                        brand: item.brand_name ?? item.brand ?? 'Galaxia',
+                        brand: item.brand_name ?? item.brand ?? 'Castella',
                         description: item.category_name ?? '',
                         is_new: Boolean(item.is_featured),
                     };

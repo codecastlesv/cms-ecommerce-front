@@ -79,7 +79,7 @@ export default function WishlistPage() {
             return {
               id: product.id,
               name: product.name ?? 'Producto sin nombre',
-              brand: product.brand ?? 'Galaxia',
+              brand: product.brand ?? 'Castella',
               description: product.category ?? product.short_description ?? '',
               price: product.sale_price ?? product.price ?? 0,
               images: productImages,

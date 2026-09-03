@@ -2,7 +2,7 @@ import InformativePageList from '@/components/admin/contents/InformativePageList
 import PermissionGate from '@/components/auth/PermissionGate';
 
 export const metadata = {
-    title: 'Contenidos | Galaxia Admin',
+    title: 'Contenidos | Castella Admin',
 };
 
 export default function ContentsPage() {

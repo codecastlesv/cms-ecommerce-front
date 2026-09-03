@@ -44,7 +44,7 @@ export default async function HistoryPage() {
                 <div className="relative aspect-square rounded-2xl overflow-hidden border border-zinc-700/50 group">
                     <img
                         src={content["seccion banner"].imagen_principal}
-                        alt="Historia Galaxia Deportes"
+                        alt="Historia Castella"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                 </div>
@@ -55,7 +55,7 @@ export default async function HistoryPage() {
                 <div className="order-2 md:order-1 relative h-[300px] sm:h-[400px] md:h-full md:min-h-[500px] group overflow-hidden md:rounded-r-2xl border-y md:border-y border-r border-zinc-700/50 rounded-lg sm:rounded-xl md:rounded-r-2xl md:rounded-l-none">
                     <img
                         src={content.origenes_fundacion.imagen_origenes}
-                        alt="Orígenes Galaxia"
+                        alt="Orígenes Castella"
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                 </div>
@@ -86,7 +86,7 @@ export default async function HistoryPage() {
                 <div className="relative w-full aspect-video rounded-lg sm:rounded-xl md:rounded-2xl overflow-hidden border border-zinc-700/50 group">
                     <img
                         src={content.desarrollo_como_empresa.imagen_origenes}
-                        alt="Desarrollo Galaxia"
+                        alt="Desarrollo Castella"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                 </div>
@@ -148,7 +148,7 @@ export default async function HistoryPage() {
                         <div key={i} className="aspect-[4/3] bg-zinc-800/30 rounded-xl flex items-center justify-center border border-zinc-700/30 overflow-hidden group">
                             <img
                                 src={brand.imagen_marca}
-                                alt="Marca Galaxia"
+                                alt="Marca Castella"
                                 className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300 group-hover:scale-105 transition-transform"
                             />
                         </div>
@@ -182,7 +182,7 @@ export default async function HistoryPage() {
                     <div className="relative w-full aspect-video rounded-lg sm:rounded-xl md:rounded-2xl overflow-hidden border border-zinc-700/50 group">
                         <img
                             src={content.seccion_hoy.imagen_hoy}
-                            alt="Hoy en Galaxia Deportes"
+                            alt="Hoy en Castella"
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                     </div>
@@ -205,7 +205,7 @@ export default async function HistoryPage() {
                             <div className="aspect-[4/3] relative">
                                 <img
                                     src={logo.imagen_marca}
-                                    alt="Patrocinio Galaxia"
+                                    alt="Patrocinio Castella"
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                 />
                                 <div className="absolute inset-0 bg-black/50 group-hover:bg-black/20 transition-colors duration-500"></div>

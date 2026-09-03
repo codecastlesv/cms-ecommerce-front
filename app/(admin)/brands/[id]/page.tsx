@@ -6,7 +6,7 @@ interface Props {
 }
 
 export const metadata = {
-    title: 'Editar Marca | Galaxia Admin',
+    title: 'Editar Marca | Castella Admin',
 };
 
 export default async function EditBrandPage({ params }: Props) {

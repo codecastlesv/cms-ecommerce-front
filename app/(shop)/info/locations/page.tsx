@@ -57,7 +57,7 @@ export default async function StoresPage() {
             Nuestras Tiendas
           </h1>
           <p className=" font-inter text-[18px] leading-[28px] tracking-[0.18px]">
-            Encuentra tu tienda más cercana y vive la experiencia GALAXIA.
+            Encuentra tu tienda más cercana.
           </p>
         </header>
 

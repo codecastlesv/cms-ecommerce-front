@@ -292,7 +292,7 @@ export default function HomePageContent({
           </h2>
 
           <p className="font-inter text-[13px] sm:text-[14px] text-white/70 leading-6 max-w-[28rem] mx-auto mb-6">
-            Entérate primero de los lanzamientos, descuentos y novedades de Galaxia Deportes.
+            Entérate primero de los descuentos y novedades de Castella.
           </p>
           <NewsletterSignupForm variant="mobile" />
         </div>
@@ -309,7 +309,7 @@ export default function HomePageContent({
 
           <div className="md:w-1/3">
             <p className="font-inter font-normal leading-[28px] tracking-[0.18px] text-zinc-400 text-[14px] lg:text-[15px] max-w-xs">
-              Entérate primero de los lanzamientos, descuentos y novedades de Galaxia Deportes.
+            Entérate primero de los descuentos y novedades de Castella.
             </p>
           </div>
 

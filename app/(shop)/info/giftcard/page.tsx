@@ -169,7 +169,7 @@ export default async function GiftcardPage() {
                         <div className="w-64 h-40 bg-gray-200 rounded-2xl flex items-center justify-center mb-8 relative overflow-hidden shadow-xl">
                             <img 
                                 src={content.componente_final.imagen_tarjeta_final} 
-                                alt="Giftcard Galaxia Cierre"
+                                alt="Giftcard Castella Cierre"
                                 className="w-full h-full object-cover"
                             />
                         </div>

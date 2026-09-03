@@ -74,7 +74,7 @@ export default async function WhoseSale() {
                         <div className="aspect-square bg-gray-200 overflow-hidden rounded-lg shadow-sm">
                             <img
                                 src={content.historia_respaldo.imagen_sobre}
-                                alt="Historia Galaxia"
+                                alt="Historia Castella"
                                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                             />
                         </div>
@@ -117,7 +117,7 @@ export default async function WhoseSale() {
                         <div className="aspect-square bg-gray-200 order-2 md:order-1 overflow-hidden rounded-lg">
                             <img
                                 src={content.beneficios_distribuidor.imagen_beneficios}
-                                alt="Beneficios Galaxia"
+                                alt="Beneficios Castella"
                                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                             />
                         </div>

@@ -142,7 +142,7 @@ export default function SettingsForm() {
                                     <label className="text-xs font-bold text-slate-700 block mb-1">Meta Description</label>
                                     <textarea {...register('seo_description')} rows={3} className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 ring-slate-900 outline-none resize-none"></textarea>
                                 </div>
-                                <Input label="Canonical URL" registration={register('canonical_url')} placeholder="https://galaxiadeportes.com" />
+                                <Input label="Canonical URL" registration={register('canonical_url')} placeholder="https://castellasagarra.com" />
 
                                 <div className="flex gap-6 pt-2 border-t">
                                     <label className="flex gap-2 items-center cursor-pointer"><input type="checkbox" {...register('robots_index')} className="rounded text-slate-900" /> <span className="text-sm font-medium">Indexar Sitio</span></label>
