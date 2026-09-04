@@ -165,8 +165,6 @@ export default function ProductDetailClient({
               </summary>
               <ul className="text-[14px] text-gray-700 space-y-1 mt-2">
                 {product.brand?.name ? <li>• Marca: {product.brand.name}</li> : null}
-                {product.codigo ? <li>• Código: {product.codigo}</li> : null}
-                {product.sku ? <li>• Código de barras: {product.sku}</li> : null}
                 {specRows.map((row) => (
                   <li key={`${row.label}-${row.value}`}>• {row.label}: {row.value}</li>
                 ))}

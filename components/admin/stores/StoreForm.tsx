@@ -179,16 +179,16 @@ export default function StoreForm({ storeId }: StoreFormProps) {
                         <h3 className="font-bold text-lg mb-6 flex items-center"><Map className="w-5 h-5 mr-2 text-blue-600" /> Datos Generales</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="md:col-span-2">
-                                <label className={labelClass}>Nombre Sucursal (Brilo / Sistema)</label>
-                                <input required type="text" className={inputClass} placeholder="Ej: Galaxia Mall Central" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
-                                <p className="mt-1 text-[11px] text-slate-400">No modificar si está vinculado al ERP Brilo.</p>
+                                <label className={labelClass}>Nombre Sucursal (en Olympus)</label>
+                                <input required type="text" className={inputClass} placeholder="Ej: Sucursal 01" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                                <p className="mt-1 text-[11px] text-slate-400">No modificar si está vinculado al ERP Olympus.</p>
                             </div>
                             <div className="md:col-span-2">
                                 <label className={labelClass}>Alias Comercial / Nombre Público</label>
                                 <input
                                     type="text"
                                     className={inputClass}
-                                    placeholder="Ej. Metrocentro 1er. Nivel"
+                                    placeholder="Ej. Sucursal 1"
                                     value={formData.alias}
                                     onChange={e => setFormData({ ...formData, alias: e.target.value })}
                                 />

@@ -204,7 +204,7 @@ export default function ProductForm({ productId }: { productId?: string }) {
         sports,
     } = useCatalog();
     const [loading, setLoading] = useState(false);
-    const [isSyncingBrilo, setIsSyncingBrilo] = useState(false);
+    const [isSyncingOlympusStock, setIsSyncingOlympusStock] = useState(false);
     const [activeTab, setActiveTab] = useState('general');
 
     const [existingImages, setExistingImages] = useState<ProductImage[]>([]);
@@ -291,18 +291,29 @@ export default function ProductForm({ productId }: { productId?: string }) {
         void loadProduct();
     }, [productId, loadProduct]);
 
-    const handleSyncBriloStock = async () => {
-        if (!productId || isSyncingBrilo) return;
+    const handleSyncOlympusStock = async () => {
+        if (!productId || isSyncingOlympusStock) return;
 
-        setIsSyncingBrilo(true);
+        setIsSyncingOlympusStock(true);
         try {
-            await api.post(`/admin/products/${productId}/sync-brilo-stock`);
-            toast.success('¡Stock sincronizado con Olympus correctamente!');
-            await loadProduct();
+            const { data } = await api.post<{
+                success: boolean;
+                message: string;
+                stock_quantity: number;
+            }>(`/admin/products/${productId}/sync-olympus-stock`, {}, { timeout: 0 });
+
+            const stock = Number(data.stock_quantity);
+            if (!data.success || Number.isNaN(stock)) {
+                toast.error(data.message || 'Olympus no devolvió un stock válido');
+                return;
+            }
+
+            setLoadedProduct((prev) => (prev ? { ...prev, stock_quantity: stock } : prev));
+            toast.success(`Stock actualizado a ${stock}`);
         } catch (e) {
             toast.error(handleError(e, 'No se pudo sincronizar el stock con Olympus'));
         } finally {
-            setIsSyncingBrilo(false);
+            setIsSyncingOlympusStock(false);
         }
     };
 
@@ -621,12 +632,12 @@ export default function ProductForm({ productId }: { productId?: string }) {
                                                 {isEditing ? (
                                                     <button
                                                         type="button"
-                                                        onClick={handleSyncBriloStock}
-                                                        disabled={isSyncingBrilo}
+                                                        onClick={handleSyncOlympusStock}
+                                                        disabled={isSyncingOlympusStock}
                                                         className="inline-flex items-center gap-1.5 shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-                                                        title="Sincronizar stock con Brilo"
+                                                        title="Actualizar solo el stock desde Olympus"
                                                     >
-                                                        {isSyncingBrilo ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCcw className="h-3.5 w-3.5" />}
+                                                        {isSyncingOlympusStock ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCcw className="h-3.5 w-3.5" />}
                                                         Sincronizar con Olympus
                                                     </button>
                                                 ) : null}
