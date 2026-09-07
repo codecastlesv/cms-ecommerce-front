@@ -6,22 +6,15 @@ import api from '@/lib/axios';
 import { toast } from 'sonner';
 import { handleError } from '@/lib/errorHandler';
 
-/** Productos por grupo. Bajo a propósito: cada producto puede tener varios SKUs y Brilo pagina por bodega. */
-const BATCH_LIMIT = 20;
-
 type SyncPhase = 'confirm' | 'running' | 'done' | 'error';
 
-type BatchResponse = {
-  status?: string;
-  page?: number;
-  limit?: number;
-  total?: number;
-  total_pages?: number;
-  has_more?: boolean;
-  processed?: number;
-  products_synced?: number;
-  inventory_rows?: number;
+type SyncResponse = {
+  message?: string;
+  created?: number;
+  updated?: number;
   skipped?: number;
+  failed?: number;
+  total?: number;
 };
 
 type Props = {
@@ -31,21 +24,13 @@ type Props = {
 export default function MassStockSyncButton({ onCompleted }: Props) {
   const [open, setOpen] = useState(false);
   const [phase, setPhase] = useState<SyncPhase>('confirm');
-  const [processed, setProcessed] = useState(0);
-  const [total, setTotal] = useState(0);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [failedPages, setFailedPages] = useState<number[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [result, setResult] = useState<SyncResponse | null>(null);
 
   const resetState = () => {
     setPhase('confirm');
-    setProcessed(0);
-    setTotal(0);
-    setCurrentPage(0);
-    setTotalPages(0);
-    setFailedPages([]);
     setErrorMessage(null);
+    setResult(null);
   };
 
   const closeModal = () => {
@@ -61,77 +46,23 @@ export default function MassStockSyncButton({ onCompleted }: Props) {
 
   const runSync = useCallback(async () => {
     setPhase('running');
-    setProcessed(0);
-    setFailedPages([]);
     setErrorMessage(null);
-
-    let page = 1;
-    let pages = 1;
-    let cumulative = 0;
-    let catalogTotal = 0;
-    const failed: number[] = [];
+    setResult(null);
 
     try {
-      while (page <= pages) {
-        setCurrentPage(page);
-
-        try {
-          const { data } = await api.post<BatchResponse>(
-            '/admin/products/sync-batch',
-            { page, limit: BATCH_LIMIT },
-            { timeout: 180_000 }
-          );
-
-          catalogTotal = Number(data.total ?? catalogTotal);
-          pages = Math.max(1, Number(data.total_pages ?? pages));
-          cumulative += Number(data.processed ?? 0);
-
-          setTotal(catalogTotal);
-          setTotalPages(pages);
-          setProcessed(Math.min(cumulative, catalogTotal || cumulative));
-        } catch (err) {
-          failed.push(page);
-          setFailedPages([...failed]);
-          console.error(`sync-batch page ${page} failed`, err);
-
-          // Si falla la página 1 y aún no conocemos el total, abortar
-          if (page === 1 && catalogTotal === 0) {
-            setPhase('error');
-            setErrorMessage(handleError(err, 'Sincronizar stock'));
-            return;
-          }
-        }
-
-        page += 1;
-      }
-
-      setFailedPages(failed);
-
-      if (failed.length > 0 && cumulative === 0) {
-        setPhase('error');
-        setErrorMessage(
-          `No se pudo sincronizar ningún grupo de productos. Grupos fallidos: ${failed.join(', ')}.`
-        );
-        return;
-      }
-
+      const { data } = await api.post<SyncResponse>('/admin/olympus/sync', {}, { timeout: 0 });
+      setResult(data);
       setPhase('done');
-      if (failed.length > 0) {
-        toast.warning(
-          `Sincronización parcial: ${failed.length} grupo(s) fallaron (${failed.join(', ')}).`
-        );
-      } else {
-        toast.success('Sincronización de stock completada');
-      }
+      toast.success(
+        data.message ??
+          `Sincronización completada. Creados: ${data.created ?? 0}. Actualizados: ${data.updated ?? 0}.`,
+      );
       onCompleted?.();
     } catch (err) {
       setPhase('error');
-      setErrorMessage(handleError(err, 'Sincronizar stock'));
+      setErrorMessage(handleError(err, 'Sincronizar productos'));
     }
   }, [onCompleted]);
-
-  const percent =
-    total > 0 ? Math.min(100, Math.round((processed / total) * 100)) : phase === 'done' ? 100 : 0;
 
   return (
     <>
@@ -141,7 +72,7 @@ export default function MassStockSyncButton({ onCompleted }: Props) {
         className="bg-white border border-slate-300 text-slate-800 px-4 py-2.5 rounded-xl text-sm font-bold flex items-center hover:bg-slate-50 transition-all shadow-sm active:scale-95"
       >
         <RefreshCw className="w-4 h-4 mr-2 shrink-0" />
-        Sincronizar Stock Completo
+        Sincronizar Productos
       </button>
 
       {open ? (
@@ -160,8 +91,8 @@ export default function MassStockSyncButton({ onCompleted }: Props) {
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-lg font-bold text-slate-900">Sincronización Masiva</h3>
-                <p className="text-sm text-slate-500 mt-1">Stock desde Brilo ERP por grupos</p>
+                <h3 className="text-lg font-bold text-slate-900">Sincronización Olympus</h3>
+                <p className="text-sm text-slate-500 mt-1">Catálogo e inventario desde el ERP</p>
               </div>
               {phase !== 'running' ? (
                 <button
@@ -177,11 +108,7 @@ export default function MassStockSyncButton({ onCompleted }: Props) {
             {phase === 'confirm' ? (
               <>
                 <p className="text-sm text-slate-600 leading-relaxed">
-                  Este proceso conectará con Brilo ERP para actualizar el stock de todos los productos.
-                  Por favor, no cierres esta ventana hasta que finalice.
-                </p>
-                <p className="text-xs text-slate-400">
-                  Se procesarán {BATCH_LIMIT} productos por grupo para evitar timeouts.
+                  Se consultará Olympus y se crearán o actualizarán productos. No cierres esta ventana hasta que finalice.
                 </p>
                 <div className="flex justify-end gap-2 pt-2">
                   <button
@@ -203,42 +130,24 @@ export default function MassStockSyncButton({ onCompleted }: Props) {
             ) : null}
 
             {phase === 'running' ? (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm font-medium text-slate-800">
-                  <Loader2 className="w-4 h-4 animate-spin shrink-0" />
-                  Sincronizando {processed.toLocaleString('es-SV')}
-                  {total > 0 ? ` / ${total.toLocaleString('es-SV')}` : ''} productos…
-                </div>
-                <div className="h-2.5 w-full rounded-full bg-slate-100 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-slate-900 transition-all duration-300"
-                    style={{ width: `${percent}%` }}
-                  />
-                </div>
-                <p className="text-xs text-slate-500">
-                  Grupo {currentPage}
-                  {totalPages > 0 ? ` de ${totalPages}` : ''} · {percent}%
-                </p>
-                {failedPages.length > 0 ? (
-                  <p className="text-xs text-amber-700">
-                    Grupos con error (se continúa): {failedPages.join(', ')}
-                  </p>
-                ) : null}
+              <div className="flex items-center gap-2 text-sm font-medium text-slate-800">
+                <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                Sincronizando catálogo con Olympus…
               </div>
             ) : null}
 
             {phase === 'done' ? (
               <div className="space-y-3">
                 <p className="text-sm font-semibold text-emerald-700">
-                  ✅ Sincronización completada con éxito
+                  Sincronización completada
                 </p>
                 <p className="text-sm text-slate-600">
-                  Procesados: {processed.toLocaleString('es-SV')}
-                  {total > 0 ? ` de ${total.toLocaleString('es-SV')}` : ''} productos.
+                  Creados: {(result?.created ?? 0).toLocaleString('es-SV')}. Actualizados:{' '}
+                  {(result?.updated ?? 0).toLocaleString('es-SV')}.
                 </p>
-                {failedPages.length > 0 ? (
-                  <p className="text-xs text-amber-700">
-                    Algunos grupos fallaron: {failedPages.join(', ')}. Podés reintentar más tarde.
+                {(result?.skipped ?? 0) > 0 || (result?.failed ?? 0) > 0 ? (
+                  <p className="text-xs text-slate-500">
+                    Omitidos: {result?.skipped ?? 0}. Errores: {result?.failed ?? 0}.
                   </p>
                 ) : null}
                 <div className="flex justify-end pt-1">

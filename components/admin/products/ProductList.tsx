@@ -5,15 +5,15 @@ import Link from 'next/link';
 import api from '@/lib/axios';
 import { useQuery } from '@tanstack/react-query';
 import {
-    Edit2, Trash2, Plus, Search, Loader2, Image as ImageIcon, Download, X,
+    Edit2, Trash2, Plus, Search, Loader2, Image as ImageIcon, X,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useConfirm } from '@/components/providers/ConfirmDialogProvider';
 import { usePermission } from '@/hooks/usePermission';
 import { Product, PaginatedResponse } from '@/types';
 import { handleError } from '@/lib/errorHandler';
-import ExcelImportButton from '@/components/ExcelImportButton';
-import ZipImagesImportButton from '@/components/ZipImagesImportButton';
+// import ExcelImportButton from '@/components/ExcelImportButton';
+// import ZipImagesImportButton from '@/components/ZipImagesImportButton';
 import MassStockSyncButton from '@/components/admin/products/MassStockSyncButton';
 import { AdminProductName } from '@/components/admin/AdminProductName';
 import { useCatalog } from '@/components/providers/CatalogContext';
@@ -32,7 +32,7 @@ export default function ProductList() {
     const [selectedSubSubcategory, setSelectedSubSubcategory] = useState('');
     const [selectedBrand, setSelectedBrand] = useState('');
     const [page, setPage] = useState(1);
-    const [exporting, setExporting] = useState(false);
+    // const [exporting, setExporting] = useState(false);
 
     const confirm = useConfirm();
     const { can } = usePermission();
@@ -137,36 +137,6 @@ export default function ProductList() {
         }));
     }, [data?.data]);
 
-    const handleExportExcel = async () => {
-        setExporting(true);
-        try {
-            const res = await api.get('/admin/products/export-excel', {
-                responseType: 'blob',
-                headers: {
-                    Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                },
-            });
-
-            const blob = new Blob([res.data], {
-                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            });
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'catalogo_productos_castella_sin_stock.xlsx';
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            window.URL.revokeObjectURL(url);
-
-            toast.success('Catálogo exportado correctamente');
-        } catch (error) {
-            toast.error(handleError(error, 'Exportar catálogo'));
-        } finally {
-            setExporting(false);
-        }
-    };
-
     const handleDelete = (id: number) => {
         if (!can('delete_products')) return;
         confirm({
@@ -210,32 +180,11 @@ export default function ProductList() {
                 </div>
                 {(can('create_products') || can('edit_products') || can('view_products')) && (
                     <div className="flex flex-wrap items-center gap-2">
-                        {/* 
-                        {can('create_products') && (
-                            <ExcelImportButton onSuccess={() => refetch()} />
-                        )}
-                        {can('edit_products') && (
-                            <ZipImagesImportButton onSuccess={() => refetch()} />
-                        )}
-                        {can('view_products') && (
-                            <button
-                                type="button"
-                                onClick={handleExportExcel}
-                                disabled={exporting}
-                                className="bg-white border border-emerald-300 text-emerald-800 px-4 py-2.5 rounded-xl text-"
-                            >
-                                {exporting ? (
-                                    <Loader2 className="w-4 h-4 mr-2 animate-spin shrink-0" />
-                                ) : (
-                                    <Download className="w-4 h-4 mr-2 shrink-0" />
-                                )}
-                                {exporting ? 'Exportando...' : 'Exportar Catálogo Excel'}
-                            </button>
-                        )}
+                        
                         {can('edit_products') && (
                             <MassStockSyncButton onCompleted={() => refetch()} />
                         )}
-                        */}
+                        
                         {can('create_products') && (
                             <Link
                                 href="/products/create"
