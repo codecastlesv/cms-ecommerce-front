@@ -94,7 +94,7 @@ export default function ShopCustomerAuthForm({
   return (
     <div className="galaxia-auth-form-inner">
       <div key={isRegister ? 'reg' : 'login'} className="galaxia-auth-form-pane">
-        <h2 className="font-inter text-xl font-bold tracking-tight text-white sm:text-2xl">
+        <h2 className="font-helvetica text-xl font-bold tracking-tight text-white sm:text-2xl">
           {isRegister ? 'Crear cuenta' : 'Acceder'}
         </h2>
         <p className="mt-2 text-sm font-medium tracking-wide text-white/85">
@@ -104,7 +104,7 @@ export default function ShopCustomerAuthForm({
         <form onSubmit={handleSubmit} className="mt-8 space-y-5">
           {isRegister && (
             <label className="block">
-              <span className="mb-2 block font-inter text-[11px] font-bold uppercase tracking-[0.22em] text-white">
+              <span className="mb-2 block font-helvetica text-[11px] font-bold uppercase tracking-[0.22em] text-white">
                 Nombre <span className="font-black text-white">*</span>
               </span>
               <input
@@ -114,13 +114,13 @@ export default function ShopCustomerAuthForm({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Nombre y apellido"
-                className="w-full rounded-xl border border-white/25 bg-neutral-950 px-4 py-3.5 text-[15px] text-white outline-none placeholder:text-white/35 focus-visible:border-white focus-visible:ring-2 focus-visible:ring-white/30"
+                className="w-full rounded-xl border border-white/25 bg-white px-4 py-3.5 text-[15px] text-slate-900 outline-none placeholder:text-slate-400 focus-visible:border-white focus-visible:ring-2 focus-visible:ring-white/30"
               />
             </label>
           )}
 
           <label className="block">
-            <span className="mb-2 block font-inter text-[11px] font-bold uppercase tracking-[0.22em] text-white">
+            <span className="mb-2 block font-helvetica text-[11px] font-bold uppercase tracking-[0.22em] text-white">
               Correo electrónico <span className="font-black text-white">*</span>
             </span>
             <input
@@ -132,12 +132,12 @@ export default function ShopCustomerAuthForm({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="correo@ejemplo.com"
-              className="w-full rounded-xl border border-white/25 bg-neutral-950 px-4 py-3.5 text-[15px] text-white outline-none placeholder:text-white/35 focus-visible:border-white focus-visible:ring-2 focus-visible:ring-white/30"
+              className="w-full rounded-xl border border-white/25 bg-white px-4 py-3.5 text-[15px] text-slate-900 outline-none placeholder:text-slate-400 focus-visible:border-white focus-visible:ring-2 focus-visible:ring-white/30"
             />
           </label>
 
           <label className="block">
-            <span className="mb-2 block font-inter text-[11px] font-bold uppercase tracking-[0.22em] text-white">
+            <span className="mb-2 block font-helvetica text-[11px] font-bold uppercase tracking-[0.22em] text-white">
               Contraseña <span className="font-black text-white">*</span>
             </span>
             {isRegister && (
@@ -152,7 +152,7 @@ export default function ShopCustomerAuthForm({
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full rounded-xl border border-white/25 bg-neutral-950 px-4 py-3.5 text-[15px] text-white outline-none placeholder:text-white/35 focus-visible:border-white focus-visible:ring-2 focus-visible:ring-white/30"
+              className="w-full rounded-xl border border-white/25 bg-white px-4 py-3.5 text-[15px] text-slate-900 outline-none placeholder:text-slate-400 focus-visible:border-white focus-visible:ring-2 focus-visible:ring-white/30"
             />
           </label>
 
@@ -173,7 +173,7 @@ export default function ShopCustomerAuthForm({
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-full bg-white px-6 py-3.5 font-inter text-sm font-black uppercase tracking-[0.22em] text-black shadow-[0_16px_40px_-12px_rgba(255,255,255,0.35)] transition hover:bg-neutral-200 active:scale-[0.99] disabled:opacity-50"
+            className="w-full cursor-pointer rounded-full bg-white px-6 py-3.5 font-inter text-sm font-black uppercase tracking-[0.22em] text-[#304C94] shadow-[0_16px_40px_-12px_rgba(255,255,255,0.35)] transition hover:bg-neutral-200 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Procesando…' : isRegister ? 'Registrar' : 'Ingresar'}
           </button>
@@ -183,7 +183,7 @@ export default function ShopCustomerAuthForm({
           <button
             type="button"
             onClick={() => setIsRegister(!isRegister)}
-            className="w-full rounded-full border-2 border-white bg-transparent px-6 py-3.5 font-inter text-sm font-bold uppercase tracking-[0.18em] text-white transition hover:bg-white hover:text-black"
+            className="w-full cursor-pointer rounded-full border-2 border-white bg-transparent px-6 py-3.5 font-inter text-sm font-bold uppercase tracking-[0.18em] text-white transition hover:bg-white hover:text-[#304C94] active:scale-[0.99]"
           >
             {isRegister ? 'Ya tengo cuenta · Ingresar' : 'Crear una cuenta'}
           </button>

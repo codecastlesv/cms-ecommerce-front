@@ -16,6 +16,7 @@ const bannerSchema = z.object({
     title: z.string().min(3, "El título es requerido"),
     headline: z.string().optional().nullable(),
     subheadline: z.string().optional().nullable(),
+    body_text: z.string().optional().nullable(),
     cta_text: z.string().optional().nullable(),
     cta_url: z.string().optional().nullable(),
     cta_bg_color: z.string().optional().nullable(),
@@ -24,6 +25,12 @@ const bannerSchema = z.object({
     alt_text: z.string().optional().nullable(),
     is_active: z.boolean(),
     open_in_new_tab: z.boolean(),
+    cta2_text: z.string().optional().nullable(),
+    cta2_url: z.string().optional().nullable(),
+    cta2_bg_color: z.string().optional().nullable(),
+    cta2_text_color: z.string().optional().nullable(),
+    cta2_open_in_new_tab: z.boolean(),
+    cta2_bg_transparent: z.boolean(),
 });
 
 type BannerFormData = z.infer<typeof bannerSchema>;
@@ -40,12 +47,13 @@ export default function BannerForm({ bannerId }: { bannerId?: string }) {
     const { can } = usePermission();
     const hasPermission = bannerId ? can('edit_banners') : can('create_banners');
 
-    const { register, handleSubmit, formState: { errors }, reset } = useForm<BannerFormData>({
+    const { register, handleSubmit, formState: { errors }, reset, watch } = useForm<BannerFormData>({
         resolver: zodResolver(bannerSchema),
         defaultValues: {
             title: '',
             headline: '',
             subheadline: '',
+            body_text: '',
             cta_text: '',
             cta_url: '',
             cta_bg_color: '#ffffff',
@@ -53,7 +61,13 @@ export default function BannerForm({ bannerId }: { bannerId?: string }) {
             bg_color: '#ffffff',
             alt_text: '',
             is_active: true,
-            open_in_new_tab: false
+            open_in_new_tab: false,
+            cta2_text: '',
+            cta2_url: '',
+            cta2_bg_color: '#ffffff',
+            cta2_text_color: '#0f172a',
+            cta2_open_in_new_tab: false,
+            cta2_bg_transparent: false,
         }
     });
 
@@ -68,6 +82,7 @@ export default function BannerForm({ bannerId }: { bannerId?: string }) {
                         title: banner.title,
                         headline: banner.headline || '',
                         subheadline: banner.subheadline || '',
+                        body_text: banner.body_text || '',
                         cta_text: banner.cta?.text || '',
                         cta_url: banner.cta?.url || '',
                         cta_bg_color: banner.style?.cta_bg_color || '#ffffff',
@@ -76,6 +91,12 @@ export default function BannerForm({ bannerId }: { bannerId?: string }) {
                         alt_text: banner.images?.alt || '',
                         is_active: banner.is_active,
                         open_in_new_tab: banner.cta?.new_tab,
+                        cta2_text: banner.cta2?.text || '',
+                        cta2_url: banner.cta2?.url || '',
+                        cta2_bg_color: banner.style?.cta2_bg_color || '#ffffff',
+                        cta2_text_color: banner.style?.cta2_text_color || '#0f172a',
+                        cta2_open_in_new_tab: banner.cta2?.new_tab || false,
+                        cta2_bg_transparent: banner.style?.cta2_bg_transparent || false,
                     });
 
                     if (banner.images?.desktop) setDesktopPreview(banner.images.desktop);
@@ -119,15 +140,22 @@ export default function BannerForm({ bannerId }: { bannerId?: string }) {
         formData.append('title', data.title);
         if (data.headline) formData.append('headline', data.headline);
         if (data.subheadline) formData.append('subheadline', data.subheadline);
+        if (data.body_text) formData.append('body_text', data.body_text);
         if (data.cta_text) formData.append('cta_text', data.cta_text);
         if (data.cta_url) formData.append('cta_url', data.cta_url);
         if (data.cta_bg_color) formData.append('cta_bg_color', data.cta_bg_color);
         if (data.cta_text_color) formData.append('cta_text_color', data.cta_text_color);
         if (data.bg_color) formData.append('bg_color', data.bg_color);
         if (data.alt_text) formData.append('alt_text', data.alt_text);
+        if (data.cta2_text) formData.append('cta2_text', data.cta2_text);
+        if (data.cta2_url) formData.append('cta2_url', data.cta2_url);
+        if (data.cta2_bg_color) formData.append('cta2_bg_color', data.cta2_bg_color);
+        if (data.cta2_text_color) formData.append('cta2_text_color', data.cta2_text_color);
 
         formData.append('is_active', data.is_active ? '1' : '0');
         formData.append('open_in_new_tab', data.open_in_new_tab ? '1' : '0');
+        formData.append('cta2_open_in_new_tab', data.cta2_open_in_new_tab ? '1' : '0');
+        formData.append('cta2_bg_transparent', data.cta2_bg_transparent ? '1' : '0');
 
         if (desktopFile) formData.append('image', desktopFile);
         if (mobileFile) formData.append('image_mobile', mobileFile);
@@ -202,6 +230,17 @@ export default function BannerForm({ bannerId }: { bannerId?: string }) {
                                 disabled={!hasPermission}
                             />
                         </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Texto largo (opcional)</label>
+                            <textarea
+                                {...register('body_text')}
+                                className="w-full border border-slate-200 rounded-lg p-3 text-sm h-28 focus:ring-2 focus:ring-black/5 outline-none"
+                                placeholder="Párrafo(s) de descripción más largos que el subtítulo..."
+                                disabled={!hasPermission}
+                            />
+                            <p className="text-[10px] text-slate-400 mt-1">Si se llena, se muestra junto al título en vez del subtítulo.</p>
+                        </div>
                     </Card>
 
                     <Card className="p-6 space-y-4">
@@ -245,6 +284,64 @@ export default function BannerForm({ bannerId }: { bannerId?: string }) {
                                 disabled={!hasPermission}
                             />
                             <label htmlFor="new_tab" className="text-sm text-slate-600">Abrir en nueva pestaña</label>
+                        </div>
+                    </Card>
+
+                    <Card className="p-6 space-y-4">
+                        <h3 className="font-bold text-slate-800 border-b pb-2 mb-4">Segundo Botón (opcional)</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Input
+                                label="Texto del Botón"
+                                placeholder="Ej: Contáctanos"
+                                registration={register('cta2_text')}
+                                disabled={!hasPermission}
+                            />
+                            <Input
+                                label="Enlace de Destino (URL)"
+                                placeholder="Ej: /contacto"
+                                registration={register('cta2_url')}
+                                disabled={!hasPermission}
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <Input
+                                    type="color"
+                                    label="Color de Fondo del Botón"
+                                    registration={register('cta2_bg_color')}
+                                    disabled={!hasPermission || watch('cta2_bg_transparent')}
+                                />
+                                <div className="flex items-center gap-2 mt-1.5">
+                                    <input
+                                        type="checkbox"
+                                        id="cta2_bg_transparent"
+                                        className="w-4 h-4 rounded text-slate-900 focus:ring-slate-900"
+                                        {...register('cta2_bg_transparent')}
+                                        disabled={!hasPermission}
+                                    />
+                                    <label htmlFor="cta2_bg_transparent" className="text-xs text-slate-500">
+                                        Fondo transparente (el picker no admite transparencia)
+                                    </label>
+                                </div>
+                            </div>
+                            <Input
+                                type="color"
+                                label="Color del Texto del Botón"
+                                registration={register('cta2_text_color')}
+                                disabled={!hasPermission}
+                            />
+                        </div>
+
+                        <div className="flex items-center gap-2 mt-2">
+                            <input
+                                type="checkbox"
+                                id="cta2_new_tab"
+                                className="w-4 h-4 rounded text-slate-900 focus:ring-slate-900"
+                                {...register('cta2_open_in_new_tab')}
+                                disabled={!hasPermission}
+                            />
+                            <label htmlFor="cta2_new_tab" className="text-sm text-slate-600">Abrir en nueva pestaña</label>
                         </div>
                     </Card>
 

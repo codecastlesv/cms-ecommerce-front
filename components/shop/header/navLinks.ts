@@ -10,5 +10,5 @@ export const MAIN_NAV = [
     { label: 'Proyectos e inspiración', href: '#' },
     { label: 'Marcas', href: '#' },
     { label: 'Servicio', href: '#' },
-    { label: 'Nosotros', href: '#' },
+    { label: 'Nosotros', href: '/nosotros' },
 ] as const;

@@ -143,7 +143,7 @@ export default function AccountSessionButton({ onGuestClick, variant = 'icon' }:
           type="button"
           aria-label="Cuenta"
           onClick={onGuestClick}
-          className="flex items-center gap-2 rounded-md px-1.5 py-1 font-helvetica transition hover:bg-black/5"
+          className="flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 font-helvetica transition hover:bg-black/5"
         >
           <User className="h-6 w-6 shrink-0 stroke-[1.5] text-slate-900" />
           <span className="hidden min-w-0 text-left leading-tight min-[992px]:block">
@@ -159,7 +159,7 @@ export default function AccountSessionButton({ onGuestClick, variant = 'icon' }:
         type="button"
         aria-label="Cuenta"
         onClick={onGuestClick}
-        className="flex-shrink-0 rounded-full p-1.5 font-helvetica transition hover:bg-gray-100 md:p-2"
+        className="flex-shrink-0 cursor-pointer rounded-full p-1.5 font-helvetica transition hover:bg-gray-100 md:p-2"
       >
         <User className="h-[22px] w-[22px] stroke-[1.5] md:h-6 md:w-6" />
       </button>
@@ -177,7 +177,7 @@ export default function AccountSessionButton({ onGuestClick, variant = 'icon' }:
           aria-expanded={menuOpen}
           aria-haspopup="menu"
           onClick={() => setMenuOpen((o) => !o)}
-          className="flex items-center gap-2 rounded-md px-1.5 py-1 transition hover:bg-black/5"
+          className="flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 transition hover:bg-black/5"
         >
           <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0B2340] text-[11px] font-semibold tracking-wide text-white">
             <span aria-hidden>{initials}</span>
@@ -207,7 +207,7 @@ export default function AccountSessionButton({ onGuestClick, variant = 'icon' }:
         aria-expanded={menuOpen}
         aria-haspopup="menu"
         onClick={() => setMenuOpen((o) => !o)}
-        className="relative flex h-8 w-8 items-center justify-center rounded-full bg-black text-[11px] font-semibold tracking-wide text-white transition hover:bg-zinc-800 md:h-8 md:w-8"
+        className="relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-black text-[11px] font-semibold tracking-wide text-white transition hover:bg-zinc-800 md:h-8 md:w-8"
       >
         <span aria-hidden>{initials}</span>
         <span

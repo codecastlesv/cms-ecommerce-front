@@ -59,7 +59,7 @@ export default function AccountAuthPanel({ isOpen, onClose }: AccountAuthPanelPr
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="flex min-h-[100dvh] w-full flex-1 flex-col overflow-hidden border-l border-white/15 bg-black">
+        <div className="flex min-h-[100dvh] w-full flex-1 flex-col overflow-hidden border-l border-white/15 bg-[#08204E]">
           <header className="relative flex shrink-0 items-start justify-end gap-4 px-7 pb-2 pt-6 sm:px-9">
             <button
               type="button"

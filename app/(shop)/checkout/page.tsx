@@ -1234,7 +1234,7 @@ function CheckoutInner() {
 
       <h1 className="text-2xl font-bold tracking-tight mb-1">Checkout</h1>
       <p className="text-sm text-gray-600 mb-8">
-        Completa tus datos, el método de entrega y el pago. Tu cuenta Galaxia se vincula automáticamente a este pedido.
+        Completa tus datos, el método de entrega y el pago. Tu cuenta se vincula automáticamente a este pedido.
       </p>
 
       <form onSubmit={handlePay} className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12">
@@ -1431,7 +1431,7 @@ function CheckoutInner() {
 
                 {!isAuthenticated && emailExists !== true ? (
                   <div className="rounded-md border border-gray-200 p-4 space-y-3">
-                    <p className="text-[13px] font-semibold text-gray-900">Crea tu cuenta Galaxia</p>
+                    <p className="text-[13px] font-semibold text-gray-900">Crea tu cuenta</p>
                     <div>
                       <label className="block text-[13px] font-medium mb-1">Crea una contraseña *</label>
                       <input
