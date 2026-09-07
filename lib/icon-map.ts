@@ -1,7 +1,8 @@
 import {
     LayoutDashboard, Users, Image, Settings,
     ShoppingCart, FileText, Package, BarChart,
-    Shield, Globe, Bell, ShoppingBag, CreditCard, Receipt, Store, Box, Warehouse, Dumbbell, HeartPulse, Trophy, Target, Truck
+    Shield, Globe, Bell, ShoppingBag, CreditCard, Receipt, Store, Box, Warehouse, Dumbbell, HeartPulse, Trophy, Target, Truck,
+    ShieldCheck, Award, ClipboardCheck, Lightbulb, Heart, MapPin, TrendingUp, Building2, Sparkles, LayoutList
 } from 'lucide-react';
 
 export const iconMap: Record<string, any> = {
@@ -27,4 +28,14 @@ export const iconMap: Record<string, any> = {
     'Trophy': Trophy,
     'Target': Target,
     'Truck': Truck,
+    'ShieldCheck': ShieldCheck,
+    'Award': Award,
+    'ClipboardCheck': ClipboardCheck,
+    'Lightbulb': Lightbulb,
+    'Heart': Heart,
+    'MapPin': MapPin,
+    'TrendingUp': TrendingUp,
+    'Building2': Building2,
+    'Sparkles': Sparkles,
+    'LayoutList': LayoutList,
 };
