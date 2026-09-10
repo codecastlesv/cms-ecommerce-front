@@ -16,6 +16,7 @@ export default function BrandList() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
+    const [togglingId, setTogglingId] = useState<number | null>(null);
 
     const confirm = useConfirm();
     const { can } = usePermission();
@@ -65,6 +66,21 @@ export default function BrandList() {
                 }
             }
         });
+    };
+
+    const handleToggleFeatured = async (brand: Brand) => {
+        if (!can('edit_brands') || togglingId === brand.id) return;
+        const nextValue = !brand.is_featured;
+        setTogglingId(brand.id);
+        setBrands(prev => prev.map(b => (b.id === brand.id ? { ...b, is_featured: nextValue } : b)));
+        try {
+            await api.put(`/admin/brands/${brand.id}`, { name: brand.name, is_featured: nextValue });
+        } catch (error) {
+            setBrands(prev => prev.map(b => (b.id === brand.id ? { ...b, is_featured: brand.is_featured } : b)));
+            toast.error(handleError(error, 'Actualizar Marca'));
+        } finally {
+            setTogglingId(null);
+        }
     };
 
     const handleBulkDelete = () => {
@@ -157,7 +173,15 @@ export default function BrandList() {
                                                 <div className="text-xs text-slate-400 font-mono">/{brand.slug}</div>
                                             </td>
                                             <td className="px-6 py-3 text-center">
-                                                {brand.is_featured && <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 mx-auto" />}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleToggleFeatured(brand)}
+                                                    disabled={!can('edit_brands') || togglingId === brand.id}
+                                                    title={brand.is_featured ? 'Quitar de destacadas' : 'Marcar como destacada'}
+                                                    className="mx-auto flex items-center justify-center p-1 rounded-lg transition-colors hover:bg-yellow-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                                >
+                                                    <Star className={`w-4 h-4 transition-colors ${brand.is_featured ? 'text-yellow-500 fill-yellow-500' : 'text-slate-300 hover:text-yellow-400'}`} />
+                                                </button>
                                             </td>
                                             <td className="px-6 py-3 text-center text-sm font-bold text-slate-600">
                                                 {brand.products_count || 0}

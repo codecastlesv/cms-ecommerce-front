@@ -155,25 +155,27 @@ export default function ManageContentBlockClient({ groupKey }: { groupKey: strin
                 )}
             </div>
 
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-3">
-                <label className="block text-sm font-bold text-slate-800">Texto introductorio (opcional)</label>
-                <p className="text-xs text-slate-500">
-                    Párrafo fijo que se muestra arriba de los items de esta sección (ej. el texto de &quot;Nuestra historia&quot;).
-                </p>
-                <textarea
-                    value={introText}
-                    onChange={(e) => setIntroText(e.target.value)}
-                    disabled={!canEdit}
-                    className="w-full border border-slate-200 rounded-lg p-3 text-sm h-28 outline-none focus:ring-2 focus:ring-black/5 disabled:bg-slate-50"
-                />
-                {canEdit && (
-                    <div className="flex justify-end">
-                        <button onClick={handleSaveIntro} disabled={savingIntro} className="px-4 py-2 text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition disabled:opacity-50 flex items-center gap-2">
-                            <Save className="w-4 h-4" /> {savingIntro ? 'Guardando...' : 'Guardar texto'}
-                        </button>
-                    </div>
-                )}
-            </div>
+            {groupKey === 'about_timeline' && (
+                <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-3">
+                    <label className="block text-sm font-bold text-slate-800">Texto introductorio (opcional)</label>
+                    <p className="text-xs text-slate-500">
+                        Párrafo fijo que se muestra arriba de los items de esta sección (ej. el texto de &quot;Nuestra historia&quot;).
+                    </p>
+                    <textarea
+                        value={introText}
+                        onChange={(e) => setIntroText(e.target.value)}
+                        disabled={!canEdit}
+                        className="w-full border border-slate-200 rounded-lg p-3 text-sm h-28 outline-none focus:ring-2 focus:ring-black/5 disabled:bg-slate-50"
+                    />
+                    {canEdit && (
+                        <div className="flex justify-end">
+                            <button onClick={handleSaveIntro} disabled={savingIntro} className="px-4 py-2 text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition disabled:opacity-50 flex items-center gap-2">
+                                <Save className="w-4 h-4" /> {savingIntro ? 'Guardando...' : 'Guardar texto'}
+                            </button>
+                        </div>
+                    )}
+                </div>
+            )}
 
             <div className="space-y-3">
                 {localItems.length === 0 ? (

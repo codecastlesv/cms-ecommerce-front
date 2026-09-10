@@ -7,7 +7,7 @@ export default async function NosotrosPage() {
   const [bannersData, contentBlocksData, brandsResponse] = await Promise.all([
     api.get('/shop/banners?page=about').then((response) => response.data).catch(() => ({})),
     api.get('/shop/content-blocks?page=about').then((response) => response.data).catch(() => ({})),
-    api.get('/shop/brands').catch(() => null),
+    api.get('/shop/brands?per_page=10').catch(() => null),
   ]);
 
   const heroItems = bannersData.about_hero?.items || [];

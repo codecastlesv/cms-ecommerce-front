@@ -79,7 +79,7 @@ const BrandSection = ({ brands }: BrandSectionProps) => {
                   {[...marqueeBrands, ...marqueeBrands].map((brd, i) => (
                     <Link
                       key={`${brd.id}-${i}`}
-                      href={`/shop/brands/${brd.slug}`}
+                      href={`/tienda?brand=${brd.slug}`}
                       className="group/card flex flex-col items-center px-2 md:px-2 lg:px-2 flex-shrink-0 transition-all duration-300 hover:-translate-y-2"
                     >
                       <div className="flex aspect-square w-32 md:w-40 items-center justify-center overflow-hidden rounded-2xl transition-all duration-300">
@@ -104,7 +104,7 @@ const BrandSection = ({ brands }: BrandSectionProps) => {
                   onClick={() => setIsExpanded(true)}
                   className="inline-flex items-center justify-center self-center rounded-full border border-black/10 bg-white px-5 py-2 font-inter text-[13px] font-semibold text-black shadow-[0_8px_24px_rgba(91,91,91,0.05)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)] hover:bg-black hover:text-white"
                 >
-                  Ver todas las  marcas
+                  Ver más marcas
                 </button>
               ) : null}
             </motion.div>
@@ -128,7 +128,7 @@ const BrandSection = ({ brands }: BrandSectionProps) => {
 
               <div className="mb-6 text-left">
                 <p className="font-inter text-[12px] uppercase tracking-[0.24em] text-slate-400">
-                  Todas las marcas
+                  Más marcas
                 </p>
                 <p className="font-inter mt-2 text-[14px] text-slate-500">
                   Selecciona la marca que quieras ver.
@@ -144,7 +144,7 @@ const BrandSection = ({ brands }: BrandSectionProps) => {
                     transition={{ duration: 0.35, delay: index * 0.04, ease: [0.16, 1, 0.3, 1] }}
                   >
                     <Link
-                      href={`/shop/brands/${brd.slug}`}
+                      href={`/tienda?brand=${brd.slug}`}
                       className="group/card flex flex-col items-center transition-all duration-300 hover:-translate-y-1"
                     >
                       <div className="flex aspect-square w-full items-center justify-center overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.05)] transition-all duration-300 group-hover/card:border-black-400 group-hover/card:shadow-[0_18px_38px_rgba(6,182,212,0.12)]">
@@ -158,6 +158,15 @@ const BrandSection = ({ brands }: BrandSectionProps) => {
                     </Link>
                   </motion.div>
                 ))}
+              </div>
+
+              <div className="mt-8 flex justify-center">
+                <Link
+                  href="/marcas"
+                  className="inline-flex items-center justify-center rounded-full bg-black px-6 py-2.5 font-inter text-[13px] font-semibold text-white shadow-[0_8px_24px_rgba(15,23,42,0.12)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(15,23,42,0.18)]"
+                >
+                  Ver todas las marcas
+                </Link>
               </div>
             </motion.div>
           )}

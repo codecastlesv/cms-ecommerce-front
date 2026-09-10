@@ -8,7 +8,7 @@ export const MAIN_NAV = [
     { label: 'Ofertas', href: '/', highlight: true },
     { label: 'Tienda', href: '/tienda' },
     { label: 'Proyectos e inspiración', href: '#' },
-    { label: 'Marcas', href: '#' },
+    { label: 'Marcas', href: '/marcas' },
     { label: 'Servicio', href: '#' },
     { label: 'Nosotros', href: '/nosotros' },
 ] as const;

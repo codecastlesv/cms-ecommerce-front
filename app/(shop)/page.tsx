@@ -8,7 +8,7 @@ async function getFeaturedData() {
         const [productsResponse, categoriesResponse, brandsResponse] = await Promise.all([
             api.get('/shop/home').catch(() => null),
             api.get('/shop/categories').catch(() => null),
-            api.get('/shop/brands').catch(() => null),
+            api.get('/shop/brands?per_page=10').catch(() => null),
         ]);
 
         const products = productsResponse?.data?.data || productsResponse?.data || [];
