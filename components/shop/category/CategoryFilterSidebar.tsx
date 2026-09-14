@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, Search } from 'lucide-react';
 import { categorySlugsMatch, normalizeCategoryPublicSlug, toSentenceCase } from '@/lib/categoryUrls';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -314,6 +314,45 @@ function DesktopMultiSelectDropdown({
   );
 }
 
+/** Resalta la porción del texto que coincide con `term` (búsqueda de categorías/marcas). */
+function HighlightMatch({ text, term }: { text: string; term: string }) {
+  if (!term) return <>{text}</>;
+  const idx = text.toLowerCase().indexOf(term.toLowerCase());
+  if (idx === -1) return <>{text}</>;
+
+  return (
+    <>
+      {text.slice(0, idx)}
+      <mark className="rounded-[2px] bg-amber-200 text-inherit">{text.slice(idx, idx + term.length)}</mark>
+      {text.slice(idx + term.length)}
+    </>
+  );
+}
+
+/** Input de búsqueda chico, reutilizado arriba de las listas de Categorías y Marcas. */
+function SidebarSearchInput({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}) {
+  return (
+    <div className="relative mb-2">
+      <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full rounded-md border border-gray-200 bg-white py-1.5 pl-8 pr-3 font-helvetica text-[13px] text-gray-900 outline-none placeholder:text-gray-400 transition-colors focus-visible:border-gray-300 focus-visible:ring-2 focus-visible:ring-gray-100"
+      />
+    </div>
+  );
+}
+
 export default function CategoryFilterSidebar({
   filtersData,
   activeFilters,
@@ -384,6 +423,8 @@ export default function CategoryFilterSidebar({
   );
 
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+  const [categorySearch, setCategorySearch] = useState('');
+  const [brandSearch, setBrandSearch] = useState('');
   /** SELECT escritorio: un solo dropdown abierto; slug del dynamic_filter activo */
   const [openDesktopSelectSlug, setOpenDesktopSelectSlug] = useState<string | null>(null);
   const [activePriceThumb, setActivePriceThumb] = useState<PriceThumb>(null);
@@ -492,10 +533,22 @@ export default function CategoryFilterSidebar({
     notifyMobileSheetClose();
   };
 
-  const renderCategoryTree = (items: CategoryNavItem[], depth = 0) => {
-    return items.map((item) => {
-      const hasChildren = !!item.sub_categories?.length;
-      const isExpanded = expandedCategories[item.slug] ?? autoExpandedSlugs.has(item.slug);
+  /** ¿El nodo o alguno de sus descendientes coincide con el término de búsqueda? */
+  const categorySubtreeMatches = (item: CategoryNavItem, term: string): boolean => {
+    if (item.name.toLowerCase().includes(term)) return true;
+    return (item.sub_categories || []).some((child) => categorySubtreeMatches(child, term));
+  };
+
+  const renderCategoryTree = (items: CategoryNavItem[], term: string, depth = 0) => {
+    const visibleItems = term ? items.filter((item) => categorySubtreeMatches(item, term)) : items;
+
+    return visibleItems.map((item) => {
+      const visibleChildren = term
+        ? (item.sub_categories || []).filter((child) => categorySubtreeMatches(child, term))
+        : item.sub_categories || [];
+      const hasChildren = visibleChildren.length > 0;
+      /** Mientras se busca, las ramas que coinciden quedan siempre expandidas. */
+      const isExpanded = term ? true : (expandedCategories[item.slug] ?? autoExpandedSlugs.has(item.slug));
       const isActive = categorySlugsMatch(selectedCategorySlug, item.slug);
 
       return (
@@ -534,7 +587,9 @@ export default function CategoryFilterSidebar({
                 isActive ? 'font-bold text-black' : 'text-gray-600 hover:bg-black/5 hover:text-black'
               }`}
             >
-              <span className="font-helvetica text-[13px] leading-[15px] tracking-[0.18px]">{toSentenceCase(item.name)}</span>
+              <span className="font-helvetica text-[13px] leading-[15px] tracking-[0.18px]">
+                <HighlightMatch text={toSentenceCase(item.name)} term={term} />
+              </span>
               <span className="ml-1 inline-flex items-center rounded-sm bg-gray-100 px-1.5 py-0.5 text-[13px] font-medium text-gray-600 transition-colors duration-200 group-hover:bg-black/5 group-hover:text-black">
                 {item.products_count}
               </span>
@@ -548,7 +603,7 @@ export default function CategoryFilterSidebar({
               }`}
             >
               <ul className="min-h-0 space-y-0.5 border-l border-gray-100 ml-2 pl-2">
-                {renderCategoryTree(item.sub_categories || [], depth + 1)}
+                {renderCategoryTree(visibleChildren, term, depth + 1)}
               </ul>
             </div>
           )}
@@ -567,42 +622,66 @@ export default function CategoryFilterSidebar({
           onClick={() => toggleSection('categories')}
           mobileMode={mobileMode}
         >
-          <ul className={`space-y-0.5 max-h-96 overflow-y-auto pr-2 no-scrollbar ${mobileMode ? 'max-h-none pr-1' : ''}`}>
-            {renderCategoryTree(filtersData.category_navigation)}
-          </ul>
+          <SidebarSearchInput value={categorySearch} onChange={setCategorySearch} placeholder="Buscar categoría..." />
+          {(() => {
+            const term = categorySearch.trim().toLowerCase();
+            const rendered = renderCategoryTree(filtersData.category_navigation, term);
+
+            return rendered.length > 0 ? (
+              <ul className={`space-y-0.5 max-h-96 overflow-y-auto pr-2 no-scrollbar ${mobileMode ? 'max-h-none pr-1' : ''}`}>
+                {rendered}
+              </ul>
+            ) : (
+              <p className="py-3 text-center font-helvetica text-[13px] text-gray-400">Sin coincidencias.</p>
+            );
+          })()}
         </FilterSection>
       )}
 
       {/* 2. Marcas */}
       {filtersData?.brands?.length > 0 && (
-        <FilterSection 
-          title="Marcas" 
-          isOpen={expandedSections.brands} 
+        <FilterSection
+          title="Marcas"
+          isOpen={expandedSections.brands}
           onClick={() => toggleSection('brands')}
           mobileMode={mobileMode}
         >
-          <ul className={`space-y-1 max-h-60 overflow-y-auto pr-2 no-scrollbar ${mobileMode ? 'max-h-none pr-1' : ''}`}>
-            {filtersData.brands.map((brand) => (
-              <li key={brand.id}>
-                <label className="flex items-center justify-between gap-2 cursor-pointer group w-full py-0.5">
-                  <span className="flex items-center gap-2 min-w-0">
-                    <input
-                      type="checkbox"
-                      checked={getSelectedValues('brand').includes(brand.slug)}
-                      onChange={() => toggleSelectedValue('brand', brand.slug)}
-                      className="w-3 h-3 accent-black border-gray-300 rounded shrink-0"
-                    />
-                    <span className="rounded-sm px-1 py-0.5 text-[15px] text-gray-600 transition-all duration-200 group-hover:bg-black/5 group-hover:text-black truncate">
-                      {brand.name}
-                    </span>
-                  </span>
-                  <span className="inline-flex shrink-0 items-center rounded-sm bg-gray-100 px-1.5 py-0.5 text-[13px] font-medium text-gray-600 transition-colors duration-200 group-hover:bg-black/5 group-hover:text-black">
-                    {brand.products_count}
-                  </span>
-                </label>
-              </li>
-            ))}
-          </ul>
+          <SidebarSearchInput value={brandSearch} onChange={setBrandSearch} placeholder="Buscar marca..." />
+          {(() => {
+            const term = brandSearch.trim().toLowerCase();
+            const visibleBrands = term
+              ? filtersData.brands.filter((brand) => brand.name.toLowerCase().includes(term))
+              : filtersData.brands;
+
+            if (visibleBrands.length === 0) {
+              return <p className="py-3 text-center font-helvetica text-[13px] text-gray-400">Sin coincidencias.</p>;
+            }
+
+            return (
+              <ul className={`space-y-1 max-h-60 overflow-y-auto pr-2 no-scrollbar ${mobileMode ? 'max-h-none pr-1' : ''}`}>
+                {visibleBrands.map((brand) => (
+                  <li key={brand.id}>
+                    <label className="flex items-center justify-between gap-2 cursor-pointer group w-full py-0.5">
+                      <span className="flex items-center gap-2 min-w-0">
+                        <input
+                          type="checkbox"
+                          checked={getSelectedValues('brand').includes(brand.slug)}
+                          onChange={() => toggleSelectedValue('brand', brand.slug)}
+                          className="w-3 h-3 accent-black border-gray-300 rounded shrink-0"
+                        />
+                        <span className="rounded-sm px-1 py-0.5 text-[15px] text-gray-600 transition-all duration-200 group-hover:bg-black/5 group-hover:text-black truncate">
+                          <HighlightMatch text={brand.name} term={term} />
+                        </span>
+                      </span>
+                      <span className="inline-flex shrink-0 items-center rounded-sm bg-gray-100 px-1.5 py-0.5 text-[13px] font-medium text-gray-600 transition-colors duration-200 group-hover:bg-black/5 group-hover:text-black">
+                        {brand.products_count}
+                      </span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+            );
+          })()}
         </FilterSection>
       )}
 

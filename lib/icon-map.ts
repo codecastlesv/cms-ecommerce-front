@@ -2,7 +2,8 @@ import {
     LayoutDashboard, Users, Image, Settings,
     ShoppingCart, FileText, Package, BarChart,
     Shield, Globe, Bell, ShoppingBag, CreditCard, Receipt, Store, Box, Warehouse, Dumbbell, HeartPulse, Trophy, Target, Truck,
-    ShieldCheck, Award, ClipboardCheck, Lightbulb, Heart, MapPin, TrendingUp, Building2, Sparkles, LayoutList
+    ShieldCheck, Award, ClipboardCheck, Lightbulb, Heart, MapPin, TrendingUp, Building2, Sparkles, LayoutList,
+    BadgeCheck, Tag, Headset
 } from 'lucide-react';
 
 export const iconMap: Record<string, any> = {
@@ -38,4 +39,7 @@ export const iconMap: Record<string, any> = {
     'Building2': Building2,
     'Sparkles': Sparkles,
     'LayoutList': LayoutList,
+    'BadgeCheck': BadgeCheck,
+    'Tag': Tag,
+    'Headset': Headset,
 };

@@ -306,7 +306,7 @@ export default function Header({ settings }: HeaderProps) {
                         </nav>
 
                         <Link
-                            href="#"
+                            href="/#destacados-categoria"
                             className="ml-auto flex shrink-0 items-center gap-0.5 text-sm font-bold uppercase tracking-wide transition hover:opacity-90 sm:text-base"
                             style={{ color: ACCENT_RED }}
                         >
