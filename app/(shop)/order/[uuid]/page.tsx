@@ -162,7 +162,7 @@ export default function OrderDetailPage() {
 
               <div className="flex justify-between">
                 <span className="text-slate-500">Costo de envío</span>
-                <span>${formatMoney(order.tax)}</span>
+                <span>${formatMoney(order.shipping_cost)}</span>
               </div>
 
               <div className="flex justify-between font-bold text-lg border-t pt-3">

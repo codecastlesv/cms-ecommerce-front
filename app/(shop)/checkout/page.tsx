@@ -261,6 +261,11 @@ function CheckoutInner() {
   const [pickupModalOpen, setPickupModalOpen] = useState(false);
   const billingPrefillDoneRef = useRef(false);
 
+  /** Direcciones guardadas del cliente, para el selector del paso "Método de entrega". */
+  const [savedShippingAddresses, setSavedShippingAddresses] = useState<CustomerAddress[]>([]);
+  /** '' = ingresar dirección manualmente. */
+  const [selectedSavedAddressId, setSelectedSavedAddressId] = useState('');
+
   useEffect(() => {
     if (!threeDsOpen) return;
     const prev = document.body.style.overflow;
@@ -718,6 +723,51 @@ function CheckoutInner() {
     };
   }, [requireSeparateBilling, isAuthenticated, fullRecipientName, shippingPhone]);
 
+  /** Direcciones guardadas del cliente, para el selector de envío del paso "Método de entrega". */
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setSavedShippingAddresses([]);
+      return;
+    }
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await api.get<{ data?: CustomerAddress[] }>('/shop/addresses');
+        if (cancelled) return;
+        setSavedShippingAddresses(Array.isArray(res.data?.data) ? res.data.data : []);
+      } catch {
+        // Sin direcciones guardadas: el usuario completa el formulario manualmente.
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated]);
+
+  /** Aplica una dirección guardada a los campos de envío (emparejando depto/municipio/distrito contra el catálogo). */
+  const handleSelectSavedAddress = (addressId: string) => {
+    setSelectedSavedAddressId(addressId);
+    if (!addressId) return;
+
+    const address = savedShippingAddresses.find((a) => String(a.id) === addressId);
+    if (!address?.details) return;
+
+    setShippingLine1(address.details.line1 || '');
+    setShippingLine2(address.details.line2 || '');
+
+    const matchedDept = matchDepartmentName(address.details.state);
+    const resolved = resolveMunicipalityAndDistrict(
+      matchedDept,
+      address.details.city,
+      address.details.district || null
+    );
+    setShippingState(matchedDept);
+    setShippingCity(resolved.municipality);
+    setShippingDistrict(resolved.district);
+  };
+
   const phoneIsValid = shippingPhone.replace(/\D/g, '').length === 8;
 
   const ccfComplete =
@@ -841,7 +891,7 @@ function CheckoutInner() {
         return false;
       }
       if (!ccfDepartment.trim() || !ccfMunicipality.trim() || !ccfDistrict.trim() || !ccfFiscalAddress.trim()) {
-        toast.error('Completa dirección fiscal (depto, municipio, distrito y dirección).');
+        toast.error('Completa dirección según tarjeta IVA (depto, municipio, distrito y dirección).');
         return false;
       }
       if (!ccfGiro) {
@@ -1431,7 +1481,7 @@ function CheckoutInner() {
 
                 {!isAuthenticated && emailExists !== true ? (
                   <div className="rounded-md border border-gray-200 p-4 space-y-3">
-                    <p className="text-[13px] font-semibold text-gray-900">Crea tu cuenta Galaxia</p>
+                    <p className="text-[13px] font-semibold text-gray-900">Crea tu cuenta</p>
                     <div>
                       <label className="block text-[13px] font-medium mb-1">Crea una contraseña *</label>
                       <input
@@ -1531,7 +1581,7 @@ function CheckoutInner() {
                         />
                       </div>
                       <div>
-                        <label className="block text-[13px] font-medium mb-1">Dirección fiscal *</label>
+                        <label className="block text-[13px] font-medium mb-1">Dirección según tarjeta IVA *</label>
                         <input
                           type="text"
                           value={ccfFiscalAddress}
@@ -1617,6 +1667,24 @@ function CheckoutInner() {
 
                 {deliveryMethod === 'shipping' ? (
                   <div className="space-y-4">
+                    {isAuthenticated && savedShippingAddresses.length > 0 ? (
+                      <div>
+                        <label className="block text-[13px] font-medium mb-1">Usar una dirección guardada</label>
+                        <select
+                          value={selectedSavedAddressId}
+                          onChange={(e) => handleSelectSavedAddress(e.target.value)}
+                          className={inputCls}
+                        >
+                          <option value="">Ingresar otra dirección</option>
+                          {savedShippingAddresses.map((address) => (
+                            <option key={address.id} value={String(address.id)}>
+                              {address.name}
+                              {address.is_default ? ' (predeterminada)' : ''}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    ) : null}
                     <div>
                       <label className="block text-[13px] font-medium mb-1">Dirección completa de envío</label>
                       <input type="text" value={shippingLine1} onChange={(e) => setShippingLine1(e.target.value)} className={inputCls} required />

@@ -9,12 +9,13 @@ export interface CustomerAddress {
         line2?: string;
         city: string;
         state: string;
+        district?: string | null;
         country: string;
         zip_code: string;
     };
     formatted: string;
     is_default: boolean;
-    instructions: string;
+    instructions?: string | null;
 }
 
 export interface CustomerProfile {

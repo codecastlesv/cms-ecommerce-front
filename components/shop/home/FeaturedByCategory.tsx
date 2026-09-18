@@ -19,7 +19,7 @@ export default function FeaturedByCategory({ items }: FeaturedByCategoryProps) {
     if (cards.length === 0) return null;
 
     return (
-        <div className="container mx-auto px-4">
+        <div id="destacados-categoria" className="container mx-auto scroll-mt-(--header-height,6rem) px-4">
             <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
                 {cards.map((item, index) => {
                     const bgColor = resolveBgColor(item);

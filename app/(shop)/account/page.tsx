@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { User, MapPin, LogOut, Plus, Trash2, Home, Star, PencilLine, BriefcaseBusiness, Handbag, Truck } from 'lucide-react';
 import { CustomerProfile, CustomerAddress } from '@/types/customer';
 import { EditableInput } from '@/components/ui/EditableInput';
+import ElSalvadorGeoSelects from '@/components/shop/checkout/ElSalvadorGeoSelects';
 import { useConfirm } from '@/components/providers/ConfirmDialogProvider';
 import Link from 'next/link';
 
@@ -94,13 +95,13 @@ export default function MyAccountPage() {
         recipient_name: '',
         name: 'Casa',
         address_line1: '',
+        address_line2: '',
         city: '',
         state: '',
-        postal_code: '',
+        district: '',
         country: 'SV',
         type: 'shipping',
         is_default: false,
-        instructions: '',
         phone: '',
     });
 
@@ -108,13 +109,13 @@ export default function MyAccountPage() {
         recipient_name: '',
         name: 'Casa',
         address_line1: '',
+        address_line2: '',
         city: '',
         state: '',
-        postal_code: '',
+        district: '',
         country: 'SV',
         type: 'shipping',
         is_default: false,
-        instructions: '',
         phone: '',
     };
 
@@ -225,13 +226,13 @@ export default function MyAccountPage() {
             recipient_name: addr.recipient_name ?? '',
             name: addr.name ?? '',
             address_line1: addr.details.line1 ?? '',
+            address_line2: addr.details.line2 ?? '',
             city: addr.details.city ?? '',
             state: addr.details.state ?? '',
-            postal_code: addr.details.zip_code ?? '',
+            district: addr.details.district ?? '',
             country: addr.details.country ?? 'SV',
             type: addr.type ?? 'shipping',
             is_default: addr.is_default ?? false,
-            instructions: addr.instructions ?? '',
             phone: addr.phone ?? '',
         });
 
@@ -426,49 +427,91 @@ export default function MyAccountPage() {
                     {showAddressForm && (
                         <form onSubmit={handleAddAddress} className="bg-slate-50 p-6 rounded-2xl border border-blue-200 animate-in fade-in slide-in-from-top-4">
                             <h3 className="font-bold text-sm mb-4 text-blue-800">{editingAddress ? `Editar Dirección - ${editingAddress.name}` : 'Agregar Nueva Dirección'}</h3>
-                            <div className="grid grid-cols-2 gap-4 mb-4">
-                                <input placeholder="Nombre destinatario" className="p-2 border rounded" required value={newAddress.recipient_name} onChange={e => setNewAddress({ ...newAddress, recipient_name: e.target.value })} />
-                                <input placeholder="Alias (Ej. Casa)" className="p-2 border rounded" required value={newAddress.name} onChange={e => setNewAddress({ ...newAddress, name: e.target.value })} />
-                                <input placeholder="Calle y Número" className="p-2 border rounded" required value={newAddress.address_line1} onChange={e => setNewAddress({ ...newAddress, address_line1: e.target.value })} />
-                                <input placeholder="Ciudad" className="p-2 border rounded" required value={newAddress.city} onChange={e => setNewAddress({ ...newAddress, city: e.target.value })} />
-                                <input placeholder="Estado" className="p-2 border rounded" required value={newAddress.state} onChange={e => setNewAddress({ ...newAddress, state: e.target.value })} />
-                                <input placeholder="Código Postal" className="p-2 border rounded" required value={newAddress.postal_code} onChange={e => setNewAddress({ ...newAddress, postal_code: e.target.value })} />
-                                <input placeholder="Teléfono" className="p-2 border rounded" required value={newAddress.phone} onChange={e => setNewAddress({ ...newAddress, phone: e.target.value })} />
-                                <input placeholder="Instrucciones" className="p-2 border rounded" required value={newAddress.instructions} onChange={e => setNewAddress({ ...newAddress, instructions: e.target.value })} />
-                                <div className="col-span-2">
-                                    <label className="text-xs text-slate-500 mb-1 block">Tipo de dirección</label>
 
-                                    <div className="flex gap-6">
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                            <input
-                                                type="radio"
-                                                name="type"
-                                                value="shipping"
-                                                checked={newAddress.type === 'shipping'}
-                                                onChange={(e) =>
-                                                    setNewAddress({ ...newAddress, type: e.target.value })
-                                                }
-                                            />
-                                            <span>Envío</span>
-                                        </label>
-
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                            <input
-                                                type="radio"
-                                                name="type"
-                                                value="billing"
-                                                checked={newAddress.type === 'billing'}
-                                                onChange={(e) =>
-                                                    setNewAddress({ ...newAddress, type: e.target.value })
-                                                }
-                                            />
-                                            <span>Facturación</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div className="flex items-center">
+                            {/* Tipo de dirección primero: según lo que elija, cambian los campos de abajo (igual que en el checkout) */}
+                            <div className="mb-4">
+                                <label className="text-xs text-slate-500 mb-1 block">Tipo de dirección</label>
+                                <div className="flex gap-6">
                                     <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" checked={newAddress.is_default} onChange={e => setNewAddress({ ...newAddress, is_default: e.target.checked })} />
+                                        <input
+                                            type="radio"
+                                            name="type"
+                                            value="shipping"
+                                            checked={newAddress.type === 'shipping'}
+                                            onChange={(e) =>
+                                                setNewAddress(prev => ({ ...prev, type: e.target.value }))
+                                            }
+                                        />
+                                        <span>Envío</span>
+                                    </label>
+
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="type"
+                                            value="billing"
+                                            checked={newAddress.type === 'billing'}
+                                            onChange={(e) =>
+                                                setNewAddress(prev => ({ ...prev, type: e.target.value }))
+                                            }
+                                        />
+                                        <span>Facturación</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                <input placeholder="Alias (Ej. Casa)" className="p-2 border rounded" required value={newAddress.name} onChange={e => setNewAddress(prev => ({ ...prev, name: e.target.value }))} />
+                                <input
+                                    placeholder={newAddress.type === 'billing' ? 'Nombre facturación' : 'Nombre destinatario'}
+                                    className="p-2 border rounded"
+                                    required
+                                    value={newAddress.recipient_name}
+                                    onChange={e => setNewAddress(prev => ({ ...prev, recipient_name: e.target.value }))}
+                                />
+
+                                {newAddress.type === 'billing' && (
+                                    <input
+                                        placeholder="Teléfono"
+                                        className="p-2 border rounded col-span-2"
+                                        required
+                                        value={newAddress.phone}
+                                        onChange={e => setNewAddress(prev => ({ ...prev, phone: e.target.value }))}
+                                    />
+                                )}
+
+                                <input
+                                    placeholder={newAddress.type === 'billing' ? 'Dirección' : 'Dirección completa de envío'}
+                                    className="p-2 border rounded col-span-2"
+                                    required
+                                    value={newAddress.address_line1}
+                                    onChange={e => setNewAddress(prev => ({ ...prev, address_line1: e.target.value }))}
+                                />
+                                <input
+                                    placeholder="Referencia del lugar (opcional)"
+                                    className="p-2 border rounded col-span-2"
+                                    value={newAddress.address_line2}
+                                    onChange={e => setNewAddress(prev => ({ ...prev, address_line2: e.target.value }))}
+                                />
+
+                                <div className="col-span-2 space-y-4">
+                                    <ElSalvadorGeoSelects
+                                        idPrefix="account-address"
+                                        department={newAddress.state}
+                                        municipality={newAddress.city}
+                                        district={newAddress.district}
+                                        onDepartmentChange={(department) => setNewAddress(prev => ({ ...prev, state: department }))}
+                                        onMunicipalityChange={(municipality) => setNewAddress(prev => ({ ...prev, city: municipality }))}
+                                        onDistrictChange={(district) => setNewAddress(prev => ({ ...prev, district }))}
+                                        required
+                                        showCountry={false}
+                                        inputClassName="w-full p-2 border rounded text-sm"
+                                    />
+                                </div>
+
+                                <div className="flex items-center col-span-2">
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <input type="checkbox" checked={newAddress.is_default} onChange={e => setNewAddress(prev => ({ ...prev, is_default: e.target.checked }))} />
                                         <span className="text-sm">Marcar como Predeterminada</span>
                                     </label>
                                 </div>

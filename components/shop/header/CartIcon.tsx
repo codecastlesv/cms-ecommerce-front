@@ -118,7 +118,7 @@ export default function CartIcon({ onOpen, variant = 'icon' }: CartIconProps) {
   );
 
   if (variant === 'labeled') {
-    const labeledClass = `font-helvetica flex items-center gap-2 rounded-md px-1.5 py-1 transition hover:bg-black/5 ${
+    const labeledClass = `font-helvetica flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 transition hover:bg-black/5 ${
       isBumping ? 'scale-[1.02]' : ''
     }`;
 
@@ -157,7 +157,7 @@ export default function CartIcon({ onOpen, variant = 'icon' }: CartIconProps) {
     );
   }
 
-  const className = `font-helvetica relative flex shrink-0 items-center justify-center rounded-full p-1.5 transition-all duration-300 hover:bg-black hover:text-white md:p-2 ${
+  const className = `font-helvetica relative flex shrink-0 cursor-pointer items-center justify-center rounded-full p-1.5 transition-all duration-300 hover:bg-black hover:text-white md:p-2 ${
     isBumping ? 'scale-110 bg-gray-100 text-black' : 'scale-100'
   }`;
 

@@ -58,7 +58,7 @@ export default function BillingInfoCard({
           {nit ? <p>NIT: {nit}</p> : null}
           {nrc ? <p>NRC: {nrc}</p> : null}
           {giro ? <p>Giro: {giro}</p> : null}
-          {fiscalAddress ? <p>Dirección fiscal: {fiscalAddress}</p> : null}
+          {fiscalAddress ? <p>Dirección según tarjeta IVA: {fiscalAddress}</p> : null}
           {!hasFiscalProfile ? (
             <p className="text-slate-400 italic text-xs pt-1">
               Sin ficha fiscal disponible (checkout local ni Brilo).
