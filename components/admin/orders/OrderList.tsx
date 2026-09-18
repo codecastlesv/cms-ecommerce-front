@@ -161,7 +161,7 @@ export default function OrderList() {
                                 <tr>
                                     <th className="px-6 py-4 w-60">N° Pedido Web</th>
                                     <th className="px-6 py-4 w-36">Order ID (UUID)</th>
-                                    <th className="px-6 py-4">ID Brilo ERP</th>
+                                    <th className="px-6 py-4">ID Olumpys ERP</th>
                                     <th className="px-6 py-4">Cliente</th>
                                     <th className="px-6 py-4">Total</th>
                                     <th className="px-6 py-4 text-center">Estado</th>

@@ -258,7 +258,7 @@ export default function OrderDetailPage() {
                         </span>
                     </p>
                     <p className="font-medium text-slate-600 text-sm">
-                        <strong>Cliente en Brilo:</strong>{' '}
+                        <strong>Cliente en Olympus:</strong>{' '}
                         {briloClientCode ?? 'N/A'}
                     </p>
                 </div>
