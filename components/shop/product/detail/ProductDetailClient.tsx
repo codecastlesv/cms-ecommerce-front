@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, FileText } from 'lucide-react';
 import ProductGallery from './ProductGallery';
 import ProductActions from './ProductActions';
 import ProductPhysicalStoreAvailability from './ProductPhysicalStoreAvailability';
@@ -48,6 +48,7 @@ interface ProductDetailData {
   specs?: Array<{ label: string; value: string }>;
   attributes?: ProductAttribute[];
   physical_stores?: PhysicalStore[];
+  technical_spec_pdf_url?: string | null;
 }
 
 function formatPrice(value: number): string {
@@ -156,6 +157,18 @@ export default function ProductDetailClient({
                   {product.description}
                 </p>
               </details>
+            ) : null}
+
+            {product.technical_spec_pdf_url ? (
+              <a
+                href={product.technical_spec_pdf_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 pt-2 text-sm font-medium text-gray-900 hover:underline"
+              >
+                <FileText size={16} className="text-gray-500" />
+                Descargar ficha técnica (PDF)
+              </a>
             ) : null}
 
             <details className="pt-6 group" open>

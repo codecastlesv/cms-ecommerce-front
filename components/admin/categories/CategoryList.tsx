@@ -76,18 +76,28 @@ export default function CategoryList() {
         });
     };
 
+    const categoryId = (value: unknown): number | null => {
+        if (value === null || value === undefined || value === '') {
+            return null;
+        }
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : null;
+    };
+
     const buildTree = (cats: Category[], parentId: number | null = null): Category[] => {
         return cats
-            .filter(cat => cat.parent_id === parentId)
-            .sort((a, b) => {
-                const codeA = a.code ?? 0;
-                const codeB = b.code ?? 0;
-                return codeA - codeB;
-            })
-            .map(cat => ({
-                ...cat,
-                children: buildTree(cats, cat.id)
-            }));
+            .filter(cat => categoryId(cat.parent_id) === parentId)
+            .sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }))
+            .map(cat => {
+                const nestedFromFlat = buildTree(cats, categoryId(cat.id));
+                const nestedFromApi = Array.isArray(cat.children) ? cat.children : [];
+                const children = nestedFromFlat.length > 0 ? nestedFromFlat : nestedFromApi;
+
+                return {
+                    ...cat,
+                    children,
+                };
+            });
     };
 
     const renderRow = (category: Category, level: number = 0): React.ReactNode => {
@@ -188,7 +198,7 @@ export default function CategoryList() {
                     </td>
                 </tr>
 
-                {(isExpanded || isSearchMode) && category.children?.map(child => renderRow(child, level + 1))}
+                {(isExpanded && !isSearchMode) && category.children?.map(child => renderRow(child, level + 1))}
             </React.Fragment>
         );
     };

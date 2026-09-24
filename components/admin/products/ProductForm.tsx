@@ -11,7 +11,7 @@ import {
     ArrowLeft, Save, Upload, X, Package, Image as ImageIcon,
     Layers, BarChart, Trash2, RefreshCcw, Eye, ShoppingBag,
     AlertTriangle, Check, ChevronDown, DollarSign, Percent,
-    XCircle, Loader2, Truck
+    XCircle, Loader2, Truck, FileText
 } from 'lucide-react';
 import PermissionGate from '@/components/auth/PermissionGate';
 import { usePermission } from '@/hooks/usePermission';
@@ -220,6 +220,8 @@ export default function ProductForm({ productId }: { productId?: string }) {
     const isCategoryHydratingRef = useRef(false);
     const [newImages, setNewImages] = useState<File[]>([]);
     const [previewImages, setPreviewImages] = useState<string[]>([]);
+    const [technicalSpecFile, setTechnicalSpecFile] = useState<File | null>(null);
+    const [removeTechnicalSpec, setRemoveTechnicalSpec] = useState(false);
 
     const [previewMainImage, setPreviewMainImage] = useState<string | null>(null);
 
@@ -266,6 +268,8 @@ export default function ProductForm({ productId }: { productId?: string }) {
                 robots_follow: !!data.robots_follow,
             });
             if (data.images) setExistingImages(data.images);
+            setTechnicalSpecFile(null);
+            setRemoveTechnicalSpec(false);
         } catch {
             toast.error('Error cargando producto');
         } finally {
@@ -376,6 +380,31 @@ export default function ProductForm({ productId }: { productId?: string }) {
         }
     };
 
+    const handleTechnicalSpecChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        e.target.value = '';
+        if (!file) return;
+        if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+            toast.error('La ficha técnica debe ser un PDF.');
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            toast.error('El PDF no puede superar 10 MB.');
+            return;
+        }
+        setTechnicalSpecFile(file);
+        setRemoveTechnicalSpec(false);
+    };
+
+    const clearTechnicalSpecSelection = () => {
+        setTechnicalSpecFile(null);
+    };
+
+    const markTechnicalSpecForRemoval = () => {
+        setTechnicalSpecFile(null);
+        setRemoveTechnicalSpec(true);
+    };
+
     const toggleImageVisibility = async (id: number) => {
         try {
             const { data } = await api.put(`/admin/product-images/${id}/toggle`);
@@ -415,6 +444,11 @@ export default function ProductForm({ productId }: { productId?: string }) {
         });
         fd.append('categories', JSON.stringify(categoryPayload));
         newImages.forEach(f => fd.append('new_images[]', f));
+        if (technicalSpecFile) {
+            fd.append('technical_spec_pdf', technicalSpecFile);
+        } else if (removeTechnicalSpec) {
+            fd.append('remove_technical_spec_pdf', '1');
+        }
         if (productDbId) fd.append('_method', 'PUT');
 
         try {
@@ -431,7 +465,12 @@ export default function ProductForm({ productId }: { productId?: string }) {
                 router.refresh();
                 setNewImages([]);
                 setPreviewImages([]);
+                setTechnicalSpecFile(null);
+                setRemoveTechnicalSpec(false);
                 setProductDisplayName(res.data.name ?? data.name);
+                if (res.data) {
+                    setLoadedProduct(res.data);
+                }
             }
         } catch (e) { toast.error(handleError(e, 'Guardar')); }
         finally { setLoading(false); }
@@ -704,6 +743,49 @@ export default function ProductForm({ productId }: { productId?: string }) {
                                 <FormSection title="Contenido">
                                     <textarea {...register('description')} className="w-full border border-slate-200 rounded-lg p-4 text-sm h-40 focus:ring-2 focus:ring-black/5 outline-none mb-4" placeholder="Descripción detallada..."></textarea>
                                     <textarea {...register('short_description')} className="w-full border border-slate-200 rounded-lg p-4 text-sm h-24 focus:ring-2 focus:ring-black/5 outline-none" placeholder="Resumen..."></textarea>
+
+                                    <div className="mt-6 pt-6 border-t border-slate-100">
+                                        <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1 block mb-2">Ficha técnica (PDF)</label>
+                                        {technicalSpecFile ? (
+                                            <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5">
+                                                <div className="flex min-w-0 items-center gap-2 text-sm text-slate-700">
+                                                    <FileText className="h-4 w-4 shrink-0 text-slate-500" />
+                                                    <span className="truncate">{technicalSpecFile.name}</span>
+                                                </div>
+                                                <button type="button" onClick={clearTechnicalSpecSelection} className="rounded-md p-1 text-slate-400 hover:bg-white hover:text-red-600">
+                                                    <X className="h-4 w-4" />
+                                                </button>
+                                            </div>
+                                        ) : loadedProduct?.technical_spec_pdf_url && !removeTechnicalSpec ? (
+                                            <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5">
+                                                <a
+                                                    href={loadedProduct.technical_spec_pdf_url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex min-w-0 items-center gap-2 text-sm font-medium text-slate-800 hover:underline"
+                                                >
+                                                    <FileText className="h-4 w-4 shrink-0 text-slate-500" />
+                                                    <span className="truncate">Ver PDF actual</span>
+                                                </a>
+                                                {hasPermission ? (
+                                                    <button type="button" onClick={markTechnicalSpecForRemoval} className="rounded-md p-1 text-slate-400 hover:bg-white hover:text-red-600" title="Quitar ficha técnica">
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </button>
+                                                ) : null}
+                                            </div>
+                                        ) : (
+                                            <p className="text-xs text-slate-400 mb-2">
+                                                {removeTechnicalSpec ? 'Se eliminará al guardar. Puedes subir otro PDF.' : 'Opcional. Máximo 10 MB.'}
+                                            </p>
+                                        )}
+                                        {hasPermission ? (
+                                            <label className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-slate-300 px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50">
+                                                <Upload className="h-3.5 w-3.5" />
+                                                {loadedProduct?.technical_spec_pdf_url && !removeTechnicalSpec && !technicalSpecFile ? 'Reemplazar PDF' : 'Subir PDF'}
+                                                <input type="file" accept="application/pdf,.pdf" className="hidden" onChange={handleTechnicalSpecChange} />
+                                            </label>
+                                        ) : null}
+                                    </div>
                                 </FormSection>
                             </div>
                         )}

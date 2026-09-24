@@ -245,6 +245,8 @@ export interface Product {
     description: string | null;
     short_description: string | null;
     external_image_url?: string | null;
+    technical_spec_pdf?: string | null;
+    technical_spec_pdf_url?: string | null;
     style_code: string | null;
     product_color: string | null;
     /** Referencia Brilo (proNombreCotizaciones), ej. "U:SYTE L:TE S:RU" */
