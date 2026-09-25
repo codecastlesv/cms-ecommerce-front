@@ -15,6 +15,7 @@ import { handleError } from '@/lib/errorHandler';
 // import ExcelImportButton from '@/components/ExcelImportButton';
 // import ZipImagesImportButton from '@/components/ZipImagesImportButton';
 import MassStockSyncButton from '@/components/admin/products/MassStockSyncButton';
+import MassPriceSyncButton from '@/components/admin/products/MassPriceSyncButton';
 import { AdminProductName } from '@/components/admin/AdminProductName';
 import { useCatalog } from '@/components/providers/CatalogContext';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
@@ -182,7 +183,10 @@ export default function ProductList() {
                     <div className="flex flex-wrap items-center gap-2">
                         
                         {can('edit_products') && (
-                            <MassStockSyncButton onCompleted={() => refetch()} />
+                            <>
+                                <MassStockSyncButton onCompleted={() => refetch()} />
+                                <MassPriceSyncButton onCompleted={() => refetch()} />
+                            </>
                         )}
                         
                         {can('create_products') && (
@@ -294,7 +298,7 @@ export default function ProductList() {
                                 <th className="px-4 py-4">Subcategoría</th>
                                 <th className="px-4 py-4">Presentación</th>
                                 <th className="px-4 py-4">Marca</th>
-                                <th className="px-4 py-4">Precio / Stock</th>
+                                <th className="px-4 py-4">Precio c/IVA / Stock</th>
                                 <th className="px-4 py-4 text-center">Estado</th>
                                 <th className="px-4 py-4 text-right">Acciones</th>
                             </tr>

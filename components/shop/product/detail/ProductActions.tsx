@@ -14,6 +14,8 @@ interface DetailProduct {
   sale_price?: number | null;
   price?: number;
   price_regular?: number;
+  is_promo_active?: boolean;
+  promo_price?: number | null;
   gallery?: string[];
   main_image?: string;
   external_image_url?: string | null;
@@ -24,6 +26,15 @@ interface DetailProduct {
 
 function resolvePriceForCart(product: DetailProduct): number {
   const regularNum = Number(product.price_regular ?? product.price ?? 0) || 0;
+  const promoNum = Number(product.promo_price);
+  if (
+    product.is_promo_active &&
+    Number.isFinite(promoNum) &&
+    promoNum > 0 &&
+    (regularNum <= 0 || promoNum < regularNum)
+  ) {
+    return promoNum;
+  }
   const saleNum = parsePositiveSalePrice(product.sale_price);
   const onSale = saleNum !== null && regularNum > 0 && saleNum < regularNum;
   return onSale ? saleNum : regularNum;

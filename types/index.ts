@@ -256,6 +256,13 @@ export interface Product {
     status: 'draft' | 'published' | 'archived';
     available_in_store?: boolean;
     price_regular: number;
+    precio_lista_sin_iva?: number | null;
+    tipo_precio?: string | null;
+    descuento_por_aplicar?: number | null;
+    promo_desde?: string | null;
+    promo_hasta?: string | null;
+    is_promo_active?: boolean;
+    promo_price?: number | null;
     cost_average?: number | null;
     price_sale: number | null;
     discount_percentage: number | null;

@@ -49,6 +49,13 @@ interface ProductDetailData {
   attributes?: ProductAttribute[];
   physical_stores?: PhysicalStore[];
   technical_spec_pdf_url?: string | null;
+  precio_lista_sin_iva?: number | null;
+  tipo_precio?: string | null;
+  descuento_por_aplicar?: number | null;
+  promo_desde?: string | null;
+  promo_hasta?: string | null;
+  is_promo_active?: boolean;
+  promo_price?: number | null;
 }
 
 function formatPrice(value: number): string {
@@ -56,6 +63,21 @@ function formatPrice(value: number): string {
     return '0.00';
   }
   return value.toFixed(2);
+}
+
+function formatPromoUntil(value?: string | null): string | null {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
+function discountPercentFromRate(rate: number): number {
+  if (!Number.isFinite(rate) || rate <= 0) return 0;
+  return Math.round(rate > 1 ? rate : rate * 100);
 }
 
 export default function ProductDetailClient({
@@ -82,19 +104,29 @@ export default function ProductDetailClient({
   })();
 
   const regularNum = Number(product.price_regular ?? product.price ?? 0) || 0;
-  const saleNumeric = parsePositiveSalePrice(product.sale_price);
+  const olympusPromoPrice = Number(product.promo_price);
+  const isOlympusPromo =
+    Boolean(product.is_promo_active) &&
+    Number.isFinite(olympusPromoPrice) &&
+    olympusPromoPrice > 0 &&
+    (regularNum <= 0 || olympusPromoPrice < regularNum);
+  const saleNumeric = isOlympusPromo ? olympusPromoPrice : parsePositiveSalePrice(product.sale_price);
   const onSale = saleNumeric !== null && regularNum > 0 && saleNumeric < regularNum;
   const displayPrice = onSale && saleNumeric !== null ? saleNumeric : regularNum;
   const computedDiscount =
     onSale && regularNum > 0 && saleNumeric !== null
       ? Math.round((1 - saleNumeric / regularNum) * 100)
       : 0;
-  const discountPct =
-    onSale && computedDiscount > 0
+  const olympusDiscountPct = discountPercentFromRate(Number(product.descuento_por_aplicar ?? 0));
+  const discountPct = isOlympusPromo && olympusDiscountPct > 0
+    ? olympusDiscountPct
+    : onSale && computedDiscount > 0
       ? computedDiscount
       : onSale && typeof product.discount_percentage === 'number' && product.discount_percentage > 0
         ? Math.round(product.discount_percentage)
         : null;
+  const promoUntil = isOlympusPromo ? formatPromoUntil(product.promo_hasta) : null;
+  const priceWithoutTax = Number(product.precio_lista_sin_iva);
 
   const presentacion = (product.attributes ?? []).find((item) => {
     const slug = (item.attribute?.slug || '').toLowerCase();
@@ -122,26 +154,31 @@ export default function ProductDetailClient({
                 {product.short_description || product.description}
               </p>
 
-              <div className="pt-3 flex flex-wrap items-end gap-x-3 gap-y-1">
-                {onSale ? (
-                  <>
-                    <span className="text-lg font-inter font-bold leading-none tracking-tight text-gray-900">
-                      ${formatPrice(displayPrice)}
-                    </span>
-                    <span className="text-sm font-inter text-slate-400 line-through tabular-nums">
-                      ${formatPrice(regularNum)}
-                    </span>
-                    {discountPct !== null && discountPct > 0 ? (
-                      <span className="inline-flex items-center rounded-md border border-rose-200 bg-rose-50/90 px-2 py-0.5 text-xs font-bold text-rose-800">
-                        Oferta -{discountPct}%
+              <div className="pt-3 space-y-1.5">
+                <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
+                  {onSale ? (
+                    <>
+                      <span className={`text-2xl font-inter font-bold leading-none tracking-tight ${isOlympusPromo ? 'text-red-600' : 'text-gray-900'}`}>
+                        ${formatPrice(displayPrice)}
                       </span>
-                    ) : null}
-                  </>
-                ) : (
-                  <p className="text-lg font-inter font-bold leading-none tracking-tight text-gray-900">
-                    ${formatPrice(displayPrice)}
-                  </p>
-                )}
+                      <span className="text-sm font-inter text-slate-400 line-through tabular-nums">
+                        ${formatPrice(regularNum)}
+                      </span>
+                      {discountPct !== null && discountPct > 0 ? (
+                        <span className="inline-flex items-center rounded-md border border-rose-200 bg-rose-50/90 px-2 py-0.5 text-xs font-bold text-rose-800">
+                          -{discountPct}% OFF
+                        </span>
+                      ) : null}
+                    </>
+                  ) : (
+                    <p className="text-lg font-inter font-bold leading-none tracking-tight text-gray-900">
+                      ${formatPrice(displayPrice)}
+                    </p>
+                  )}
+                </div>
+                {promoUntil ? (
+                  <p className="text-xs text-gray-500">Oferta válida hasta el {promoUntil}</p>
+                ) : null}
               </div>
             </div>
 

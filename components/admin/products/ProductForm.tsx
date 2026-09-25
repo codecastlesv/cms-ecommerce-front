@@ -10,8 +10,8 @@ import { toast } from 'sonner';
 import {
     ArrowLeft, Save, Upload, X, Package, Image as ImageIcon,
     Layers, BarChart, Trash2, RefreshCcw, Eye, ShoppingBag,
-    AlertTriangle, Check, ChevronDown, DollarSign, Percent,
-    XCircle, Loader2, Truck, FileText
+    AlertTriangle, Check, ChevronDown, DollarSign,
+    XCircle, Loader2, Truck, FileText, Tag
 } from 'lucide-react';
 import PermissionGate from '@/components/auth/PermissionGate';
 import { usePermission } from '@/hooks/usePermission';
@@ -179,6 +179,28 @@ const FormInput = ({ label, error, registration, icon: Icon, className, ...props
         {error && <p className="mt-1 text-xs text-red-600 font-medium flex items-center"><AlertTriangle className="w-3 h-3 mr-1" />{error}</p>}
     </div>
 );
+
+function formatAdminMoney(value: unknown): string {
+    const amount = Number(value);
+    if (!Number.isFinite(amount)) return '—';
+    return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function formatAdminDate(value?: string | null): string {
+    if (!value) return 'No especificada';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return 'No especificada';
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    return `${day}/${month}/${date.getFullYear()}`;
+}
+
+function formatAdminDiscount(value: unknown): string {
+    const rate = Number(value);
+    if (!Number.isFinite(rate) || rate <= 0) return '0%';
+    const percent = rate > 1 ? rate : rate * 100;
+    return `${Math.round(percent)}%`;
+}
 
 const FormSelect = ({ label, error, registration, children, ...props }: React.SelectHTMLAttributes<HTMLSelectElement> & { label: string, error?: string, registration?: UseFormRegisterReturn }) => (
     <div className="space-y-1.5 w-full">
@@ -476,16 +498,14 @@ export default function ProductForm({ productId }: { productId?: string }) {
         finally { setLoading(false); }
     };
 
-    const calcPrice = () => {
-        const r = Number(getValues('price_regular'));
-        const p = Number(getValues('discount_percentage'));
-        if (r > 0 && p >= 0) setValue('price_sale', parseFloat((r - (r * p / 100)).toFixed(2)));
-    };
-    const calcPercent = () => {
-        const r = Number(getValues('price_regular'));
-        const s = Number(getValues('price_sale'));
-        if (r > 0 && s > 0 && s < r) setValue('discount_percentage', Math.round(((r - s) / r) * 100));
-    };
+    const watchedRegular = Number(watch('price_regular')) || 0;
+    const olympusDiscountRaw = Number(loadedProduct?.descuento_por_aplicar ?? 0);
+    const olympusDiscountRate = olympusDiscountRaw > 1 ? olympusDiscountRaw / 100 : olympusDiscountRaw;
+    const hasOlympusDiscount = olympusDiscountRate > 0;
+    const computedOfferPrice = hasOlympusDiscount && watchedRegular > 0
+        ? watchedRegular * (1 - olympusDiscountRate)
+        : (loadedProduct?.is_promo_active ? 0 : watchedRegular);
+    const displayedOfferDiscount = hasOlympusDiscount ? Math.round(olympusDiscountRate * 100) : null;
 
     const PreviewEcommerce = () => {
         const displayImages = existingImages.filter(i => i.is_visible);
@@ -713,17 +733,66 @@ export default function ProductForm({ productId }: { productId?: string }) {
                                 </FormSection>
 
                                 <FormSection title="Precios" icon={DollarSign}>
-                                    <div className="grid grid-cols-3 gap-6">
-                                        <FormInput type="number" step="0.01" label="Regular *" registration={register('price_regular')} error={errors.price_regular?.message} />
-                                        <div>
-                                            <label className="text-[11px] font-bold text-slate-500 uppercase flex justify-between mb-1.5">% Desc <button type="button" onClick={calcPrice} className="text-black hover:underline">Calc</button></label>
-                                            <div className="relative"><input type="number" {...register('discount_percentage')} className="w-full bg-white border border-slate-200 rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-black/5" /><span className="absolute right-3 top-2.5 text-slate-400"><Percent className="w-4 h-4" /></span></div>
+                                    <input type="hidden" {...register('price_regular')} />
+                                    <input type="hidden" {...register('price_sale')} />
+                                    <input type="hidden" {...register('discount_percentage')} />
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        <div className="space-y-1.5 w-full">
+                                            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Precio Regular (Con IVA)</label>
+                                            <div className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm font-mono text-slate-500">
+                                                {formatAdminMoney(watchedRegular)}
+                                            </div>
                                         </div>
-                                        <div>
-                                            <label className="text-[11px] font-bold text-slate-500 uppercase flex justify-between mb-1.5">Oferta <button type="button" onClick={calcPercent} className="text-black hover:underline">Calc %</button></label>
-                                            <div className="relative"><span className="absolute left-3 top-2.5 text-slate-400">$</span><input type="number" step="0.01" {...register('price_sale')} className="w-full bg-white border border-slate-200 rounded-lg pl-6 p-2.5 text-sm font-bold text-black outline-none focus:ring-2 focus:ring-black/5" /></div>
+                                        <div className="space-y-1.5 w-full">
+                                            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Precio Sin IVA (Olympus)</label>
+                                            <div className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm font-mono text-slate-500">
+                                                {formatAdminMoney(loadedProduct?.precio_lista_sin_iva)}
+                                            </div>
+                                        </div>
+                                        <div className="space-y-1.5 w-full">
+                                            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Precio Oferta</label>
+                                            <div className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm font-mono text-slate-500">
+                                                {formatAdminMoney(computedOfferPrice)}
+                                            </div>
+                                            {displayedOfferDiscount !== null && displayedOfferDiscount > 0 ? (
+                                                <p className="text-xs font-semibold text-red-600 ml-1">(-{displayedOfferDiscount}%)</p>
+                                            ) : null}
                                         </div>
                                     </div>
+                                </FormSection>
+
+                                <FormSection title="Información Promoción" icon={Tag}>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tipo de Precio</p>
+                                            <div className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm font-mono text-slate-700">
+                                                {loadedProduct?.tipo_precio || '—'}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Descuento por Aplicar</p>
+                                            <div className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm text-slate-700">
+                                                {formatAdminDiscount(loadedProduct?.descuento_por_aplicar)}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Estado</p>
+                                            <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold border ${
+                                                loadedProduct?.is_promo_active
+                                                    ? 'bg-green-50 text-green-700 border-green-200'
+                                                    : 'bg-slate-100 text-slate-500 border-slate-200'
+                                            }`}>
+                                                {loadedProduct?.is_promo_active ? 'Promoción Activa' : 'Promoción Inactiva'}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Vigencia de la Promoción</p>
+                                            <div className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm text-slate-700">
+                                                Desde {formatAdminDate(loadedProduct?.promo_desde)} — Hasta {formatAdminDate(loadedProduct?.promo_hasta)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p className="mt-3 text-xs text-slate-400">Datos sincronizados desde Olympus. Solo lectura.</p>
                                 </FormSection>
 
                                 <FormSection title="Logística" icon={Truck}>
