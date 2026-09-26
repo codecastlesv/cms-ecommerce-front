@@ -235,6 +235,15 @@ export interface InventoryStoreEntry {
     };
 }
 
+export interface ProductStoreStock {
+    id: number;
+    store_id: number;
+    name?: string | null;
+    alias?: string | null;
+    code?: string | null;
+    stock_quantity: number;
+}
+
 export interface Product {
     id: number;
     erp_product_id?: number | null;
@@ -284,6 +293,7 @@ export interface Product {
         attribute?: { id: number; name: string; slug: string };
     }>;
     inventory_stores?: InventoryStoreEntry[];
+    store_stocks?: ProductStoreStock[];
 
     is_featured: boolean;
     view_count: number;
