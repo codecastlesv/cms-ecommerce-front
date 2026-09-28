@@ -11,14 +11,14 @@ import {
     ArrowLeft, Save, Upload, X, Package, Image as ImageIcon,
     Layers, BarChart, Trash2, RefreshCcw, Eye, ShoppingBag,
     AlertTriangle, Check, ChevronDown, DollarSign,
-    XCircle, Loader2, Truck, FileText, Tag
+    XCircle, Loader2, Truck, FileText, Tag, Warehouse
 } from 'lucide-react';
 import PermissionGate from '@/components/auth/PermissionGate';
 import { usePermission } from '@/hooks/usePermission';
 import { useCatalog } from '@/components/providers/CatalogContext';
 import { handleError } from '@/lib/errorHandler';
 import { ADMIN_PRODUCT_NAME_CLASS } from '@/components/admin/AdminProductName';
-import { Product, Category, ProductImage } from '@/types';
+import { Product, Category, ProductImage, ProductStoreStock } from '@/types';
 
 /** Ruta raíz → … → categoría (ids), usando el mapa `parent_id` del listado admin. */
 function categoryPathFromId(categoryId: number, byId: Map<number, Category>): number[] {
@@ -202,6 +202,19 @@ function formatAdminDiscount(value: unknown): string {
     return `${Math.round(percent)}%`;
 }
 
+function formatStoreStockQty(value: unknown): string {
+    const qty = Number(value);
+    if (!Number.isFinite(qty)) return '0.00 u.m.';
+    return `${qty.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} u.m.`;
+}
+
+function storeDisplayName(row: ProductStoreStock): string {
+    const alias = row.alias?.trim();
+    if (alias) return alias;
+    const name = row.name?.trim();
+    return name || 'Sucursal sin nombre';
+}
+
 const FormSelect = ({ label, error, registration, children, ...props }: React.SelectHTMLAttributes<HTMLSelectElement> & { label: string, error?: string, registration?: UseFormRegisterReturn }) => (
     <div className="space-y-1.5 w-full">
         <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">{label}</label>
@@ -326,6 +339,7 @@ export default function ProductForm({ productId }: { productId?: string }) {
                 success: boolean;
                 message: string;
                 stock_quantity: number;
+                store_stocks?: ProductStoreStock[];
             }>(`/admin/products/${productId}/sync-olympus-stock`, {}, { timeout: 0 });
 
             const stock = Number(data.stock_quantity);
@@ -334,7 +348,11 @@ export default function ProductForm({ productId }: { productId?: string }) {
                 return;
             }
 
-            setLoadedProduct((prev) => (prev ? { ...prev, stock_quantity: stock } : prev));
+            setLoadedProduct((prev) => (prev ? {
+                ...prev,
+                stock_quantity: stock,
+                store_stocks: data.store_stocks ?? prev.store_stocks,
+            } : prev));
             toast.success(`Stock actualizado a ${stock}`);
         } catch (e) {
             toast.error(handleError(e, 'No se pudo sincronizar el stock con Olympus'));
@@ -506,6 +524,14 @@ export default function ProductForm({ productId }: { productId?: string }) {
         ? watchedRegular * (1 - olympusDiscountRate)
         : (loadedProduct?.is_promo_active ? 0 : watchedRegular);
     const displayedOfferDiscount = hasOlympusDiscount ? Math.round(olympusDiscountRate * 100) : null;
+    const storeStocks = loadedProduct?.store_stocks ?? [];
+    const consolidatedWarehouseStock = storeStocks.reduce(
+        (sum, row) => sum + (Number.isFinite(Number(row.stock_quantity)) ? Number(row.stock_quantity) : 0),
+        0,
+    );
+    const displayedConsolidatedStock = storeStocks.length > 0
+        ? consolidatedWarehouseStock
+        : Number(loadedProduct?.stock_quantity ?? 0);
 
     const PreviewEcommerce = () => {
         const displayImages = existingImages.filter(i => i.is_visible);
@@ -683,7 +709,7 @@ export default function ProductForm({ productId }: { productId?: string }) {
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1 block mb-1.5">Stock</label>
+                                            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1 block mb-1.5">Stock Total</label>
                                             <div className="flex items-center gap-2">
                                                 <div className="flex-1 bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm font-mono text-slate-700">
                                                     {loadedProduct?.stock_quantity ?? 0}
@@ -715,6 +741,66 @@ export default function ProductForm({ productId }: { productId?: string }) {
                                     </div>
                                     
                                 </FormSection>
+
+                                {isEditing ? (
+                                    <FormSection title="Inventario por Bodega (Olympus)" icon={Warehouse}>
+                                        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                                            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Stock Total Consolidado</p>
+                                            <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-bold text-slate-800">
+                                                {formatStoreStockQty(displayedConsolidatedStock)}
+                                            </span>
+                                        </div>
+
+                                        {storeStocks.length === 0 ? (
+                                            <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
+                                                Aún no hay existencias por sucursal. Sincroniza el inventario con Olympus.
+                                            </div>
+                                        ) : (
+                                            <div className="overflow-x-auto rounded-lg border border-slate-200">
+                                                <table className="min-w-full text-sm">
+                                                    <thead className="bg-slate-50 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                                        <tr>
+                                                            <th className="px-4 py-2.5">Sucursal / Tienda</th>
+                                                            <th className="px-4 py-2.5">Código Olympus</th>
+                                                            <th className="px-4 py-2.5 text-right">Stock Disponible</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-slate-100">
+                                                        {storeStocks.map((row) => {
+                                                            const qty = Number(row.stock_quantity);
+                                                            const isZero = !Number.isFinite(qty) || qty <= 0;
+                                                            return (
+                                                                <tr key={row.id || row.store_id} className="bg-white">
+                                                                    <td className={`px-4 py-2.5 ${isZero ? 'text-slate-400' : 'text-slate-800'}`}>
+                                                                        {storeDisplayName(row)}
+                                                                    </td>
+                                                                    <td className={`px-4 py-2.5 text-xs ${isZero ? 'text-slate-400' : 'text-slate-600'}`}>
+                                                                        {row.code || '—'}
+                                                                    </td>
+                                                                    <td className="px-4 py-2.5 text-right">
+                                                                        {isZero ? (
+                                                                            <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-400">
+                                                                                {formatStoreStockQty(0)}
+                                                                            </span>
+                                                                        ) : (
+                                                                            <span className="text-slate-800">
+                                                                                {formatStoreStockQty(qty)}
+                                                                            </span>
+                                                                        )}
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        })}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        )}
+
+                                        <p className="mt-3 text-xs text-slate-400">
+                                            Existencias sincronizadas dinámicamente desde Olympus ERP. Datos de solo lectura.
+                                        </p>
+                                    </FormSection>
+                                ) : null}
 
                                 <FormSection title="Clasificación" icon={Layers}>
                                     <div className="space-y-6">
