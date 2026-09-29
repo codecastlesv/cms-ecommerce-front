@@ -179,6 +179,7 @@ export default function ProductCard({ product, catalogBadge = null }: ProductCar
   const mainImage = resolveShopProductImageSrc(initialImage);
 
   const listTagLabel = qualifiesVirtualListTag(catalogBadge, product);
+  const isOutOfStock = typeof product.stock_quantity === 'number' && product.stock_quantity <= 0;
 
   const virtualListTagClass =
     'text-[9px] font-bold uppercase tracking-[0.12em] text-amber-600 sm:text-[10px]';
@@ -246,6 +247,11 @@ export default function ProductCard({ product, catalogBadge = null }: ProductCar
           >
             <div className="overflow-hidden rounded-[0.9rem] bg-white/95 backdrop-blur-[2px]">
               <div className="relative aspect-square overflow-hidden bg-white p-3 sm:p-4">
+                {isOutOfStock && (
+                  <span className="absolute left-2 top-2 z-20 rounded-full bg-[#E30613] px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-white">
+                    Agotado
+                  </span>
+                )}
                 <div className="relative h-full w-full">
                   <img
                     src={resolveShopProductImageSrc(displayedImage)}
@@ -326,6 +332,11 @@ export default function ProductCard({ product, catalogBadge = null }: ProductCar
               className="block cursor-pointer rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60 focus-visible:ring-offset-2"
             >
               <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-white p-3 sm:p-4">
+                {isOutOfStock && (
+                  <span className="absolute left-2 top-2 z-20 rounded-full bg-[#E30613] px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-white">
+                    Agotado
+                  </span>
+                )}
                 <div className="relative h-full w-full">
                   <img
                     src={resolveShopProductImageSrc(displayedImage)}
