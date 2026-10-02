@@ -3,7 +3,7 @@ import {
     ShoppingCart, FileText, Package, BarChart,
     Shield, Globe, Bell, ShoppingBag, CreditCard, Receipt, Store, Box, Warehouse, Dumbbell, HeartPulse, Trophy, Target, Truck,
     ShieldCheck, Award, ClipboardCheck, Lightbulb, Heart, MapPin, TrendingUp, Building2, Sparkles, LayoutList,
-    BadgeCheck, Tag, Headset
+    BadgeCheck, Tag, Headset, Handshake
 } from 'lucide-react';
 
 export const iconMap: Record<string, any> = {
@@ -42,4 +42,5 @@ export const iconMap: Record<string, any> = {
     'BadgeCheck': BadgeCheck,
     'Tag': Tag,
     'Headset': Headset,
+    'Handshake': Handshake,
 };

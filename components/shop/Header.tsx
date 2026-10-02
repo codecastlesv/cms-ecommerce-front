@@ -283,10 +283,10 @@ export default function Header({ settings }: HeaderProps) {
                             <span className="truncate sm:hidden">Categorías</span>
                         </button>
 
-                        <nav className="hidden min-w-0 flex-1 items-center justify-center gap-1 lg:flex xl:gap-2">
+                        <nav className="hidden min-w-0 flex-1 items-center justify-center gap-6 lg:flex xl:gap-10">
                             {MAIN_NAV.map((item) => {
                                 const href = item.href;
-                                const isActive = href !== '#' && pathname === href;
+                                const isActive = (href as string) !== '#' && pathname === href;
 
                                 return (
                                     <Link

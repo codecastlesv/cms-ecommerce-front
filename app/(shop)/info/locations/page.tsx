@@ -50,19 +50,19 @@ export default async function StoresPage() {
   const stores = await getPublicStores();
 
   return (
-    <section className="bg-[#fcfcfc] py-16 mx-47">
-      <div className="max-w-7xl">
-        <header className="mb-12  border-black ">
-          <h1 className="font-bebas font-normal text-[80px] leading-[88px] tracking-[4px] uppercase text-black mb-2">
+    <section className="bg-[#fcfcfc] py-16">
+      <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-10 xl:px-14">
+        <header className="mb-12">
+          <h1 className="font-helvetica font-bold text-[55px] leading-[88px] tracking-[2px] text-[#08204E] mb-2">
             Nuestras Tiendas
           </h1>
-          <p className=" font-inter text-[18px] leading-[28px] tracking-[0.18px]">
+          <p className="font-helvetica text-[18px] leading-[28px] tracking-[0.18px] text-slate-500">
             Encuentra tu tienda más cercana.
           </p>
         </header>
 
         {stores.length === 0 ? (
-          <p className="font-inter text-gray-500 text-lg">
+          <p className="font-helvetica text-slate-500 text-lg">
             No hay tiendas disponibles en este momento.
           </p>
         ) : (
@@ -76,8 +76,8 @@ export default async function StoresPage() {
               return (
                 <div
                   key={store.id}
-                  className=" bg-white border border-gray-400 rounded-sm flex flex-col transition-all duration-300 ease-in-out
-                         hover:scale-[1.01] hover:shadow-[0_20px_80px_rgba(0,0,0,0.08)] hover:border-gray-600"
+                  className="bg-white rounded-2xl border border-slate-200 flex flex-col overflow-hidden transition-all duration-300 ease-in-out
+                         hover:shadow-[0_20px_80px_rgba(0,0,0,0.08)] hover:border-slate-300"
                 >
                   <div className="h-64 w-full bg-[#f0f0f0] overflow-hidden relative">
                     <img
@@ -88,13 +88,13 @@ export default async function StoresPage() {
                   </div>
 
                   <div className="p-6 flex flex-col flex-grow">
-                    <h2 className="font-bebas text-[28px] leading-[33px] tracking-[1.5px] uppercase mb-4  text-black hover:text-green-600 transition-colors">
+                    <h2 className="font-helvetica text-[28px] leading-[33px] tracking-[1.5px] uppercase mb-4 text-[#08204E] hover:text-[#304C94] transition-colors">
                       {title}
                     </h2>
 
-                    <div className="space-y-3 font-inter text-[16px] leading-[26px] tracking-[0.18px] text-gray-500 mb-8 flex-grow">
+                    <div className="space-y-3 font-helvetica text-[16px] leading-[26px] tracking-[0.18px] text-slate-500 mb-8 flex-grow">
                       <div className="flex gap-3 items-start">
-                        <FaMapMarkerAlt className="shrink-0 mt-0.5" />
+                        <FaMapMarkerAlt className="shrink-0 mt-0.5 text-slate-400" />
                         <p>
                           {store.address}
                           {store.city ? `, ${store.city}` : ''}
@@ -102,12 +102,12 @@ export default async function StoresPage() {
                       </div>
 
                       {hours.length > 0 ? (
-                        <div className="flex gap-3 items-start border-y border-gray-50 py-3 text-gray-500">
-                          <FaRegClock className="shrink-0 mt-0.5 " />
+                        <div className="flex gap-3 items-start border-y border-slate-100 py-3 text-slate-500">
+                          <FaRegClock className="shrink-0 mt-0.5 text-slate-400" />
                           <div>
                             {hours.map((h, i) => (
                               <p key={`${store.id}-h-${i}`}>
-                                <span className=" text-gray-500">{h.days}:</span> {h.time}
+                                <span className="text-slate-500">{h.days}:</span> {h.time}
                               </p>
                             ))}
                           </div>
@@ -115,19 +115,19 @@ export default async function StoresPage() {
                       ) : null}
 
                       {store.is_pickup_enabled && store.pickup_time_frame ? (
-                        <p className="text-sm text-gray-600 pl-7">{store.pickup_time_frame}</p>
+                        <p className="text-sm text-slate-500 pl-7">{store.pickup_time_frame}</p>
                       ) : null}
 
                       {store.phone ? (
                         <div className="flex items-center gap-3">
-                          <FaPhoneAlt className="shrink-0" />
-                          <p className=" text-gray-700">{store.phone}</p>
+                          <FaPhoneAlt className="shrink-0 text-slate-400" />
+                          <p className="text-slate-700">{store.phone}</p>
                         </div>
                       ) : null}
 
                       {store.email ? (
                         <div className="flex items-center gap-3">
-                          <FaRegEnvelope className="shrink-0" />
+                          <FaRegEnvelope className="shrink-0 text-slate-400" />
                           <p className="truncate">{store.email}</p>
                         </div>
                       ) : null}
@@ -138,7 +138,7 @@ export default async function StoresPage() {
                         href={wa}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="bg-[#20B149] font-inter font-semibold text-[16px] tracking-[0.18px] text-white flex items-center justify-center gap-2 py-3 rounded-md font-bold uppercase transition-all duration-300 hover:bg-[#1da850] active:scale-95"
+                        className="bg-[#20B149] font-helvetica font-semibold text-[16px] tracking-[0.12em] text-white flex items-center justify-center gap-2 py-3 rounded-sm uppercase transition-all duration-300 hover:bg-[#1da850] active:scale-95"
                       >
                         <FaWhatsapp size={18} />
                         Escríbenos por WhatsApp

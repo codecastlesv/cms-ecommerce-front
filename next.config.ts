@@ -15,6 +15,7 @@ const nextConfig: NextConfig = {
       { source: "/starcard", destination: "/info/starcard" },
       { source: "/mayoreo", destination: "/info/wholesale" },
       { source: "/talento", destination: "/info/workwithus" },
+      { source: "/distribuidores-instaladores", destination: "/info/partners" },
     ];
   },
 };

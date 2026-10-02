@@ -97,6 +97,7 @@ const Footer = () => {
             <FooterColumn title="Información" id="info" isOpen={openSection === 'info'} onToggle={toggleSection}>
               <li className="flex items-center gap-3">Nosotros</li>
               <Link href="/tiendas" className="flex items-center gap-3"><li>Sucursales</li></Link>
+              <Link href="/distribuidores-instaladores" className="flex items-center gap-3"><li>Alianzas</li></Link>
               <li className="flex items-center gap-3">Términos y condiciones</li>
               <li className="flex items-center gap-3">Políticas de privacidad</li>
             </FooterColumn>
@@ -114,7 +115,7 @@ const Footer = () => {
             <FooterColumn title="Mi cuenta" id="account" isOpen={openSection === 'account'} onToggle={toggleSection}>
               <Link href="/order/history" className="flex items-center gap-3"><li>Mis pedidos</li></Link>
               <Link href="/wishlist" className="flex items-center gap-3"><li>Mis Favoritos</li></Link>
-              <li className="flex items-center gap-3">Direcciones</li>
+              <Link href="/account" className="flex items-center gap-3"><li>Direcciones</li></Link>
               <li className="flex items-center gap-3">Métodos de pago</li>
             </FooterColumn>
 
