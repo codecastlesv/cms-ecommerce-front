@@ -1,6 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'prcastella-api.olimpotec.net',
+        port: '8443',
+        pathname: '/**',
+      },
+    ],
+  },
   // Solo rewrites (pretty URL → ruta real).
   // NO poner redirects inversos (/info/history → /historia): con Turbopack
   // eso crea un ciclo y termina en 404.
