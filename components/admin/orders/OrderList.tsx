@@ -12,6 +12,7 @@ import { getStatusConfig, ORDER_STATUS_SELECT_KEYS } from '@/utils/statusOrder';
 import { formatDateDMY } from '@/utils/date';
 import Pagination from '@/components/ui/Pagination';
 import { useDebounce } from '@/hooks/useDebounce';
+import PermissionGate from '@/components/auth/PermissionGate';
 
 /** Número de documento Brilo (mfaNumDoc en respuesta, ej. OF01392). */
 function resolveBriloMfaNumDoc(order: Order): string | null {
@@ -101,6 +102,7 @@ export default function OrderList() {
     const paginationMeta = useMemo(() => toSimplePaginationMeta(data), [data]);
 
     return (
+        <PermissionGate permission="view_orders">
         <div className="max-w-7xl mx-auto">
             <div className="max-w-7xl mx-auto p-6 space-y-6">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -287,5 +289,6 @@ export default function OrderList() {
                 </div>
             </div>
         </div>
+        </PermissionGate>
     );
 }

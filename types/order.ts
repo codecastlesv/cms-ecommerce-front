@@ -30,6 +30,10 @@ export interface Order {
   dispatch_store_id?: number | null;
   pickup_store?: OrderStoreRef | null;
   dispatch_store?: OrderStoreRef | null;
+  campaign?: { name: string; channel: string | null; label: string | null } | null;
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
   subtotal: number;
   total: number;
   grand_total?: number;

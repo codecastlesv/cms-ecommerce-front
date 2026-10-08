@@ -144,6 +144,21 @@ function displayOrFallback(value: string | null | undefined, emptyLabel = 'N/A')
     return trimmed !== '' ? trimmed : emptyLabel;
 }
 
+const CAMPAIGN_CHANNEL_LABELS: Record<string, string> = {
+    instagram: 'Instagram',
+    facebook: 'Facebook',
+    tiktok: 'TikTok',
+    whatsapp: 'WhatsApp',
+    email: 'Email',
+    directo: 'Directo',
+};
+
+function formatCampaignAttribution(campaign: Order['campaign']): string {
+    if (!campaign?.name) return '—';
+    const channelLabel = campaign.channel ? CAMPAIGN_CHANNEL_LABELS[campaign.channel] ?? campaign.channel : campaign.label;
+    return channelLabel ? `${campaign.name} (${channelLabel})` : campaign.name;
+}
+
 export default function OrderDetailPage() {
     const { id } = useParams();
     const router = useRouter();
@@ -240,6 +255,18 @@ export default function OrderDetailPage() {
 
                     <p className="font-medium text-slate-600 text-sm">
                         <strong>Fecha de creación:</strong> {formatDateDMY(order.created_at)} a las {formatTime(order.created_at)}
+                    </p>
+                    <p className="font-medium text-slate-600 text-sm">
+                        <strong>Campaña:</strong> {formatCampaignAttribution(order.campaign)}
+                    </p>
+                    <p className="font-medium text-slate-600 text-sm">
+                        <strong>UTM Source:</strong> {displayOrFallback(order.utm_source, '—')}
+                    </p>
+                    <p className="font-medium text-slate-600 text-sm">
+                        <strong>UTM Medium:</strong> {displayOrFallback(order.utm_medium, '—')}
+                    </p>
+                    <p className="font-medium text-slate-600 text-sm">
+                        <strong>UTM Campaign:</strong> {displayOrFallback(order.utm_campaign, '—')}
                     </p>
                     <p className="font-medium text-slate-600 text-sm">
                         <strong>ODF:</strong>{' '}
