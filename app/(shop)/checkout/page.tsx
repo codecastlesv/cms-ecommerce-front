@@ -9,6 +9,7 @@ import axios from 'axios';
 import { MapPin, Store, Truck, ChevronDown, X, Loader2, Check } from 'lucide-react';
 import api from '@/lib/axios';
 import { clearCart } from '@/lib/cart';
+import { getCampaignAttribution } from '@/lib/campaignAttribution';
 import { isValidSuccessPayload, isUuidString } from '@/lib/payment-confirm';
 import {
   saveCheckoutSuccessSnapshot,
@@ -1007,6 +1008,8 @@ function CheckoutInner() {
             country: EL_SALVADOR_COUNTRY_ISO,
           };
 
+    const attribution = getCampaignAttribution();
+
     const body: Record<string, unknown> = {
       type: 'member',
       email: email.trim(),
@@ -1016,6 +1019,14 @@ function CheckoutInner() {
       shipping,
       billing_same: effectiveBillingSame,
       items: buildItemsPayload(),
+      ...(attribution
+        ? {
+            campaign_link_id: attribution.campaign_link_id,
+            utm_source: attribution.utm_source,
+            utm_medium: attribution.utm_medium,
+            utm_campaign: attribution.utm_campaign,
+          }
+        : {}),
       cardholder_name: cardholderName.trim(),
       card_pan: pan,
       card_cvv: cardCvv.trim(),

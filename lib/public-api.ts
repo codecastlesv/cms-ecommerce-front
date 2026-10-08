@@ -1,16 +1,22 @@
 import api from './axios';
 
-export const getPublicSettings = async () => {
-    try {
+export interface PublicSettings {
+    seo_title: string | null;
+    seo_description: string | null;
+    full_logo_url: string | null;
+    main_color: string;
+    robots_index: boolean;
+    og_title: string | null;
+    og_description: string | null;
+    og_image_url: string | null;
+    ga_measurement_id: string | null;
+}
 
-        return {
-            seo_title: 'Castella Sagarra',
-            seo_description: '',
-            full_logo_url: null,
-            main_color: '#0f172b',
-            robots_index: true
-        };
-    } catch (error) {
+export const getPublicSettings = async (): Promise<PublicSettings | null> => {
+    try {
+        const { data } = await api.get<{ data: PublicSettings }>('/shop/settings');
+        return data.data;
+    } catch {
         return null;
     }
 };
