@@ -10,11 +10,14 @@ interface EditableInputProps {
     placeholder?: string;
     loading?: boolean;
     sanitize?: (val: string) => string;
+    /** `null` si el valor es válido; si no, el mensaje de error a mostrar (bloquea el guardado). */
+    validate?: (val: string) => string | null;
     maxDateToday?: boolean;
+    maxLength?: number;
     formatDisplay?: (val: string) => string;
 }
 
-export const EditableInput = ({ label, value, type='text', onSave, loading = false, placeholder = "", sanitize, maxDateToday = false, formatDisplay}: EditableInputProps) => {
+export const EditableInput = ({ label, value, type='text', onSave, loading = false, placeholder = "", sanitize, validate, maxDateToday = false, maxLength, formatDisplay}: EditableInputProps) => {
     const [isEditing, setIsEditing] = useState(false);
     const [inputValue, setInputValue] = useState(value);
     const displayValue = type === "date"
@@ -29,7 +32,15 @@ export const EditableInput = ({ label, value, type='text', onSave, loading = fal
         let val = inputValue;
     
         if (sanitize) val = sanitize(val);
-        
+
+        if (validate) {
+            const error = validate(val);
+            if (error) {
+                toast.error(error);
+                return;
+            }
+        }
+
         if (type === "date") {
             const selectedDate = new Date(val);
             const today = new Date();
@@ -63,6 +74,8 @@ export const EditableInput = ({ label, value, type='text', onSave, loading = fal
                         placeholder={placeholder}
                         value={inputValue}
                         max={maxAttr}
+                        maxLength={maxLength}
+                        inputMode={type === 'tel' ? 'numeric' : undefined}
                         onChange={(e) => setInputValue(e.target.value)}
                         className="border rounded px-3 py-1 text-sm w-full"
                     />

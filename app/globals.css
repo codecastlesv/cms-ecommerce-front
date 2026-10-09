@@ -508,3 +508,40 @@ input[type='range'].slider-thumb-shop-price::-moz-range-thumb {
 input[type='range'].slider-thumb-shop-price:active::-moz-range-thumb {
   transition-duration: 0ms;
 }
+
+/* Páginas de Ayuda (Envíos, Devoluciones, Garantías, Términos, Privacidad) */
+.help-article h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #08204e;
+  margin: 28px 0 12px;
+  scroll-margin-top: 90px;
+}
+.help-article h3:first-child {
+  margin-top: 0;
+}
+.help-article p {
+  font-size: 15px;
+  line-height: 1.75;
+  color: #334155;
+  margin: 0 0 14px;
+}
+.help-article ul,
+.help-article ol {
+  margin: 0 0 16px;
+  padding-left: 22px;
+}
+.help-article li {
+  font-size: 15px;
+  line-height: 1.75;
+  color: #334155;
+  margin-bottom: 6px;
+}
+.help-article a {
+  color: #304c94;
+  font-weight: 600;
+  text-decoration: underline;
+}
+.help-article strong {
+  color: #0f172a;
+}

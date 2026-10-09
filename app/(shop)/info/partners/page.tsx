@@ -3,6 +3,7 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { Check, Loader2, Search } from 'lucide-react';
 import api from '@/lib/axios';
+import { sanitizePhoneInput, validateEmail, validatePhone } from '@/lib/validation';
 
 type PartnerType = 'distribuidor' | 'instalador';
 type LegalType = 'natural' | 'juridica';
@@ -96,6 +97,17 @@ export default function PartnersPage() {
     e.preventDefault();
     setError(null);
 
+    const emailError = validateEmail(form.email);
+    if (emailError) {
+      setError(emailError);
+      return;
+    }
+    const phoneError = validatePhone(form.phone);
+    if (phoneError) {
+      setError(phoneError);
+      return;
+    }
+
     if (type === 'distribuidor' && form.product_lines.length === 0) {
       setError('Selecciona al menos una línea de productos de interés.');
       return;
@@ -180,7 +192,7 @@ export default function PartnersPage() {
               <button
                 type="button"
                 onClick={() => setType('distribuidor')}
-                className={`rounded-lg px-2 py-2.5 font-helvetica text-[13.5px] font-bold transition ${
+                className={`rounded-lg px-2 py-2.5 font-helvetica text-[1em] font-bold transition ${
                   type === 'distribuidor' ? 'bg-[#08204E] text-white shadow' : 'text-[#08204E]'
                 }`}
               >
@@ -189,7 +201,7 @@ export default function PartnersPage() {
               <button
                 type="button"
                 onClick={() => setType('instalador')}
-                className={`rounded-lg px-2 py-2.5 font-helvetica text-[13.5px] font-bold transition ${
+                className={`rounded-lg px-2 py-2.5 font-helvetica text-[1em] font-bold transition ${
                   type === 'instalador' ? 'bg-[#08204E] text-white shadow' : 'text-[#08204E]'
                 }`}
               >
@@ -210,7 +222,7 @@ export default function PartnersPage() {
               </Field>
 
               <div>
-                <span className="block font-helvetica text-[12.5px] font-semibold text-[#0F172A] mb-2">
+                <span className="block font-helvetica text-[1em] font-semibold text-[#0F172A] mb-2">
                   Tipo de entidad
                 </span>
                 <div className="flex gap-2.5">
@@ -274,7 +286,7 @@ export default function PartnersPage() {
                   </Field>
 
                   <div>
-                    <span className="block font-helvetica text-[12.5px] font-semibold text-[#0F172A] mb-2">
+                    <span className="block font-helvetica text-[1em] font-semibold text-[#0F172A] mb-2">
                       Zona geográfica en la que ofrece sus servicios
                     </span>
                     <div className="grid grid-cols-2 gap-2.5">
@@ -333,9 +345,11 @@ export default function PartnersPage() {
                   <input
                     type="tel"
                     required
+                    inputMode="numeric"
+                    maxLength={8}
                     value={form.phone}
-                    onChange={(e) => update('phone', e.target.value)}
-                    placeholder="7000-0000"
+                    onChange={(e) => update('phone', sanitizePhoneInput(e.target.value))}
+                    placeholder="70001234"
                     className={inputClass}
                   />
                 </Field>
@@ -360,12 +374,12 @@ export default function PartnersPage() {
 }
 
 const inputClass =
-  'w-full rounded-md border border-slate-200 bg-white px-3 py-2.5 font-helvetica text-sm text-[#0F172A] outline-none transition focus:border-[#304C94] focus:ring-2 focus:ring-[#304C94]/15';
+  'w-full rounded-md border border-slate-200 bg-white px-3 py-2.5 font-helvetica text-[1em] text-[#0F172A] outline-none transition focus:border-[#304C94] focus:ring-2 focus:ring-[#304C94]/15';
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="mb-1.5 block font-helvetica text-[12.5px] font-semibold text-[#0F172A]">
+      <label className="mb-1.5 block font-helvetica text-[1em] font-semibold text-[#0F172A]">
         {label} {hint ? <span className="font-normal text-slate-500">{hint}</span> : null}
       </label>
       {children}
@@ -390,7 +404,7 @@ function ProductLinesPicker({
 
   return (
     <div>
-      <span className="block font-helvetica text-[12.5px] font-semibold text-[#0F172A] mb-2">
+      <span className="block font-helvetica text-[1em] font-semibold text-[#0F172A] mb-2">
         Principales líneas de productos de interés{' '}
         <span className="font-normal text-slate-500">({selected.length} seleccionadas)</span>
       </span>
@@ -403,7 +417,7 @@ function ProductLinesPicker({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar línea de producto…"
-            className="w-full bg-transparent py-2.5 pl-9 pr-3 font-helvetica text-[13px] text-[#0F172A] outline-none placeholder:text-slate-400"
+            className="w-full bg-transparent py-2.5 pl-9 pr-3 font-helvetica text-[1em] text-[#0F172A] outline-none placeholder:text-slate-400"
           />
         </div>
 

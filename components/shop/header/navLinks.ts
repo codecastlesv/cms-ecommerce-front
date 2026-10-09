@@ -1,7 +1,7 @@
 export const TOP_LINKS = [
     { label: 'Sucursales', href: '/tiendas' },
-    { label: 'Ayuda', href: '#footer' },
-    { label: 'Contáctanos', href: '#footer' },
+    { label: 'Ayuda', href: '/ayuda' },
+    { label: 'Contáctanos', href: '/contactanos' },
 ] as const;
 
 // "Proyectos e inspiración" y "Servicio" ocultos temporalmente a pedido del cliente.

@@ -11,14 +11,7 @@ export const PhoneInput = ({ registration, error, label = "Teléfono", disabled 
     const inputId = registration.name;
 
     const handleInput = (e: React.FormEvent<HTMLInputElement>) => {
-        let val = e.currentTarget.value.replace(/\D/g, '');
-        if (val.length > 8) val = val.substring(0, 8);
-
-        if (val.length > 4) {
-            val = val.substring(0, 4) + '-' + val.substring(4);
-        }
-
-        e.currentTarget.value = val;
+        e.currentTarget.value = e.currentTarget.value.replace(/\D/g, '').slice(0, 8);
         registration.onChange(e);
     };
 
@@ -38,8 +31,9 @@ export const PhoneInput = ({ registration, error, label = "Teléfono", disabled 
                     disabled={disabled}
                     {...registration}
                     onChange={handleInput}
-                    placeholder="7777-8888"
-                    maxLength={9}
+                    inputMode="numeric"
+                    placeholder="70001234"
+                    maxLength={8}
                     className={`w-full border rounded-lg pl-16 pr-4 py-2.5 text-sm font-medium outline-none transition
                         ${error
                             ? 'border-red-500 focus:ring-2 focus:ring-red-100'

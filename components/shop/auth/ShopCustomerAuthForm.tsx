@@ -4,6 +4,7 @@ import { useState, type RefObject } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/axios';
 import { toast } from 'sonner';
+import { validateEmail } from '@/lib/validation';
 
 function messageFrom422(data: Record<string, unknown> | undefined): string | null {
   if (!data) return null;
@@ -37,6 +38,15 @@ export default function ShopCustomerAuthForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isRegister) {
+      const emailError = validateEmail(email);
+      if (emailError) {
+        toast.error(emailError);
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {

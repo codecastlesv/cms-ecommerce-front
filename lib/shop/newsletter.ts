@@ -1,48 +1,8 @@
 import api from '@/lib/axios';
+import { validateEmail } from '@/lib/validation';
 
 /** Mensaje de error de validación local; `null` si el correo es aceptable antes de enviar al servidor. */
-export function validateNewsletterEmail(email: string): string | null {
-  const trimmed = email.trim().toLowerCase();
-  if (!trimmed) {
-    return 'Introduce tu correo electrónico.';
-  }
-  if (!trimmed.includes('@')) {
-    return 'El correo debe incluir el símbolo @.';
-  }
-  const parts = trimmed.split('@');
-  if (parts.length !== 2) {
-    return 'Solo puede haber un @ en el correo.';
-  }
-  const [local, domain] = parts;
-  if (!local || local.length === 0) {
-    return 'La parte antes de @ no puede estar vacía.';
-  }
-  if (local.startsWith('.') || local.endsWith('.')) {
-    return 'El correo antes de @ no es válido.';
-  }
-  if (!domain || domain.length === 0) {
-    return 'Indica el dominio después de @ (ej. gmail.com).';
-  }
-  if (!domain.includes('.')) {
-    return 'El dominio debe tener una extensión (ej. .com, .es).';
-  }
-  const segments = domain.split('.').filter(Boolean);
-  const tld = segments[segments.length - 1];
-  if (!tld || tld.length < 2 || !/^[a-z]{2,}$/i.test(tld)) {
-    return 'La extensión del dominio no es válida.';
-  }
-  if (!/^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$/i.test(domain)) {
-    return 'El dominio del correo no es válido.';
-  }
-
-  const emailRegex =
-    /^[a-zA-Z0-9](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9])?@[a-zA-Z0-9](?:[a-zA-Z0-9.-]*[a-zA-Z0-9])?\.[a-zA-Z]{2,}$/;
-  if (!emailRegex.test(trimmed)) {
-    return 'Introduce un correo electrónico válido (usuario@dominio.ext).';
-  }
-
-  return null;
-}
+export const validateNewsletterEmail = validateEmail;
 
 export type NewsletterSubscribePayload = {
   email: string;

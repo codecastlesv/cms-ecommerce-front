@@ -196,7 +196,7 @@ export default async function WhoseSale() {
                                 <input type="text" placeholder="Nombre del contacto*" className="w-full border border-[#54585AAB] focus:border-black outline-none p-4 text-sm rounded-md transition-all" required />
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <input type="tel" placeholder="Número de teléfono*" className="w-full border border-[#54585AAB] focus:border-black outline-none p-4 text-sm rounded-md transition-all" required />
+                                <input type="tel" inputMode="numeric" maxLength={8} pattern="[267][0-9]{7}" title="8 dígitos, debe empezar con 2, 6 o 7" placeholder="Número de teléfono*" className="w-full border border-[#54585AAB] focus:border-black outline-none p-4 text-sm rounded-md transition-all" required />
                                 <input type="email" placeholder="Correo electrónico*" className="w-full border border-[#54585AAB] focus:border-black outline-none p-4 text-sm rounded-md transition-all" required />
                             </div>
                             <textarea placeholder="Comentarios adicionales" rows={4} className="w-full border border-[#54585AAB] focus:border-black outline-none p-4 text-sm rounded-md resize-none transition-all"></textarea>

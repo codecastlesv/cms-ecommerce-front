@@ -24,8 +24,8 @@ const userSchema = z.object({
         .regex(/^[a-zA-ZñÑáéíóúÁÉÍÓÚ\s]+$/, "El nombre no puede contener números ni símbolos"),
     email: z.string().email("Formato de correo inválido"),
     phone: z.string()
-        .min(9, "El teléfono debe tener 8 dígitos")
-        .max(9, "El teléfono debe tener 8 dígitos"),
+        .length(8, "El teléfono debe tener 8 dígitos")
+        .regex(/^[267]\d{7}$/, "El teléfono debe empezar con 2, 6 o 7"),
     role: z.string().min(1, "Selecciona un rol"),
     status: z.boolean(),
     password: z.string().optional(),

@@ -209,7 +209,7 @@ leading-[75px] tracking-[4px] text-white">
                                     <input type="text" placeholder="Nombre del contacto*" className="w-full rounded-md border border-[#54585AAB] p-4 text-sm outline-none transition-all focus:border-black" required />
                                 </div>
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    <input type="tel" placeholder="Teléfono/WhatsApp*" className="w-full rounded-md border border-[#54585AAB] p-4 text-sm outline-none transition-all focus:border-black" required />
+                                    <input type="tel" inputMode="numeric" maxLength={8} pattern="[267][0-9]{7}" title="8 dígitos, debe empezar con 2, 6 o 7" placeholder="Teléfono/WhatsApp*" className="w-full rounded-md border border-[#54585AAB] p-4 text-sm outline-none transition-all focus:border-black" required />
                                     <input type="email" placeholder="Correo electrónico*" className="w-full rounded-md border border-[#54585AAB] p-4 text-sm outline-none transition-all focus:border-black" required />
                                 </div>
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

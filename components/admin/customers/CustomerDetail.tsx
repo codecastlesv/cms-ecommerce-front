@@ -6,6 +6,7 @@ import api from '@/lib/axios';
 import { toast } from 'sonner';
 import { ArrowLeft, Save, User, MapPin, Star, Phone, Mail } from 'lucide-react';
 import { handleError } from '@/lib/errorHandler';
+import { sanitizePhoneInput, validateEmail, validatePhone } from '@/lib/validation';
 
 interface CustomerDetailProps {
     customerId: string;
@@ -46,6 +47,18 @@ export default function CustomerDetail({ customerId }: CustomerDetailProps) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        const emailError = validateEmail(formData.email);
+        if (emailError) {
+            toast.error(emailError);
+            return;
+        }
+        const phoneError = validatePhone(formData.phone, { required: false });
+        if (phoneError) {
+            toast.error(phoneError);
+            return;
+        }
+
         setSaving(true);
         try {
             await api.put(`/admin/customers/${customerId}`, formData);
@@ -104,7 +117,15 @@ export default function CustomerDetail({ customerId }: CustomerDetailProps) {
                                 <label className={labelClass}>Teléfono</label>
                                 <div className="relative">
                                     <Phone className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
-                                    <input type="text" className={`${inputClass} pl-10`} value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
+                                    <input
+                                        type="tel"
+                                        inputMode="numeric"
+                                        maxLength={8}
+                                        placeholder="70001234"
+                                        className={`${inputClass} pl-10`}
+                                        value={formData.phone}
+                                        onChange={e => setFormData({ ...formData, phone: sanitizePhoneInput(e.target.value) })}
+                                    />
                                 </div>
                             </div>
                         </div>

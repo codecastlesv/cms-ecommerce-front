@@ -98,17 +98,17 @@ const Footer = () => {
               <li className="flex items-center gap-3">Nosotros</li>
               <Link href="/tiendas" className="flex items-center gap-3"><li>Sucursales</li></Link>
               <Link href="/distribuidores-instaladores" className="flex items-center gap-3"><li>Alianzas</li></Link>
-              <li className="flex items-center gap-3">Términos y condiciones</li>
-              <li className="flex items-center gap-3">Políticas de privacidad</li>
+              <Link href="/ayuda/terminos-y-condiciones" className="flex items-center gap-3"><li>Términos y condiciones</li></Link>
+              <Link href="/ayuda/politicas-de-privacidad" className="flex items-center gap-3"><li>Políticas de privacidad</li></Link>
             </FooterColumn>
 
             {/* Columna 3 - Ayuda */}
             <FooterColumn title="Ayuda" id="help" isOpen={openSection === 'help'} onToggle={toggleSection}>
               <li className="flex items-center gap-3">Preguntas frecuentes</li>
-              <li className="flex items-center gap-3">Envíos y entregas</li>
-              <li className="flex items-center gap-3">Devoluciones</li>
-              <li className="flex items-center gap-3">Garantías</li>
-              <li className="flex items-center gap-3">Contáctanos</li>
+              <Link href="/ayuda/envios-y-entregas" className="flex items-center gap-3"><li>Envíos y entregas</li></Link>
+              <Link href="/ayuda/devoluciones" className="flex items-center gap-3"><li>Devoluciones</li></Link>
+              <Link href="/ayuda/garantias" className="flex items-center gap-3"><li>Garantías</li></Link>
+              <Link href="/contactanos" className="flex items-center gap-3"><li>Contáctanos</li></Link>
             </FooterColumn>
 
             {/* Columna 4 - Mi cuenta */}

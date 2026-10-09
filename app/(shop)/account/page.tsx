@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { User, MapPin, LogOut, Plus, Trash2, Home, Star, PencilLine, BriefcaseBusiness, Handbag, Truck } from 'lucide-react';
 import { CustomerProfile, CustomerAddress } from '@/types/customer';
 import { EditableInput } from '@/components/ui/EditableInput';
+import { sanitizePhoneInput, validatePhone } from '@/lib/validation';
 import ElSalvadorGeoSelects from '@/components/shop/checkout/ElSalvadorGeoSelects';
 import { useConfirm } from '@/components/providers/ConfirmDialogProvider';
 import Link from 'next/link';
@@ -200,6 +201,15 @@ export default function MyAccountPage() {
 
     const handleAddAddress = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (newAddress.type === 'billing') {
+            const phoneError = validatePhone(newAddress.phone);
+            if (phoneError) {
+                toast.error(phoneError);
+                return;
+            }
+        }
+
         try {
             if (editingAddress) {
                 await api.put(`/shop/addresses/${editingAddress.id}`, newAddress);
@@ -323,7 +333,9 @@ export default function MyAccountPage() {
                                 value={phone}
                                 loading={profileSaving}
                                 onSave={(val) => handleUpdateProfileField('phone', val, setPhone, 'Teléfono')}
-                                sanitize={(val) => val.replace(/\D/g, '')}
+                                sanitize={sanitizePhoneInput}
+                                maxLength={8}
+                                validate={(val) => validatePhone(val, { required: false })}
                             />
                             <EditableInput
                                 label="Fecha de Nacimiento"
@@ -472,11 +484,14 @@ export default function MyAccountPage() {
 
                                 {newAddress.type === 'billing' && (
                                     <input
-                                        placeholder="Teléfono"
+                                        type="tel"
+                                        inputMode="numeric"
+                                        maxLength={8}
+                                        placeholder="Teléfono (8 dígitos)"
                                         className="p-2 border rounded col-span-2"
                                         required
                                         value={newAddress.phone}
-                                        onChange={e => setNewAddress(prev => ({ ...prev, phone: e.target.value }))}
+                                        onChange={e => setNewAddress(prev => ({ ...prev, phone: sanitizePhoneInput(e.target.value) }))}
                                     />
                                 )}
 

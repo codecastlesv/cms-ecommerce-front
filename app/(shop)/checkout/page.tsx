@@ -11,6 +11,7 @@ import api from '@/lib/axios';
 import { clearCart } from '@/lib/cart';
 import { getCampaignAttribution } from '@/lib/campaignAttribution';
 import { isValidSuccessPayload, isUuidString } from '@/lib/payment-confirm';
+import { isValidEmail, validateEmail } from '@/lib/validation';
 import {
   saveCheckoutSuccessSnapshot,
   type CheckoutSuccessOrderSnapshot,
@@ -389,7 +390,7 @@ function CheckoutInner() {
       return;
     }
     const trimmed = email.trim();
-    if (!trimmed || !trimmed.includes('@')) {
+    if (!trimmed || !isValidEmail(trimmed)) {
       setEmailExists(null);
       setForgotPasswordSent(false);
       return;
@@ -634,7 +635,7 @@ function CheckoutInner() {
       setDuiUniqueStatus('idle');
       return;
     }
-    if (!documentIsValid || !email.trim() || !email.includes('@')) {
+    if (!documentIsValid || !isValidEmail(email)) {
       setDuiUniqueStatus('idle');
       return;
     }
@@ -770,6 +771,7 @@ function CheckoutInner() {
   };
 
   const phoneIsValid = shippingPhone.replace(/\D/g, '').length === 8;
+  const billPhoneIsValid = billPhone.replace(/\D/g, '').length === 8;
 
   const ccfComplete =
     !needsCcf ||
@@ -787,7 +789,7 @@ function CheckoutInner() {
 
   const billingAddressComplete = Boolean(
     billRecipient.trim() &&
-      billPhone.trim() &&
+      billPhoneIsValid &&
       billLine1.trim() &&
       billState.trim() &&
       billCity.trim() &&
@@ -842,8 +844,9 @@ function CheckoutInner() {
   );
 
   const validateContact = (): boolean => {
-    if (!email.trim()) {
-      toast.error('Indica un correo electrónico.');
+    const emailError = validateEmail(email);
+    if (emailError) {
+      toast.error(emailError);
       return false;
     }
     if (!isAuthenticated && emailExists === true) {
@@ -914,6 +917,10 @@ function CheckoutInner() {
           toast.error('Completa nombre, teléfono y dirección de facturación.');
           return false;
         }
+        if (!billPhoneIsValid) {
+          toast.error('El teléfono de facturación debe tener 8 dígitos.');
+          return false;
+        }
         if (!billState.trim() || !billCity.trim() || !billDistrict.trim()) {
           toast.error('Completa departamento, municipio y distrito de facturación.');
           return false;
@@ -933,6 +940,10 @@ function CheckoutInner() {
     if (!billingSame && !needsCcf) {
       if (!billRecipient.trim() || !billPhone.trim() || !billLine1.trim()) {
         toast.error('Completa nombre, teléfono y dirección de facturación.');
+        return false;
+      }
+      if (!billPhoneIsValid) {
+        toast.error('El teléfono de facturación debe tener 8 dígitos.');
         return false;
       }
       if (!billState.trim() || !billCity.trim() || !billDistrict.trim()) {
@@ -1794,11 +1805,16 @@ function CheckoutInner() {
                             <label className="block text-[13px] font-medium mb-1">Teléfono</label>
                             <input
                               type="tel"
+                              inputMode="numeric"
+                              maxLength={8}
                               value={billPhone}
-                              onChange={(e) => setBillPhone(e.target.value)}
+                              onChange={(e) => setBillPhone(e.target.value.replace(/\D/g, '').slice(0, 8))}
                               className={inputCls}
                               required={requireSeparateBilling || !billingSame}
                             />
+                            {billPhone.length > 0 && !billPhoneIsValid ? (
+                              <p className="mt-1 text-xs font-medium text-red-600">El teléfono debe tener 8 dígitos</p>
+                            ) : null}
                           </div>
                         </div>
                         <div>

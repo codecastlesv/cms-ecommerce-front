@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { Save, ArrowLeft, Clock, Map, Store, ImageUpIcon } from 'lucide-react';
 import { number } from 'zod';
 import { handleError } from '@/lib/errorHandler';
+import { sanitizePhoneInput, validateEmail, validatePhone } from '@/lib/validation';
 
 interface StoreFormProps {
     storeId?: string;
@@ -91,6 +92,18 @@ export default function StoreForm({ storeId }: StoreFormProps) {
     console.log("StoreId:", storeId);
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        const emailError = validateEmail(formData.email);
+        if (emailError) {
+            toast.error(emailError);
+            return;
+        }
+        const phoneError = validatePhone(formData.phone, { required: false });
+        if (phoneError) {
+            toast.error(phoneError);
+            return;
+        }
+
         setLoading(true);
 
         const finalHours: Record<string, string> = {};
@@ -200,7 +213,15 @@ export default function StoreForm({ storeId }: StoreFormProps) {
                             </div>
                             <div>
                                 <label className={labelClass}>Teléfono</label>
-                                <input type="text" className={inputClass} value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
+                                <input
+                                    type="tel"
+                                    inputMode="numeric"
+                                    maxLength={8}
+                                    placeholder="70001234"
+                                    className={inputClass}
+                                    value={formData.phone}
+                                    onChange={e => setFormData({ ...formData, phone: sanitizePhoneInput(e.target.value) })}
+                                />
                             </div>
                             <div className="md:col-span-2">
                                 <label className={labelClass}>Correo electrónico</label>
