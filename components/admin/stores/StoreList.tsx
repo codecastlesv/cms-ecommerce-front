@@ -23,6 +23,7 @@ import {
     sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
 import { SortableStoreCard } from './SortableStoreCard';
+import PermissionGate from '@/components/auth/PermissionGate';
 
 type StoreRow = {
     id: number;
@@ -115,6 +116,7 @@ export default function StoreList() {
     };
 
     return (
+        <PermissionGate permission="view_stores">
         <div className="max-w-7xl mx-auto p-6">
             <div className="flex justify-between items-center mb-8">
                 <div>
@@ -160,5 +162,6 @@ export default function StoreList() {
                 </SortableContext>
             </DndContext>
         </div>
+        </PermissionGate>
     );
 }

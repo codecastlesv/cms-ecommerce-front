@@ -23,6 +23,8 @@ const schema = z.object({
 
     og_title: z.string().max(255).optional(),
     og_description: z.string().max(500).optional(),
+
+    ga_measurement_id: z.string().max(40).optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -52,6 +54,7 @@ export default function SettingsForm() {
                 schema_json: s.seo.schema_json ? JSON.stringify(s.seo.schema_json, null, 2) : '',
                 og_title: s.social.og_title || '',
                 og_description: s.social.og_description || '',
+                ga_measurement_id: s.analytics?.ga_measurement_id || '',
             });
             setPreviews({ logo: s.logo, og_image: s.social.og_image });
         }).catch(() => toast.error("Error cargando configuración"));
@@ -152,6 +155,18 @@ export default function SettingsForm() {
                                 <div className="pt-4">
                                     <label className="text-xs font-bold text-slate-700 block mb-1">JSON-LD Schema (Avanzado)</label>
                                     <textarea {...register('schema_json')} rows={5} className="w-full border rounded-lg px-3 py-2 text-xs font-mono bg-slate-50 focus:ring-2 ring-slate-900 outline-none" placeholder='{"@context": "https://schema.org", ...}'></textarea>
+                                </div>
+
+                                <div className="pt-4 border-t">
+                                    <h3 className="font-bold text-sm mb-3">Analíticas</h3>
+                                    <Input
+                                        label="Google Analytics — Measurement ID (opcional)"
+                                        registration={register('ga_measurement_id')}
+                                        placeholder="G-XXXXXXXXXX"
+                                    />
+                                    <p className="text-xs text-slate-500 mt-1">
+                                        No es información sensible — se usa públicamente en el sitio para activar gtag.js. Déjalo vacío para no cargar Google Analytics.
+                                    </p>
                                 </div>
                             </Card>
                         )}
