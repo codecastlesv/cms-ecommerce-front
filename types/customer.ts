@@ -36,6 +36,8 @@ export interface CustomerProfile {
     brilo_client_number?: string | null;
     /** cliNumero Brilo — Crédito Fiscal (NIT): CLI-WEB-{NIT} */
     brilo_ccf_client_code?: string | null;
+    /** Código de cliente en Olympus ERP (CLIAPI…). */
+    olympus_code?: string | null;
     /** On-the-fly desde Brilo (no persistidos en BD). */
     ccf_razon_social?: string | null;
     ccf_nit?: string | null;

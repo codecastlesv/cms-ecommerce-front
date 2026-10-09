@@ -27,18 +27,17 @@ import {
     toCanonicalStatus,
 } from '@/utils/statusOrder';
 
-function resolveBriloErpId(order: Order): string | null {
-    const doc = order.brilo_mfa_num_doc ?? (order as { briloMfaNumDoc?: string }).briloMfaNumDoc;
+function resolveOlympusOfsNumber(order: Order): string | null {
+    const doc =
+        order.olympus_ofs_number ??
+        (order as { olympusOfsNumber?: string }).olympusOfsNumber ??
+        order.brilo_mfa_num_doc ??
+        (order as { briloMfaNumDoc?: string }).briloMfaNumDoc;
     if (typeof doc === 'string') {
         const trimmed = doc.trim();
         if (trimmed !== '' && trimmed !== '0') {
             return trimmed;
         }
-    }
-
-    const mfaId = order.brilo_mfa_id;
-    if (mfaId != null && String(mfaId).trim() !== '') {
-        return String(mfaId);
     }
 
     return null;
@@ -54,6 +53,101 @@ function firstNonEmpty(...values: Array<string | null | undefined>): string | nu
         }
     }
     return null;
+}
+
+const EMPTY_ATTRIBUTE_VALUES = new Set(['', '—', '-', 'null', 'undefined', 'n/a', 'na']);
+
+const ATTRIBUTE_LABELS: Record<string, string> = {
+    size: 'Talla',
+    product_color: 'Color',
+    color: 'Color',
+    presentacion: 'Presentación',
+    presentation: 'Presentación',
+    peso: 'Peso',
+    weight: 'Peso',
+    unidad: 'Unidad',
+    unit: 'Unidad',
+};
+
+function isMeaningfulAttributeValue(value: unknown): boolean {
+    if (value === null || value === undefined) {
+        return false;
+    }
+    if (typeof value === 'number') {
+        return Number.isFinite(value);
+    }
+    if (typeof value !== 'string') {
+        return false;
+    }
+    const trimmed = value.trim();
+    return trimmed !== '' && !EMPTY_ATTRIBUTE_VALUES.has(trimmed.toLowerCase());
+}
+
+function capitalizeAttributeKey(key: string): string {
+    if (ATTRIBUTE_LABELS[key]) {
+        return ATTRIBUTE_LABELS[key];
+    }
+    return key
+        .replace(/[_-]+/g, ' ')
+        .trim()
+        .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function parseVariantAttributes(raw: unknown): Record<string, string> {
+    if (raw == null) {
+        return {};
+    }
+
+    let source: unknown = raw;
+    if (typeof raw === 'string') {
+        const trimmed = raw.trim();
+        if (trimmed === '' || trimmed === '{}' || trimmed === 'null') {
+            return {};
+        }
+        try {
+            source = JSON.parse(trimmed);
+        } catch {
+            return {};
+        }
+    }
+
+    if (typeof source !== 'object' || source === null || Array.isArray(source)) {
+        return {};
+    }
+
+    const parsed: Record<string, string> = {};
+    for (const [key, value] of Object.entries(source as Record<string, unknown>)) {
+        if (!key || key.startsWith('_') || !isMeaningfulAttributeValue(value)) {
+            continue;
+        }
+        parsed[key] = String(value).trim();
+    }
+    return parsed;
+}
+
+function formatItemAttributes(item: Order['items'][number]): string | null {
+    const parsed = parseVariantAttributes(
+        item.variant_attributes_json ?? item.attributes ?? item.variant_attributes
+    );
+    const presentacion = parsed.presentacion ?? parsed.presentation;
+    const entries = Object.entries(parsed).filter(([key, value]) => {
+        if (
+            presentacion &&
+            (key === 'product_color' || key === 'color' || key === 'size') &&
+            value === presentacion
+        ) {
+            return false;
+        }
+        return true;
+    });
+
+    if (entries.length === 0) {
+        return null;
+    }
+
+    return entries
+        .map(([key, value]) => `${capitalizeAttributeKey(key)}: ${value}`)
+        .join(' | ');
 }
 
 /** Lee atributos snake_case (BD) y posibles alias camelCase del payload. */
@@ -218,10 +312,17 @@ export default function OrderDetailPage() {
     const { icon: StatusIcon, badgeClass, label } = statusConfig;
 
     const isLocked = isOrderStatusLocked(order.status);
-    const briloErpId = resolveBriloErpId(order);
+    const olympusOfsNumber = resolveOlympusOfsNumber(order);
+    const olympusSyncedAt = pickOrderString(order, 'olympus_synced_at', 'olympusSyncedAt');
     const customer = resolveCustomerInfo(order);
     // Columnas exactas de orders: brilo_client_code / powertranz_transaction_id
-    const briloClientCode = pickOrderString(order, 'brilo_client_code', 'briloClientCode');
+    const briloClientCode = pickOrderString(
+        order,
+        'olympus_client_code',
+        'olympusClientCode',
+        'brilo_client_code',
+        'briloClientCode'
+    );
     const powerTranzId = pickOrderString(order, 'powertranz_transaction_id', 'powertranzTransactionId');
 
     return (
@@ -269,15 +370,21 @@ export default function OrderDetailPage() {
                         <strong>UTM Campaign:</strong> {displayOrFallback(order.utm_campaign, '—')}
                     </p>
                     <p className="font-medium text-slate-600 text-sm">
-                        <strong>ODF:</strong>{' '}
-                        {briloErpId ? (
+                        <strong>Orden de Facturación:</strong>{' '}
+                        {olympusOfsNumber ? (
                             <span className="font-medium text-slate-500 text-sm">
-                                {briloErpId}
+                                {olympusOfsNumber}
                             </span>
                         ) : (
                             <span className="text-sm text-slate-400 italic">Pendiente</span>
                         )}
                     </p>
+                    {olympusSyncedAt ? (
+                        <p className="font-medium text-slate-600 text-sm">
+                            <strong>Sincronizado Olympus:</strong>{' '}
+                            {formatDateDMY(olympusSyncedAt)} a las {formatTime(olympusSyncedAt)}
+                        </p>
+                    ) : null}
                     <p className="font-medium text-slate-600 text-sm">
                         <strong>Orden ID (UUID):</strong>{' '}
                         <span className="font-medium text-slate-500 text-sm">
@@ -327,7 +434,10 @@ export default function OrderDetailPage() {
                     </h2>
 
                     <div className="space-y-4">
-                        {order.items.map((item, idx) => (
+                        {order.items.map((item, idx) => {
+                            const attributesLine = formatItemAttributes(item);
+
+                            return (
                             <div
                                 key={idx}
                                 className="flex items-center gap-4 border rounded-xl p-4 border-slate-200 hover:border-slate-300 transition"
@@ -360,10 +470,9 @@ export default function OrderDetailPage() {
                                                 Marca: {item.brand.trim()}
                                             </p>
                                         ) : null}
-                                        {(item.variant_attributes_json?.size || item.variant_attributes_json?.product_color) ? (
+                                        {attributesLine ? (
                                             <p className="text-xs text-slate-500 font-medium">
-                                                Talla {item.variant_attributes_json?.size ?? '—'} - Color{' '}
-                                                {item.variant_attributes_json?.product_color ?? '—'}
+                                                {attributesLine}
                                             </p>
                                         ) : null}
                                         <p className="text-xs text-slate-500 font-medium">
@@ -394,7 +503,8 @@ export default function OrderDetailPage() {
                                     )}
                                 </div>
                             </div>
-                        ))}
+                            );
+                        })}
                     </div>
 
                     <div className="border-t border-slate-700">

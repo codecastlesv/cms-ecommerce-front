@@ -121,10 +121,8 @@ const Footer = () => {
 
             {/* Columna 5 - Contáctos */}
             <FooterColumn title="Contáctos" id="contact" isOpen={openSection === 'contact'} onToggle={toggleSection}>
-              <li className="flex items-center gap-3"><Phone size={16} className="shrink-0" /> 2298 - 3033</li>
-              <li className="flex items-center gap-3"><Phone size={16} className="shrink-0" /> 7318 - 3559</li>
-              <li className="flex items-center gap-3"><Mail size={16} className="shrink-0" /> <span className="wrap-break-word">Ventas@castellasagarra.com</span></li>
-              <li className="flex items-start gap-3"><Clock size={16} className="mt-0.5 shrink-0" /> <span>Lun-Vie: 7:30 am - 6:00 pm<br />Sáb: 7:30 am - 1:00</span></li>
+              <li className="flex items-center gap-3"><Phone size={16} className="shrink-0" /> 2314-1150</li>
+              <li className="flex items-center gap-3"><Phone size={16} className="shrink-0" /> 6060-6670</li>
             </FooterColumn>
           </div>
         </div>

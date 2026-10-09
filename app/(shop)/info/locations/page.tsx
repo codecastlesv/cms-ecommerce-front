@@ -53,7 +53,7 @@ export default async function StoresPage() {
     <section className="bg-[#fcfcfc] py-16">
       <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-10 xl:px-14">
         <header className="mb-12">
-          <h1 className="font-helvetica font-bold text-[55px] leading-[88px] tracking-[2px] text-[#08204E] mb-2">
+          <h1 className="font-helvetica font-bold text-[40px] leading-[88px] tracking-[2px] text-[#08204E] mb-2">
             Nuestras Tiendas
           </h1>
           <p className="font-helvetica text-[18px] leading-[28px] tracking-[0.18px] text-slate-500">

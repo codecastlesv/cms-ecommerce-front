@@ -66,3 +66,33 @@ export function clearCheckoutSuccessSnapshot(): void {
     // ignore
   }
 }
+
+const PENDING_ORDER_UUID_KEY = 'checkout_pending_order_uuid';
+
+export function savePendingCheckoutOrderUuid(orderUuid: string | null | undefined): void {
+  if (typeof window === 'undefined' || !orderUuid) return;
+  try {
+    sessionStorage.setItem(PENDING_ORDER_UUID_KEY, orderUuid);
+  } catch {
+    // ignore
+  }
+}
+
+export function readPendingCheckoutOrderUuid(): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const value = sessionStorage.getItem(PENDING_ORDER_UUID_KEY);
+    return value && value.trim() !== '' ? value.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
+export function clearPendingCheckoutOrderUuid(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.removeItem(PENDING_ORDER_UUID_KEY);
+  } catch {
+    // ignore
+  }
+}

@@ -5,7 +5,9 @@ export interface OrderItem {
   price: number;
   quantity: number;
   total: number;
-  variant_attributes_json?: VariantAttribute;
+  variant_attributes_json?: VariantAttribute | Record<string, string | number | null | undefined> | string | null;
+  attributes?: Record<string, string | number | null | undefined> | string | null;
+  variant_attributes?: Record<string, string | number | null | undefined> | string | null;
   brand?: string | null;
   style_code?: string | null;
   price_regular: number;
@@ -13,10 +15,11 @@ export interface OrderItem {
   price_sale: number;
 }
 
-export interface VariantAttribute{
-  size: string;
-  product_color: string;
-}
+export type VariantAttribute = Record<string, string | number | null | undefined> & {
+  size?: string | null;
+  product_color?: string | null;
+  presentacion?: string | null;
+};
 
 import type { OrderStatusValue } from '@/utils/statusOrder';
 
@@ -56,6 +59,12 @@ export interface Order {
   /** Número de documento OFS en Brilo (ej. OF01392), desde mfaNumDoc de la respuesta. */
   brilo_mfa_num_doc?: string | null;
   brilo_mfa_num_referencia?: string | null;
+  /** Número de Orden de Facturación en Olympus (ej. OF157866). */
+  olympus_ofs_number?: string | null;
+  /** CodigoCliente Olympus usado en el PUSH de la orden. */
+  olympus_client_code?: string | null;
+  /** Fecha/hora ISO en que se sincronizó el OFS con Olympus. */
+  olympus_synced_at?: string | null;
   items: OrderItem[];
   shipping_address_json?: ShippingAddress;
   billing_address_json?: ShippingAddress;
