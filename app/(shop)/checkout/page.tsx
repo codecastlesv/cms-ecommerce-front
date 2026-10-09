@@ -12,6 +12,7 @@ import { clearCart } from '@/lib/cart';
 import { isValidSuccessPayload, isUuidString } from '@/lib/payment-confirm';
 import {
   saveCheckoutSuccessSnapshot,
+  savePendingCheckoutOrderUuid,
   type CheckoutSuccessOrderSnapshot,
 } from '@/lib/checkout-success-cache';
 import EconomicActivityCombobox, {
@@ -230,6 +231,9 @@ function CheckoutInner() {
   const [ccfDistrict, setCcfDistrict] = useState('');
   const [ccfFiscalAddress, setCcfFiscalAddress] = useState('');
   const [ccfGiro, setCcfGiro] = useState<EconomicActivityOption | null>(null);
+  const [ccfTradeName, setCcfTradeName] = useState('');
+  const [ccfPersoneria, setCcfPersoneria] = useState<0 | 1>(0);
+  const [ccfTaxpayerType, setCcfTaxpayerType] = useState<0 | 1 | 2 | 3>(1);
 
   const [shippingLine1, setShippingLine1] = useState('');
   const [shippingLine2, setShippingLine2] = useState('');
@@ -276,6 +280,21 @@ function CheckoutInner() {
   }, [threeDsOpen]);
 
   useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      const data = event.data as { type?: string; token?: string } | null;
+      if (!data || data.type !== 'powertranz-3ds-complete') {
+        return;
+      }
+      const token = typeof data.token === 'string' ? data.token.trim() : '';
+      window.location.assign(
+        token ? `/checkout/verify?token=${encodeURIComponent(token)}` : '/checkout/error'
+      );
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, []);
+
+  useEffect(() => {
     setCartItems(readCartFromStorage());
     setCartReady(true);
     const onCart = () => setCartItems(readCartFromStorage());
@@ -311,6 +330,7 @@ function CheckoutInner() {
           document_type?: string | null;
           document_number?: string | null;
           brilo_ccf_client_code?: string | null;
+          olympus_code?: string | null;
           ccf_razon_social?: string | null;
           ccf_nit?: string | null;
           data?: Record<string, unknown>;
@@ -322,12 +342,15 @@ function CheckoutInner() {
           document_type?: string | null;
           document_number?: string | null;
           brilo_ccf_client_code?: string | null;
+          olympus_code?: string | null;
           ccf_razon_social?: string | null;
           ccf_nit?: string | null;
         };
         if (cancelled || !payload) return;
 
-        setBriloCcfClientCode((payload.brilo_ccf_client_code || '').trim() || null);
+        setBriloCcfClientCode(
+          (payload.olympus_code || payload.brilo_ccf_client_code || '').trim() || null
+        );
         setCcfRazonSocial((payload.ccf_razon_social || '').trim() || null);
         setCcfNitFromBrilo((payload.ccf_nit || '').trim() || null);
         setCcfEditUnlocked(false);
@@ -376,7 +399,7 @@ function CheckoutInner() {
     };
   }, [isAuthenticated]);
 
-  /** Crédito Fiscal: omite formulario si ya existe ficha CCF en Brilo (salvo edición). */
+  /** Crédito Fiscal: omite formulario si ya existe ficha CCF en Olympus (salvo edición). */
   const hasBriloCcfClient = Boolean(briloCcfClientCode);
   const showCcfSummary = needsCcf && hasBriloCcfClient && !ccfEditUnlocked;
   const showCcfForm = needsCcf && (!hasBriloCcfClient || ccfEditUnlocked);
@@ -1033,12 +1056,15 @@ function CheckoutInner() {
         nrc: ccfNrc.trim(),
         nit: ccfNit.trim(),
         legal_name: ccfLegalName.trim(),
+        nom_comercial: (ccfTradeName.trim() || ccfLegalName.trim()),
         department: ccfDepartment.trim(),
         municipality: ccfMunicipality.trim(),
         district: ccfDistrict.trim(),
         fiscal_address: ccfFiscalAddress.trim(),
         giro_code: ccfGiro.code,
         giro_description: ccfGiro.description,
+        tipo_personeria: ccfPersoneria,
+        tipo_contribuyente: ccfTaxpayerType,
       };
     }
 
@@ -1081,6 +1107,9 @@ function CheckoutInner() {
         localStorage.setItem('shop_token', payload.shop_token);
         window.dispatchEvent(new Event('shop-auth-changed'));
         setIsAuthenticated(true);
+      }
+      if (payload?.order_uuid) {
+        savePendingCheckoutOrderUuid(payload.order_uuid);
       }
 
       const spiToken = payload?.spi_token;
@@ -1594,6 +1623,45 @@ function CheckoutInner() {
                         onChange={setCcfGiro}
                         inputClassName={inputCls}
                       />
+                      <div>
+                        <label className="block text-[13px] font-medium mb-1">Nombre comercial</label>
+                        <input
+                          type="text"
+                          value={ccfTradeName}
+                          onChange={(e) => setCcfTradeName(e.target.value)}
+                          className={inputCls}
+                          /*placeholder="Nombre Comercial"*/
+                        />
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[13px] font-medium mb-1">Tipo de personería *</label>
+                          <select
+                            value={ccfPersoneria}
+                            onChange={(e) => setCcfPersoneria(Number(e.target.value) === 1 ? 1 : 0)}
+                            className={inputCls}
+                          >
+                            <option value={0}>Persona Natural</option>
+                            <option value={1}>Persona Jurídica</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-[13px] font-medium mb-1">Tipo de contribuyente *</label>
+                          <select
+                            value={ccfTaxpayerType}
+                            onChange={(e) => {
+                              const n = Number(e.target.value);
+                              setCcfTaxpayerType((n === 0 || n === 2 || n === 3 ? n : 1) as 0 | 1 | 2 | 3);
+                            }}
+                            className={inputCls}
+                          >
+                            <option value={0}>No contribuyente</option>
+                            <option value={1}>Pequeño / Mediano</option>
+                            <option value={2}>Grande</option>
+                            <option value={3}>Gubernamental</option>
+                          </select>
+                        </div>
+                      </div>
                       {ccfEditUnlocked ? (
                         <button
                           type="button"

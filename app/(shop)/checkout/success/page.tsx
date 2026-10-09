@@ -52,7 +52,6 @@ type OrderPayload = {
 };
 
 type PaymentUi =
-  | { kind: 'auth_hold' }
   | { kind: 'paid_complete' }
   | { kind: 'declined'; detail: string };
 
@@ -60,7 +59,7 @@ const APPROVED_FLOW_STATUSES = new Set([
   'approved',
   'shipped',
   'delivered',
-  // legacy hasta migrar BD
+  'authorized_pending_capture',
   'paid',
   'processing',
   'completed',
@@ -69,9 +68,6 @@ const APPROVED_FLOW_STATUSES = new Set([
 
 function resolvePaymentUi(order: OrderPayload | null): PaymentUi {
   const status = order?.status;
-  if (status === 'authorized_pending_capture') {
-    return { kind: 'auth_hold' };
-  }
   if (status && APPROVED_FLOW_STATUSES.has(status)) {
     return { kind: 'paid_complete' };
   }
@@ -98,21 +94,6 @@ function PaymentStatusSection({ paymentUi }: { paymentUi: PaymentUi }) {
   return (
     <div className="flex flex-col gap-2 text-center">
       <span className="text-[1em] text-gray-500">Estado del pago</span>
-
-      {paymentUi.kind === 'auth_hold' ? (
-        <>
-          <span className="mx-auto inline-flex max-w-full items-center gap-1.5 rounded-full border border-stone-200/90 bg-stone-50/90 px-3 py-1 text-[16px] font-medium tracking-wide text-stone-700 shadow-[0_1px_0_rgba(0,0,0,0.03)]">
-            <span aria-hidden className="opacity-90">
-              ⏳
-            </span>
-            Autorizado / Fondos retenidos
-          </span>
-          <p className="mx-auto max-w-sm text-left text-[16px] leading-relaxed text-gray-500 sm:text-center">
-            Tu pago ha sido autorizado de forma segura. Estamos verificando las existencias físicas de tus productos en
-            tienda; el cargo final a tu tarjeta se ejecutará únicamente cuando el pedido esté listo para despacho.
-          </p>
-        </>
-      ) : null}
 
       {paymentUi.kind === 'paid_complete' ? (
         <span className="mx-auto inline-flex max-w-full items-center gap-1.5 rounded-full border border-emerald-200/70 bg-emerald-50/80 px-3 py-1 text-[16px] font-medium tracking-wide text-emerald-900/80 shadow-[0_1px_0_rgba(0,0,0,0.03)]">

@@ -13,19 +13,22 @@ import { formatDateDMY } from '@/utils/date';
 import Pagination from '@/components/ui/Pagination';
 import { useDebounce } from '@/hooks/useDebounce';
 
-/** Número de documento Brilo (mfaNumDoc en respuesta, ej. OF01392). */
-function resolveBriloMfaNumDoc(order: Order): string | null {
-    const raw =
-        order.brilo_mfa_num_doc ?? (order as { briloMfaNumDoc?: string }).briloMfaNumDoc;
-    if (typeof raw !== 'string') {
-        return null;
+/** Número OFS de Olympus; si no hay, el documento legacy de Brilo. */
+function resolveOlympusOfsNumber(order: Order): string | null {
+    const candidates = [
+        order.olympus_ofs_number,
+        (order as { olympusOfsNumber?: string }).olympusOfsNumber,
+        order.brilo_mfa_num_doc,
+        (order as { briloMfaNumDoc?: string }).briloMfaNumDoc,
+    ];
+    for (const raw of candidates) {
+        if (typeof raw !== 'string') continue;
+        const trimmed = raw.trim();
+        if (trimmed !== '' && trimmed !== '0') {
+            return trimmed;
+        }
     }
-    const trimmed = raw.trim();
-    if (trimmed === '' || trimmed === '0') {
-        return null;
-    }
-
-    return trimmed;
+    return null;
 }
 
 type OrdersListPayload = {
@@ -116,7 +119,7 @@ export default function OrderList() {
                             <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
                             <input
                                 type="text"
-                                placeholder="Buscar por N° pedido, UUID, ODF Brilo, cliente o email"
+                                placeholder="Buscar por N° pedido, UUID, OFS Olympus, cliente o email"
                                 className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 ring-slate-900 transition-shadow"
                                 value={search}
                                 onChange={(e) => {
@@ -161,7 +164,7 @@ export default function OrderList() {
                                 <tr>
                                     <th className="px-6 py-4 w-60">N° Pedido Web</th>
                                     <th className="px-6 py-4 w-36">Order ID (UUID)</th>
-                                    <th className="px-6 py-4">ID Olumpys ERP</th>
+                                    <th className="px-6 py-4">OFS Olympus</th>
                                     <th className="px-6 py-4">Cliente</th>
                                     <th className="px-6 py-4">Total</th>
                                     <th className="px-6 py-4 text-center">Estado</th>
@@ -191,7 +194,7 @@ export default function OrderList() {
                                     orders.map((order) => {
                                         const statusConfig = getStatusConfig(order.status);
                                         const Icon = statusConfig.icon;
-                                        const briloDoc = resolveBriloMfaNumDoc(order);
+                                        const ofsNumber = resolveOlympusOfsNumber(order);
                                         const customerName =
                                             order.customer_name?.trim() ||
                                             order.user?.name?.trim() ||
@@ -226,17 +229,17 @@ export default function OrderList() {
                                                     )}
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    {briloDoc ? (
+                                                    {ofsNumber ? (
                                                         <span
                                                             className="inline-flex items-center rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold tracking-wide text-slate-800"
-                                                            title={`Documento Brilo: ${briloDoc}`}
+                                                            title={`Orden de Facturación Olympus: ${ofsNumber}`}
                                                         >
-                                                            {briloDoc}
+                                                            {ofsNumber}
                                                         </span>
                                                     ) : (
                                                         <span
                                                             className="text-xs text-slate-400"
-                                                            title="Sin envío exitoso a Brilo o pendiente de sincronizar"
+                                                            title="Pendiente de sincronizar con Olympus"
                                                         >
                                                             —
                                                         </span>

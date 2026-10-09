@@ -5,22 +5,15 @@ import {
   CheckCircle,
   Clock,
   XCircle,
-  ShieldCheck,
-  Ban,
-  AlertTriangle,
   TimerOff,
 } from 'lucide-react';
 
 /** Catálogo canónico (sincronizado con App\Enums\OrderStatus en Laravel). */
 export const ORDER_STATUS_VALUES = [
   'pending',
-  'authorized_pending_capture',
   'approved',
-  'rejected_payment',
-  'rejected_stock',
-  'rejected_damage',
-  'expired',
   'cancelled',
+  'expired',
   'shipped',
   'delivered',
 ] as const;
@@ -43,58 +36,30 @@ const ORDER_STATUS_MAP: Record<OrderStatusValue, OrderStatusDisplay> = {
   pending: {
     label: 'Pendiente de pago',
     icon: Clock,
-    badgeClass: pill('bg-slate-100 text-slate-700'),
-    textColor: 'text-slate-600',
-    dotColor: 'bg-slate-400',
-  },
-  authorized_pending_capture: {
-    label: 'Pago autorizado / Por Facturar',
-    icon: ShieldCheck,
     badgeClass: pill('bg-amber-100 text-amber-800'),
     textColor: 'text-amber-800',
     dotColor: 'bg-amber-500',
   },
   approved: {
-    label: 'Aprobado',
+    label: 'Pagado / Por Facturar',
     icon: CheckCircle,
     badgeClass: pill('bg-green-100 text-green-800'),
     textColor: 'text-green-800',
     dotColor: 'bg-green-500',
   },
-  rejected_payment: {
-    label: 'Rechazado/Pago',
-    icon: Ban,
+  cancelled: {
+    label: 'Cancelado',
+    icon: XCircle,
     badgeClass: pill('bg-red-100 text-red-800'),
     textColor: 'text-red-800',
     dotColor: 'bg-red-500',
   },
-  rejected_stock: {
-    label: 'Rechazado/Stock',
-    icon: Package,
-    badgeClass: pill('bg-orange-100 text-orange-800'),
-    textColor: 'text-orange-800',
-    dotColor: 'bg-orange-500',
-  },
-  rejected_damage: {
-    label: 'Rechazado/Avería',
-    icon: AlertTriangle,
-    badgeClass: pill('bg-purple-100 text-purple-800'),
-    textColor: 'text-purple-800',
-    dotColor: 'bg-purple-500',
-  },
   expired: {
     label: 'Expirado',
     icon: TimerOff,
-    badgeClass: pill('bg-gray-200 text-gray-800'),
-    textColor: 'text-gray-800',
+    badgeClass: pill('bg-gray-200 text-gray-700'),
+    textColor: 'text-gray-700',
     dotColor: 'bg-gray-500',
-  },
-  cancelled: {
-    label: 'Cancelado',
-    icon: XCircle,
-    badgeClass: pill('bg-gray-100 text-gray-500'),
-    textColor: 'text-gray-500',
-    dotColor: 'bg-gray-400',
   },
   shipped: {
     label: 'Enviado',
@@ -118,8 +83,12 @@ const ORDER_STATUS_LEGACY: Record<string, OrderStatusValue> = {
   captured: 'approved',
   paid: 'approved',
   processing: 'approved',
-  failed: 'rejected_payment',
-  declined: 'rejected_payment',
+  authorized_pending_capture: 'approved',
+  failed: 'pending',
+  declined: 'pending',
+  rejected_payment: 'pending',
+  rejected_stock: 'cancelled',
+  rejected_damage: 'cancelled',
 };
 
 const FALLBACK_STATUS: OrderStatusDisplay = {
@@ -162,9 +131,6 @@ const ORDER_STATUS_TERMINAL = new Set<string>([
   'cancelled',
   'delivered',
   'expired',
-  'rejected_payment',
-  'rejected_stock',
-  'rejected_damage',
 ]);
 
 /** @deprecated Usar isOrderStatusLocked */
