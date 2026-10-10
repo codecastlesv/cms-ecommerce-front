@@ -104,7 +104,7 @@ const Footer = () => {
 
             {/* Columna 3 - Ayuda */}
             <FooterColumn title="Ayuda" id="help" isOpen={openSection === 'help'} onToggle={toggleSection}>
-              <li className="flex items-center gap-3">Preguntas frecuentes</li>
+              <Link href="/ayuda/preguntas-frecuentes" className="flex items-center gap-3"><li>Preguntas frecuentes</li></Link>
               <Link href="/ayuda/envios-y-entregas" className="flex items-center gap-3"><li>Envíos y entregas</li></Link>
               <Link href="/ayuda/devoluciones" className="flex items-center gap-3"><li>Devoluciones</li></Link>
               <Link href="/ayuda/garantias" className="flex items-center gap-3"><li>Garantías</li></Link>

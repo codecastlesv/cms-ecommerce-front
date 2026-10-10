@@ -91,7 +91,7 @@ export default function HelpPageList() {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900">Páginas de Ayuda</h1>
-                        <p className="text-sm text-slate-500">Envíos, devoluciones, garantías, términos y privacidad — todas en una sola tabla.</p>
+                        <p className="text-sm text-slate-500">Envíos, devoluciones, garantías, términos, privacidad y preguntas frecuentes.</p>
                     </div>
                     {canEdit ? (
                         <Link
